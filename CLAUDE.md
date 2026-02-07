@@ -131,26 +131,26 @@ Tool names in matchers:
 
 Five beads-aware commands are installed to `.claude/commands/`:
 
-1. **beads-plan.md** (`/beads:plan`)
+1. **beads-plan.md** (`/beads-plan`)
    - Create epic bead and research using multiple agents
    - Dispatch agents in parallel: best-practices-researcher, framework-docs-researcher, repo-research-analyst
    - Create child beads with comprehensive descriptions including testing/validation criteria
 
-2. **beads-work.md** (`/beads:work`)
+2. **beads-work.md** (`/beads-work`)
    - Start work on a bead with auto-recall
    - Update status to in_progress
    - Offer optional investigation using research agents
 
-3. **beads-review.md** (`/beads:review`)
+3. **beads-review.md** (`/beads-review`)
    - Multi-agent code review before closing bead
    - Dispatch language-specific and cross-cutting reviewers in parallel
    - Create follow-up beads for critical issues
 
-4. **beads-research.md** (`/beads:research`)
+4. **beads-research.md** (`/beads-research`)
    - Deep research using specialized agents
    - Synthesize findings into organized comments
 
-5. **beads-checkpoint.md** (`/beads:checkpoint`)
+5. **beads-checkpoint.md** (`/beads-checkpoint`)
    - Save progress and file beads
    - Capture knowledge comments
    - Commit changes

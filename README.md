@@ -35,11 +35,11 @@ This plugin achieves this through:
 
 | Command | Description |
 |---------|-------------|
-| `/beads:plan` | Research and plan using compound-engineering agents, create beads |
-| `/beads:work` | Work on a bead with agent assistance |
-| `/beads:review` | Multi-agent code review before closing bead |
-| `/beads:research` | Deep research using specialized agents, results logged to bead |
-| `/beads:checkpoint` | Save progress, file beads, capture knowledge |
+| `/beads-plan` | Research and plan using compound-engineering agents, create beads |
+| `/beads-work` | Work on a bead with agent assistance |
+| `/beads-review` | Multi-agent code review before closing bead |
+| `/beads-research` | Deep research using specialized agents, results logged to bead |
+| `/beads-checkpoint` | Save progress, file beads, capture knowledge |
 
 ### Agents Available
 
@@ -79,6 +79,26 @@ bash ~/beads-compound-plugin/install.sh
 
 Restart Claude Code after installing.
 
+### Recommended Skills (Frontend Projects)
+
+For enhanced frontend code reviews, install these Claude Code skills:
+
+```bash
+# UI/UX design guidelines review
+claude-code skill add web-design-guidelines
+
+# React/Next.js best practices review
+claude-code skill add vercel-react-best-practices
+```
+
+When available, `/beads-review` will automatically use these skills for frontend code changes, providing:
+- Vercel Web Interface Guidelines compliance checks
+- React performance optimization suggestions
+- Accessibility audits
+- Component architecture recommendations
+
+Install globally or per-project (add `--project` flag).
+
 ## Uninstall
 
 ```bash
@@ -105,6 +125,74 @@ This creates:
 See [IMPORTING-PLANS.md](IMPORTING-PLANS.md) for details and [examples/example-plan.md](examples/example-plan.md) for format.
 
 ## Usage
+
+### Recommended Workflow
+
+```
+Idea/Plan Document
+       │
+       ├─→ Have markdown plan? ──→ import-plan.sh ──┐
+       │                                             │
+       └─→ Starting fresh? ────────→ /beads-plan ───┤
+                                                     ↓
+                                            Epic + Child Beads
+                                                     ↓
+                                              /beads-work
+                                                     ↓
+                                          Implement & /beads-checkpoint
+                                                     ↓
+                                              /beads-review
+                                                     ↓
+                                                  Done
+```
+
+**Tip:** After `/beads-work` starts a bead, it will suggest working on all unblocked tasks in parallel. Just press `<tab>+<enter>` to begin parallel work on multiple beads.
+
+**Starting with a plan document:**
+
+```bash
+# Import existing plan into beads
+bash ~/beads-compound-plugin/scripts/import-plan.sh your-plan.md "Epic Title"
+# Creates epic + child beads from markdown
+
+# Continue with workflow below using the epic ID
+```
+
+**For typical feature development:**
+
+```bash
+# 1. Plan: Research and break down the feature
+/beads-plan "Add two-factor authentication"
+# Creates epic + child beads with research findings
+# Note the epic ID (e.g., BD-001)
+
+# 2. Work: Implement each child bead
+/beads-work BD-002
+# Opens bead, recalls relevant knowledge, optionally investigates
+# Can pass epic ID: /beads-work BD-001 to see all child beads
+
+# 3. Checkpoint: Save progress periodically
+/beads-checkpoint BD-001
+# Commits changes, captures knowledge, files completed beads
+# Can scope to epic or omit for current context
+
+# 4. Review: Before closing, multi-agent review
+/beads-review BD-002
+# Security, performance, architecture checks; creates follow-up beads if needed
+# Can pass epic ID: /beads-review BD-001 to review entire epic
+
+# 5. Research: When you hit complexity
+/beads-research BD-002 "How should we handle MFA backup codes?"
+# Deep dive with specialized agents, logs findings
+# Can scope to epic: /beads-research BD-001 "MFA implementation patterns"
+```
+
+**When to use each command:**
+- `/beads-plan`: Starting new features, need research upfront
+- `/beads-work`: Beginning work on any bead (pass bead ID or epic ID)
+- `/beads-checkpoint`: After meaningful progress (every 30-60 min), optional epic scope
+- `/beads-review`: Before closing beads, before PRs (works with bead or epic ID)
+- `/beads-research`: Hit a knowledge gap, need deep understanding (accepts bead or epic ID)
 
 ### Normal Workflow (Lightweight)
 
@@ -140,7 +228,7 @@ The subagent cannot complete until it adds at least one knowledge comment (LEARN
 
 ```bash
 # Use agents to research and plan
-/beads:plan "Add two-factor authentication"
+/beads-plan "Add two-factor authentication"
 
 # This will:
 # 1. Create an epic bead
@@ -154,7 +242,7 @@ The subagent cannot complete until it adds at least one knowledge comment (LEARN
 
 ```bash
 # After implementing a feature
-/beads:review BD-005
+/beads-review BD-005
 
 # This will:
 # 1. Dispatch multiple review agents in parallel
@@ -167,7 +255,7 @@ The subagent cannot complete until it adds at least one knowledge comment (LEARN
 
 ```bash
 # Need to understand something complex
-/beads:research BD-007 "How does Rails handle concurrent updates?"
+/beads-research BD-007 "How does Rails handle concurrent updates?"
 
 # This will:
 # 1. Dispatch specialized research agents

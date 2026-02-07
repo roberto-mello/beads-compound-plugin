@@ -66,6 +66,30 @@ Present any relevant knowledge (LEARNED/DECISION/FACT/PATTERN) that reviewers sh
 
 Based on the files changed and languages involved, dispatch appropriate reviewers. Each reviewer should create beads for any issues found.
 
+**Frontend Skills (if available):**
+
+Before dispatching agents, check if frontend-related skills are available and the changes include frontend files:
+
+```bash
+# Check for frontend files in changes
+if [[ $(echo "$FILES_CHANGED" | grep -E '\.(tsx?|jsx?|css|scss|html|vue)$') ]]; then
+  # Check if web-design-guidelines skill is available
+  if claude-code skill list 2>/dev/null | grep -q 'web-design-guidelines'; then
+    # Use the skill to review UI/UX
+    Skill(skill="web-design-guidelines", args="Review files: $FILES_CHANGED")
+  fi
+
+  # Check if vercel-react-best-practices skill is available
+  if [[ $(echo "$FILES_CHANGED" | grep -E '\.(tsx?|jsx?)$') ]] && \
+     claude-code skill list 2>/dev/null | grep -q 'vercel-react-best-practices'; then
+    # Use the skill to review React best practices
+    Skill(skill="vercel-react-best-practices", args="Review files: $FILES_CHANGED")
+  fi
+fi
+```
+
+These skills will provide additional UI/UX and React-specific feedback. They should be invoked in parallel with the agent reviews below.
+
 ```
 # Language-specific reviewers
 Task(subagent_type="kieran-rails-reviewer",

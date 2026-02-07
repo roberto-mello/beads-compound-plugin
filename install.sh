@@ -180,6 +180,23 @@ EOF
   echo "  - Created .gitignore"
 fi
 
+# Check for recommended frontend skills
+FRONTEND_SKILLS_MISSING=()
+
+# Check global skills directory
+GLOBAL_SKILLS="$HOME/.claude/skills"
+
+# Check project skills directory
+PROJECT_SKILLS="$TARGET/.claude/skills"
+
+if [ ! -f "$GLOBAL_SKILLS/web-design-guidelines.md" ] && [ ! -f "$PROJECT_SKILLS/web-design-guidelines.md" ]; then
+  FRONTEND_SKILLS_MISSING+=("web-design-guidelines")
+fi
+
+if [ ! -f "$GLOBAL_SKILLS/vercel-react-best-practices.md" ] && [ ! -f "$PROJECT_SKILLS/vercel-react-best-practices.md" ]; then
+  FRONTEND_SKILLS_MISSING+=("vercel-react-best-practices")
+fi
+
 echo ""
 echo "Done. Installed:"
 echo ""
@@ -196,6 +213,26 @@ echo "    - Auto-capture from bd comment (LEARNED/DECISION/FACT/PATTERN/INVESTIG
 echo "    - Knowledge stored at .beads/memory/knowledge.jsonl"
 echo "    - Search: .beads/memory/recall.sh \"keyword\""
 echo ""
+
+if [ ${#FRONTEND_SKILLS_MISSING[@]} -gt 0 ]; then
+  echo "Recommended (frontend projects):"
+  for skill in "${FRONTEND_SKILLS_MISSING[@]}"; do
+    echo "  - Install $skill skill for enhanced review capabilities"
+  done
+  echo ""
+  echo "  Install globally:"
+  for skill in "${FRONTEND_SKILLS_MISSING[@]}"; do
+    echo "    claude-code skill add $skill"
+  done
+  echo ""
+  echo "  Or per-project:"
+  echo "    cd $TARGET"
+  for skill in "${FRONTEND_SKILLS_MISSING[@]}"; do
+    echo "    claude-code skill add $skill --project"
+  done
+  echo ""
+fi
+
 echo "Usage:"
 echo "  1. Create or work on beads normally with bd commands"
 echo "  2. Use /beads:plan for complex features requiring research"

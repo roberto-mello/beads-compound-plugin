@@ -90,7 +90,7 @@ bd comment add {BEAD_ID} \"INVESTIGATION: {findings}\"")
 
 ### Step 6: Ready to Work
 
-After investigation (if requested):
+After investigation (if requested) or if skipping investigation:
 
 ```
 Investigation complete. Findings logged to {BEAD_ID}.
@@ -102,6 +102,31 @@ Ready to implement. When done:
 
 Starting work on {BEAD_ID}...
 ```
+
+### Step 7: Suggest Parallel Work
+
+After starting work on the bead, check for other unblocked tasks and suggest working on them in parallel:
+
+```bash
+# Get all ready (unblocked) beads
+READY_BEADS=$(bd ready --json | jq -r '.[] | select(.id != "{BEAD_ID}") | "\(.id) - \(.title)"')
+
+# If there are additional ready beads, suggest parallel work
+if [ -n "$READY_BEADS" ]; then
+  cat << EOF
+
+Other unblocked tasks ready for parallel work:
+$READY_BEADS
+
+Start working on all unblocked tasks in parallel?
+  /beads-work $(bd ready --json | jq -r '.[].id' | tr '\n' ' ')
+
+(Press <tab> then <enter> to begin parallel work)
+EOF
+fi
+```
+
+This allows the user to easily kick off work on all ready beads simultaneously by accepting the pre-filled command.
 
 ## Notes
 
