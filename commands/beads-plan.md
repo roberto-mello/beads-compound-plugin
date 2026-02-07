@@ -10,8 +10,8 @@ Research and plan a feature using compound-engineering's research agents, then c
 ## Usage
 
 ```
-/beads:plan "Add two-factor authentication"
-/beads:plan BD-005  # Plan from existing epic bead
+/beads-plan "Add two-factor authentication"
+/beads-plan BD-005  # Plan from existing epic bead
 ```
 
 ## Workflow
@@ -154,7 +154,7 @@ Implementation steps:
 3. {CHILD_ID_3}: {title}
 
 View full research: bd show {EPIC_ID}
-Start work: /beads:work {CHILD_ID_1}
+Start work: /beads-work {CHILD_ID_1}
 ```
 
 ## Quality Requirements
@@ -178,6 +178,6 @@ Start work: /beads:work {CHILD_ID_1}
 
 - All research findings are logged to the epic bead with appropriate prefixes
 - Knowledge is auto-captured and will be available in future sessions
-- Child beads can be worked on independently with `/beads:work`
+- Child beads can be worked on independently with `/beads-work`
 - Use `bd ready` to see which child beads are ready to work on
 - Each child bead should be reviewable and closeable based solely on its description's testing/validation criteria

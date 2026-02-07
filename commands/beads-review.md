@@ -10,8 +10,8 @@ Run comprehensive multi-agent code review on changes for a bead.
 ## Usage
 
 ```
-/beads:review BD-007
-/beads:review  # Uses current in-progress bead
+/beads-review BD-007
+/beads-review  # Uses current in-progress bead
 ```
 
 ## Workflow
@@ -74,14 +74,14 @@ Before dispatching agents, check if frontend-related skills are available and th
 # Check for frontend files in changes
 if [[ $(echo "$FILES_CHANGED" | grep -E '\.(tsx?|jsx?|css|scss|html|vue)$') ]]; then
   # Check if web-design-guidelines skill is available
-  if claude-code skill list 2>/dev/null | grep -q 'web-design-guidelines'; then
+  if [ -f "$HOME/.claude/skills/web-design-guidelines.md" ] || [ -f ".claude/skills/web-design-guidelines.md" ]; then
     # Use the skill to review UI/UX
     Skill(skill="web-design-guidelines", args="Review files: $FILES_CHANGED")
   fi
 
   # Check if vercel-react-best-practices skill is available
   if [[ $(echo "$FILES_CHANGED" | grep -E '\.(tsx?|jsx?)$') ]] && \
-     claude-code skill list 2>/dev/null | grep -q 'vercel-react-best-practices'; then
+     ([ -f "$HOME/.claude/skills/vercel-react-best-practices.md" ] || [ -f ".claude/skills/vercel-react-best-practices.md" ]); then
     # Use the skill to review React best practices
     Skill(skill="vercel-react-best-practices", args="Review files: $FILES_CHANGED")
   fi
@@ -281,6 +281,6 @@ Next steps:
 - Critical issues (priority 1) automatically block the original bead via dependencies
 - High priority issues (priority 2) should be addressed before closing
 - Beads are tagged with `review,{BEAD_ID}` for easy filtering
-- Use `/beads:work {ISSUE_BEAD_ID}` to fix issues found
+- Use `/beads-work {ISSUE_BEAD_ID}` to fix issues found
 - The original bead cannot be closed until all blocking dependencies are resolved
 - Use `bd show {BEAD_ID}` to see which critical issues are blocking closure

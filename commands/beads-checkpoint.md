@@ -10,7 +10,7 @@ Save session progress by filing beads for work done and capturing knowledge comm
 ## Usage
 
 ```
-/beads:checkpoint
+/beads-checkpoint
 ```
 
 ## Workflow
@@ -100,7 +100,7 @@ Knowledge captured:
 Remaining in-progress:
 - BD-124: Add password reset flow (40% complete)
 
-Session continues. Use /beads:checkpoint again to save more progress.
+Session continues. Use /beads-checkpoint again to save more progress.
 ```
 
 ## Notes

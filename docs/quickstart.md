@@ -33,7 +33,7 @@ bd create "Add user profile page" -d "Display user info with edit capability"
 ### 2. Plan it (optional but recommended)
 
 ```
-/beads:plan BD-001
+/beads-plan BD-001
 ```
 
 This dispatches research agents to gather:
@@ -46,7 +46,7 @@ Creates child beads for each step.
 ### 3. Work on it
 
 ```
-/beads:work BD-001.1
+/beads-work BD-001.1
 ```
 
 This:
@@ -75,7 +75,7 @@ These get auto-captured to `.beads/memory/knowledge.jsonl`.
 ### 6. Review
 
 ```
-/beads:review BD-001.1
+/beads-review BD-001.1
 ```
 
 This dispatches multiple reviewers:
@@ -107,11 +107,11 @@ You get relevant learnings without manually searching!
 
 | Command | Use When |
 |---------|----------|
-| `/beads:plan {id or desc}` | Starting a complex feature, need research |
-| `/beads:work {id}` | Starting work on a bead |
-| `/beads:review {id}` | Before closing a bead, want multi-agent review |
-| `/beads:research {id or question}` | Need deep understanding before implementing |
-| `/beads:checkpoint` | Want to save progress during long session |
+| `/beads-plan {id or desc}` | Starting a complex feature, need research |
+| `/beads-work {id}` | Starting work on a bead |
+| `/beads-review {id}` | Before closing a bead, want multi-agent review |
+| `/beads-research {id or question}` | Need deep understanding before implementing |
+| `/beads-checkpoint` | Want to save progress during long session |
 
 ## Manual Knowledge Search
 
@@ -136,7 +136,7 @@ You get relevant learnings without manually searching!
 bd create "Add two-factor authentication" -d "TOTP-based 2FA with QR codes"
 # => BD-050
 
-/beads:plan BD-050
+/beads-plan BD-050
 # Researches best practices, security considerations, framework options
 # Creates child beads:
 #   BD-050.1: Database schema for OTP secrets
@@ -145,7 +145,7 @@ bd create "Add two-factor authentication" -d "TOTP-based 2FA with QR codes"
 #   BD-050.4: Settings UI
 
 # Day 2: Implement first step
-/beads:work BD-050.1
+/beads-work BD-050.1
 # Auto-recalls security knowledge from yesterday's research
 
 # Edit files, create migration
@@ -156,7 +156,7 @@ bd comment add BD-050.1 "LEARNED: OTP secrets MUST be encrypted at rest"
 bd comment add BD-050.1 "DECISION: Using rotp gem for TOTP generation"
 bd comment add BD-050.1 "FACT: Backup codes needed for account recovery"
 
-/beads:review BD-050.1
+/beads-review BD-050.1
 # Security review catches missing index on user_id
 # Creates BD-051: Add index to otp_secrets.user_id
 
@@ -181,11 +181,11 @@ bd close BD-050.1
    - `PATTERN:` - Coding patterns, conventions, idioms
    - `INVESTIGATION:` - Root cause analysis, how things work
 
-3. **Review before closing**: `/beads:review` catches issues early
+3. **Review before closing**: `/beads-review` catches issues early
 
-4. **Plan complex features**: `/beads:plan` prevents rework by researching upfront
+4. **Plan complex features**: `/beads-plan` prevents rework by researching upfront
 
-5. **Checkpoint long sessions**: `/beads:checkpoint` saves progress without losing context
+5. **Checkpoint long sessions**: `/beads-checkpoint` saves progress without losing context
 
 6. **Trust auto-recall**: Knowledge will be injected when relevant, no need to search manually
 

@@ -10,8 +10,8 @@ Start working on a bead with automatic knowledge recall and optional agent assis
 ## Usage
 
 ```
-/beads:work BD-007
-/beads:work  # Uses next ready bead from bd ready
+/beads-work BD-007
+/beads-work  # Uses next ready bead from bd ready
 ```
 
 ## Workflow
@@ -97,7 +97,7 @@ Investigation complete. Findings logged to {BEAD_ID}.
 
 Ready to implement. When done:
 - Log learnings: bd comment add {BEAD_ID} "LEARNED: ..."
-- Review changes: /beads:review {BEAD_ID}
+- Review changes: /beads-review {BEAD_ID}
 - Close when complete: bd close {BEAD_ID}
 
 Starting work on {BEAD_ID}...
@@ -133,4 +133,4 @@ This allows the user to easily kick off work on all ready beads simultaneously b
 - Knowledge is automatically recalled before starting
 - Investigation findings are logged to the bead
 - Status is updated to in_progress automatically
-- Use `/beads:review` before closing to catch issues
+- Use `/beads-review` before closing to catch issues

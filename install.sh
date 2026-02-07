@@ -6,7 +6,7 @@
 #   - Memory capture and auto-recall hooks
 #   - Knowledge store (.beads/memory/knowledge.jsonl)
 #   - Recall script (.beads/memory/recall.sh)
-#   - Beads-aware workflow commands (/beads:plan, /beads:work, /beads:review, etc.)
+#   - Beads-aware workflow commands (/beads-plan, /beads-work, /beads-review, etc.)
 #   - Compound-engineering agents (links to agent definitions)
 #
 # Usage:
@@ -201,11 +201,11 @@ echo ""
 echo "Done. Installed:"
 echo ""
 echo "  Workflow Commands:"
-echo "    /beads:plan     - Research and plan using multiple agents"
-echo "    /beads:work     - Work on a bead with context and assistance"
-echo "    /beads:review   - Multi-agent code review before closing"
-echo "    /beads:research - Deep research with specialized agents"
-echo "    /beads:checkpoint - Save progress and capture knowledge"
+echo "    /beads-plan     - Research and plan using multiple agents"
+echo "    /beads-work     - Work on a bead with context and assistance"
+echo "    /beads-review   - Multi-agent code review before closing"
+echo "    /beads-research - Deep research with specialized agents"
+echo "    /beads-checkpoint - Save progress and capture knowledge"
 echo ""
 echo "  Memory System:"
 echo "    - Auto-recall at session start (based on current beads)"
@@ -235,8 +235,8 @@ fi
 
 echo "Usage:"
 echo "  1. Create or work on beads normally with bd commands"
-echo "  2. Use /beads:plan for complex features requiring research"
-echo "  3. Use /beads:review before closing beads to catch issues"
+echo "  2. Use /beads-plan for complex features requiring research"
+echo "  3. Use /beads-review before closing beads to catch issues"
 echo "  4. Log learnings with: bd comment add ID \"LEARNED: ...\""
 echo "  5. Knowledge will be recalled automatically next session"
 echo ""

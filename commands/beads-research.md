@@ -10,8 +10,8 @@ Conduct deep research on a topic using multiple specialized agents, with all fin
 ## Usage
 
 ```
-/beads:research BD-007 "How does Rails handle concurrent database updates?"
-/beads:research "Best practices for JWT refresh token rotation"
+/beads-research BD-007 "How does Rails handle concurrent database updates?"
+/beads-research "Best practices for JWT refresh token rotation"
 ```
 
 ## Workflow
@@ -149,8 +149,8 @@ Full research: bd show {BEAD_ID}
 This knowledge has been captured and will be recalled automatically when relevant.
 
 Next steps:
-- Implement based on findings: /beads:work {BEAD_ID}
-- Create implementation beads: /beads:plan based on research
+- Implement based on findings: /beads-work {BEAD_ID}
+- Create implementation beads: /beads-plan based on research
 ```
 
 ## Notes
