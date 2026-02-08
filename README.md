@@ -1,6 +1,8 @@
 # Beads Compound Plugin Marketplace
 
-A Claude Code plugin marketplace providing beads-based persistent memory with compound-engineering's multi-agent workflows.
+A Claude Code plugin marketplace providing beads-based persistent memory with multi-agent workflows.
+
+Built on [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by the team at [Every](https://every.to) -- Kieran Klaassen, Dan Shipper, Julik Tarkhanov, and contributors. Their plugin pioneered the idea that each unit of engineering work should make subsequent units easier, not harder. This project extends that philosophy with beads-based persistent memory and several performance optimizations.
 
 ## Philosophy
 
@@ -226,11 +228,36 @@ beads-compound-plugin/              # Marketplace root
 
 Removes plugin components but preserves `.beads/` data and accumulated knowledge.
 
+## Changes from Compound Engineering
+
+This plugin is a fork of [compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin) (MIT license) with the following changes:
+
+### Memory System
+
+- Replaced markdown-based knowledge storage with beads-based persistent memory (`.beads/memory/knowledge.jsonl`)
+- Added automatic knowledge capture from `bd comment add` with typed prefixes (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION)
+- Added automatic knowledge recall at session start based on open beads and git branch context
+- Added subagent knowledge enforcement via `SubagentStop` hook
+- All workflows create and update beads instead of markdown files
+
+### Performance Optimizations
+
+- **Agent description reduction (80% token savings at startup)**: Moved verbose few-shot examples and XML tags from frontmatter `description` fields into agent bodies as `## Delegation Examples` sections. Descriptions went from ~40KB to ~8KB. The frontmatter description is only used by Claude Code's routing logic to decide when to delegate; the examples now live in the body where the subagent can actually use them as few-shot context.
+- **Model tier assignments**: Each agent specifies a `model:` field (haiku/sonnet/opus) based on reasoning complexity, reducing costs 60-70% compared to running all agents on the default model. High-frequency agents like `learnings-researcher` run on Haiku; deep reasoning agents like `architecture-strategist` run on Opus.
+
+### Structural Changes
+
+- Restructured as a marketplace plugin with `install.sh`/`uninstall.sh` at root
+- Rewrote `learnings-researcher` to search `knowledge.jsonl` instead of markdown docs
+- Adapted `code-simplicity-reviewer` to protect `.beads/memory/` files
+- Renamed `compound-docs` skill to `beads-knowledge`
+- Added `beads-` prefix to all commands to avoid conflicts
+
 ## Differences from Related Projects
 
 **vs. semantic-beads**: Simpler orchestration (no worktrees, no supervisor validation). Full agent library instead of custom supervisors.
 
-**vs. compound-engineering**: Beads-based persistent memory instead of markdown. Auto-recall. All workflows create/update beads. Tagged knowledge for better retrieval.
+**vs. compound-engineering**: See [Changes from Compound Engineering](#changes-from-compound-engineering) above.
 
 ## Importing Existing Plans
 
@@ -240,6 +267,12 @@ bash ~/beads-compound-plugin/plugins/beads-compound/scripts/import-plan.sh your-
 
 Creates an epic bead with child beads for each implementation step.
 
+## Acknowledgments
+
+This project builds on the excellent work of the [Every](https://every.to) team and their [compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin). The multi-agent workflow architecture, agent designs, and the core philosophy of compounding engineering knowledge were created by Kieran Klaassen, Dan Shipper, Julik Tarkhanov, and the Every engineering team. Their [writing on compound engineering](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents) is well worth reading.
+
+Task tracking is powered by Steve Yegge's [Beads](https://github.com/steveyegge/beads).
+
 ## License
 
-MIT
+MIT (same as compound-engineering-plugin)
