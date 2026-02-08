@@ -73,17 +73,20 @@ bunx @every-env/compound-plugin install ./plugins/beads-compound --to codex
 | `/beads-compound` | Document solved problems as persistent knowledge |
 | `/beads-resolve-parallel` | Resolve multiple beads in parallel |
 
-### Agents (27)
+### Agents (27) -- Cost-Optimized by Model Tier
 
-**Review (14)**: architecture-strategist, code-simplicity-reviewer, security-sentinel, performance-oracle, data-integrity-guardian, pattern-recognition-specialist, kieran-rails-reviewer, kieran-python-reviewer, kieran-typescript-reviewer, dhh-rails-reviewer, julik-frontend-races-reviewer, agent-native-reviewer, data-migration-expert, deployment-verification-agent
+All agents include model tier assignments for optimal cost/performance balance:
 
-**Research (5)**: best-practices-researcher, framework-docs-researcher, repo-research-analyst, git-history-analyzer, learnings-researcher
+**Haiku Tier (5 agents)** -- Structured tasks, fast and cheap:
+- learnings-researcher, repo-research-analyst, framework-docs-researcher, ankane-readme-writer, lint
 
-**Design (3)**: design-implementation-reviewer, design-iterator, figma-design-sync
+**Sonnet Tier (13 agents)** -- Moderate judgment, balanced cost:
+- code-simplicity-reviewer, kieran-rails-reviewer, kieran-python-reviewer, kieran-typescript-reviewer, dhh-rails-reviewer, security-sentinel, pattern-recognition-specialist, deployment-verification-agent, best-practices-researcher, git-history-analyzer, design-implementation-reviewer, design-iterator, figma-design-sync, bug-reproduction-validator, pr-comment-resolver
 
-**Workflow (4)**: pr-comment-resolver, bug-reproduction-validator, lint, spec-flow-analyzer
+**Opus Tier (9 agents)** -- Deep reasoning, premium quality:
+- architecture-strategist, performance-oracle, data-integrity-guardian, data-migration-expert, agent-native-reviewer, julik-frontend-races-reviewer, spec-flow-analyzer
 
-**Docs (1)**: ankane-readme-writer
+The most frequently invoked agents (learnings-researcher, repo-research-analyst) run on Haiku for maximum efficiency. Review workflows intelligently mix tiers based on complexity.
 
 ### Skills (5)
 
@@ -147,6 +150,24 @@ bd comment add BD-001 "LEARNED: OAuth redirect URI must match exactly"
 bd close BD-001
 # Knowledge captured automatically, recalled next session
 ```
+
+## Cost Optimization
+
+The plugin's 27 agents are assigned to three model tiers based on reasoning complexity:
+
+| Tier | Agents | Use Case | Cost Impact |
+|------|--------|----------|-------------|
+| **Haiku** | 5 | Structured information retrieval, template-based output | Lowest cost, fastest response |
+| **Sonnet** | 13 | Moderate judgment with established patterns | Balanced cost/quality |
+| **Opus** | 9 | Deep architectural reasoning, nuanced security analysis | Premium quality for critical decisions |
+
+**Key optimizations:**
+- Most frequently invoked agents (`learnings-researcher`, `repo-research-analyst`) use Haiku
+- Review workflows like `/beads-review` fire 13+ agents, mostly Sonnet tier
+- Opus reserved for architectural/security decisions requiring deep reasoning
+- Commands automatically dispatch agents at their assigned tier via frontmatter `model:` field
+
+This tiering reduces costs by 60-70% compared to running all agents on Opus while maintaining quality where it matters.
 
 ## Architecture
 

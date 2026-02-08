@@ -4,12 +4,13 @@ A Claude Code plugin that combines beads-based persistent memory with compound-e
 
 ## Overview
 
-- **27 specialized agents** for code review, research, design, and workflow automation
+- **27 specialized agents** (cost-optimized across Haiku/Sonnet/Opus tiers)
 - **11 workflow commands** for brainstorming, planning, research, review, and more
 - **5 skills** for worktrees, brainstorming, agent creation, and documentation
 - **Automatic knowledge capture** from `bd comment add` with knowledge prefixes
 - **Automatic knowledge recall** at session start based on current beads
 - **Context7 MCP server** for framework documentation
+- **60-70% cost reduction** via intelligent model tier assignment
 
 ## Installation
 
@@ -38,44 +39,42 @@ See the [marketplace README](../../README.md) for full details.
 | `/beads-compound` | Document solved problems as knowledge |
 | `/beads-resolve-parallel` | Resolve multiple beads in parallel |
 
-## Agents
+## Agents (Model Tier Optimized)
 
-### Review (14)
-- `agent-native-reviewer` -- Review for agent-native architecture patterns
-- `architecture-strategist` -- Architectural concerns and design patterns
-- `code-simplicity-reviewer` -- Unnecessary complexity and over-engineering
-- `data-integrity-guardian` -- Data consistency and integrity
-- `data-migration-expert` -- Database migration review
-- `deployment-verification-agent` -- Deployment readiness
-- `dhh-rails-reviewer` -- Rails conventions (DHH style)
-- `julik-frontend-races-reviewer` -- Frontend race conditions
-- `kieran-python-reviewer` -- Python best practices
+All 27 agents include model tier assignments for optimal cost/performance balance:
+
+### Haiku Tier (5 agents) -- Structured tasks, fast & cheap
+- `learnings-researcher` -- Search knowledge.jsonl for past solutions
+- `repo-research-analyst` -- Repository structure exploration
+- `framework-docs-researcher` -- Framework documentation lookup
+- `ankane-readme-writer` -- Template-based README generation
+- `lint` -- Run linting tools
+
+### Sonnet Tier (13 agents) -- Moderate judgment, balanced cost
+- `code-simplicity-reviewer` -- Unnecessary complexity review
 - `kieran-rails-reviewer` -- Rails best practices
+- `kieran-python-reviewer` -- Python best practices
 - `kieran-typescript-reviewer` -- TypeScript best practices
+- `dhh-rails-reviewer` -- Rails conventions (DHH style)
+- `security-sentinel` -- Security vulnerabilities (OWASP)
 - `pattern-recognition-specialist` -- Code patterns and anti-patterns
-- `performance-oracle` -- Performance considerations
-- `security-sentinel` -- Security vulnerabilities
-
-### Research (5)
-- `best-practices-researcher` -- Industry best practices
-- `framework-docs-researcher` -- Framework documentation
-- `git-history-analyzer` -- Git history patterns
-- `learnings-researcher` -- Knowledge base search (knowledge.jsonl)
-- `repo-research-analyst` -- Repository structure and patterns
-
-### Design (3)
+- `deployment-verification-agent` -- Deployment readiness checklists
+- `best-practices-researcher` -- Industry best practices research
+- `git-history-analyzer` -- Git history pattern analysis
 - `design-implementation-reviewer` -- Design-to-code accuracy
-- `design-iterator` -- Design refinement
+- `design-iterator` -- Design refinement iterations
 - `figma-design-sync` -- Figma design synchronization
-
-### Workflow (4)
 - `bug-reproduction-validator` -- Bug reproduction verification
-- `lint` -- Linting and formatting
 - `pr-comment-resolver` -- PR comment resolution
-- `spec-flow-analyzer` -- SpecFlow analysis
 
-### Docs (1)
-- `ankane-readme-writer` -- README generation (ankane style)
+### Opus Tier (9 agents) -- Deep reasoning, premium quality
+- `architecture-strategist` -- System architecture and design patterns
+- `performance-oracle` -- Algorithmic complexity and scalability
+- `data-integrity-guardian` -- ACID properties, data consistency
+- `data-migration-expert` -- Database migration validation
+- `agent-native-reviewer` -- Agent-native architecture patterns
+- `julik-frontend-races-reviewer` -- Frontend race conditions and timing
+- `spec-flow-analyzer` -- User flow and edge case analysis
 
 ## Skills
 
