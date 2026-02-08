@@ -12,7 +12,7 @@ This plugin achieves this through:
 
 - **Task Tracking**: Uses Steve Yegge's [Beads](https://github.com/steveyegge/beads) for persistent, structured memory for agents, replacing messy markdown plans with a dependency-aware graph, allowing agents to handle long-horizon tasks without losing context.
 - **Persistent Memory**: Uses Beads comments as basis to automatically capture and recall knowledge, allowing agents to learn with each iteration.
-- **Multi-Agent Workflows**: 27 specialized agents for research, review, design, and planning
+- **Multi-Agent Workflows**: 28 specialized agents for research, review, design, and planning
 - **Lightweight by Default**: Most work runs normally with automatic knowledge capture
 - **Opt-In Orchestration**: Heavy workflows only when you need them
 
@@ -20,7 +20,7 @@ This plugin achieves this through:
 
 | Plugin | Version | Description |
 |--------|---------|-------------|
-| **beads-compound** | 0.2.0 | 27 agents, 11 commands, 5 skills, persistent memory |
+| **beads-compound** | 0.3.0 | 28 agents, 25 commands, 15 skills, persistent memory |
 
 ## Quick Install
 
@@ -59,38 +59,64 @@ bunx @every-env/compound-plugin install ./plugins/beads-compound --to codex
 
 3. **Subagent Knowledge Enforcement** -- Subagents are prompted to log learnings before completing
 
-### Workflow Commands (11)
+### Commands (25)
+
+#### Beads Workflow Commands (6)
 
 | Command | Description |
 |---------|-------------|
-| `/beads-brainstorm` | Explore ideas collaboratively before planning |
-| `/beads-plan` | Research and plan using multiple agents, create epic + child beads |
-| `/beads-deepen` | Enhance plan with parallel research agents |
-| `/beads-plan-review` | Multi-agent review of epic plan |
-| `/beads-triage` | Prioritize and categorize child beads |
-| `/beads-work` | Work on a bead with context, auto-recall, and agent assistance |
-| `/beads-review` | Multi-agent code review before closing bead |
-| `/beads-research` | Deep research using 5 specialized agents |
-| `/beads-checkpoint` | Save progress, capture knowledge, commit |
-| `/beads-compound` | Document solved problems as persistent knowledge |
-| `/beads-resolve-parallel` | Resolve multiple beads in parallel |
+| `/beads:brainstorm` | Explore ideas collaboratively before planning |
+| `/beads:plan` | Research and plan using multiple agents, create epic + child beads |
+| `/beads:work` | Work on a bead with context, auto-recall, and agent assistance |
+| `/beads:review` | Multi-agent code review before closing bead |
+| `/beads:checkpoint` | Save progress, capture knowledge, commit |
+| `/beads:compound` | Document solved problems as persistent knowledge |
 
-### Agents (27) -- Cost-Optimized by Model Tier
+#### Planning & Triage Commands (4)
+
+| Command | Description |
+|---------|-------------|
+| `/deepen-plan` | Enhance plan with parallel research agents |
+| `/plan-review` | Multi-agent review of epic plan |
+| `/triage` | Prioritize and categorize beads |
+| `/resolve-parallel` | Resolve multiple beads in parallel |
+
+#### Utility Commands (15)
+
+| Command | Description |
+|---------|-------------|
+| `/lfg` | Full autonomous engineering workflow |
+| `/changelog` | Create engaging changelogs for recent merges |
+| `/create-agent-skill` | Create or edit Claude Code skills |
+| `/generate-command` | Create a new custom slash command |
+| `/heal-skill` | Fix incorrect SKILL.md files |
+| `/deploy-docs` | Validate and prepare documentation for deployment |
+| `/release-docs` | Build and update documentation |
+| `/feature-video` | Record a video walkthrough for a PR |
+| `/agent-native-audit` | Comprehensive agent-native architecture review |
+| `/test-browser` | Run browser tests on affected pages |
+| `/xcode-test` | Build and test iOS apps on simulator |
+| `/report-bug` | Report a bug in the plugin |
+| `/reproduce-bug` | Reproduce and investigate a bug |
+| `/resolve-pr-parallel` | Resolve all PR comments in parallel |
+| `/resolve-todo-parallel` | Resolve all pending TODOs in parallel |
+
+### Agents (28) -- Cost-Optimized by Model Tier
 
 All agents include model tier assignments for optimal cost/performance balance:
 
 **Haiku Tier (5 agents)** -- Structured tasks, fast and cheap:
 - learnings-researcher, repo-research-analyst, framework-docs-researcher, ankane-readme-writer, lint
 
-**Sonnet Tier (13 agents)** -- Moderate judgment, balanced cost:
-- code-simplicity-reviewer, kieran-rails-reviewer, kieran-python-reviewer, kieran-typescript-reviewer, dhh-rails-reviewer, security-sentinel, pattern-recognition-specialist, deployment-verification-agent, best-practices-researcher, git-history-analyzer, design-implementation-reviewer, design-iterator, figma-design-sync, bug-reproduction-validator, pr-comment-resolver
+**Sonnet Tier (14 agents)** -- Moderate judgment, balanced cost:
+- code-simplicity-reviewer, kieran-rails-reviewer, kieran-python-reviewer, kieran-typescript-reviewer, dhh-rails-reviewer, security-sentinel, pattern-recognition-specialist, deployment-verification-agent, best-practices-researcher, git-history-analyzer, design-implementation-reviewer, design-iterator, figma-design-sync, bug-reproduction-validator, pr-comment-resolver, every-style-editor
 
 **Opus Tier (9 agents)** -- Deep reasoning, premium quality:
 - architecture-strategist, performance-oracle, data-integrity-guardian, data-migration-expert, agent-native-reviewer, julik-frontend-races-reviewer, spec-flow-analyzer
 
 The most frequently invoked agents (learnings-researcher, repo-research-analyst) run on Haiku for maximum efficiency. Review workflows intelligently mix tiers based on complexity.
 
-### Skills (5)
+### Skills (15)
 
 | Skill | Description |
 |-------|-------------|
@@ -99,6 +125,16 @@ The most frequently invoked agents (learnings-researcher, repo-research-analyst)
 | `create-agent-skills` | Create new agents and skills |
 | `agent-native-architecture` | Design agent-native system architectures |
 | `beads-knowledge` | Document solved problems as knowledge entries |
+| `agent-browser` | Browser automation for testing and screenshots |
+| `andrew-kane-gem-writer` | Write Ruby gems following Andrew Kane's style |
+| `dhh-rails-style` | Rails development following DHH's conventions |
+| `dspy-ruby` | DSPy integration for Ruby applications |
+| `every-style-editor` | Every's house style guide for content editing |
+| `file-todos` | Find and manage TODO comments in code |
+| `frontend-design` | Frontend design patterns and best practices |
+| `gemini-imagegen` | Generate images using Google's Gemini |
+| `rclone` | Cloud storage file management with rclone |
+| `skill-creator` | Create new skills from templates |
 
 ### MCP Servers
 
@@ -115,32 +151,38 @@ The most frequently invoked agents (learnings-researcher, repo-research-analyst)
 ## Recommended Workflow
 
 ```
-/beads-brainstorm "idea"        Explore what to build
+/beads:brainstorm "idea"        Explore what to build
         |
-/beads-plan "feature"           Research + create epic with child beads
+/beads:plan "feature"           Research + create epic with child beads
         |
-/beads-deepen BD-001            Enhance plan with research
+/deepen-plan BD-001             Enhance plan with research
         |
-/beads-plan-review BD-001       Get multi-agent feedback on plan
+/plan-review BD-001             Get multi-agent feedback on plan
         |
-/beads-triage BD-001            Prioritize child beads
+/triage BD-001                  Prioritize child beads
         |
-/beads-work BD-001.1            Implement a child bead
+/beads:work BD-001.1            Implement a child bead
         |
-/beads-checkpoint               Save progress, capture knowledge
+/beads:checkpoint               Save progress, capture knowledge
         |
-/beads-review BD-001.1          Multi-agent code review
+/beads:review BD-001.1          Multi-agent code review
         |
-/beads-compound BD-001.1        Document what you learned
+/beads:compound BD-001.1        Document what you learned
 ```
 
 Or go fast:
 
 ```bash
-/beads-plan "Add OAuth"                     # Plan it
-/beads-resolve-parallel BD-001              # Implement all child beads in parallel
-/beads-review BD-001                        # Review everything
-/beads-checkpoint                           # Ship it
+/beads:plan "Add OAuth"                     # Plan it
+/resolve-parallel BD-001                    # Implement all child beads in parallel
+/beads:review BD-001                        # Review everything
+/beads:checkpoint                           # Ship it
+```
+
+Or go full auto:
+
+```bash
+/lfg "Add OAuth"                            # Full autonomous workflow
 ```
 
 ### Lightweight Usage (No Commands Needed)
@@ -155,12 +197,12 @@ bd close BD-001
 
 ## Cost Optimization
 
-The plugin's 27 agents are assigned to three model tiers based on reasoning complexity:
+The plugin's 28 agents are assigned to three model tiers based on reasoning complexity:
 
 | Tier | Agents | Use Case | Cost Impact |
 |------|--------|----------|-------------|
 | **Haiku** | 5 | Structured information retrieval, template-based output | Lowest cost, fastest response |
-| **Sonnet** | 13 | Moderate judgment with established patterns | Balanced cost/quality |
+| **Sonnet** | 14 | Moderate judgment with established patterns | Balanced cost/quality |
 | **Opus** | 9 | Deep architectural reasoning, nuanced security analysis | Premium quality for critical decisions |
 
 **Key optimizations:**
@@ -207,10 +249,10 @@ beads-compound-plugin/              # Marketplace root
 │       │   ├── review/             # 14 review agents
 │       │   ├── research/           # 5 research agents
 │       │   ├── design/             # 3 design agents
-│       │   ├── workflow/           # 4 workflow agents
+│       │   ├── workflow/           # 5 workflow agents
 │       │   └── docs/               # 1 docs agent
-│       ├── commands/               # 11 workflow commands
-│       ├── skills/                 # 5 skills
+│       ├── commands/               # 25 commands
+│       ├── skills/                 # 15 skills
 │       ├── hooks/                  # 3 hooks + hooks.json
 │       ├── scripts/
 │       └── .mcp.json

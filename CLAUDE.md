@@ -7,9 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Claude Code plugin marketplace that provides beads-based persistent memory with compound-engineering's multi-agent workflows. The primary plugin is `beads-compound`, located at `plugins/beads-compound/`.
 
 The plugin provides:
-- 27 specialized agents (14 review, 5 research, 3 design, 4 workflow, 1 docs)
-- 11 workflow commands for brainstorming, planning, research, review, and more
-- 5 skills (git-worktree, brainstorming, create-agent-skills, agent-native-architecture, beads-knowledge)
+- 28 specialized agents (14 review, 5 research, 3 design, 5 workflow, 1 docs)
+- 25 commands for brainstorming, planning, review, testing, and more
+- 15 skills (git-worktree, brainstorming, create-agent-skills, agent-browser, dhh-rails-style, etc.)
 - 3 hooks for automatic knowledge capture, recall, and subagent wrapup
 - 1 MCP server (Context7 for framework documentation)
 - Automatic knowledge capture from beads comments (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION)
@@ -24,15 +24,15 @@ beads-compound-plugin/              # Marketplace root
 ├── plugins/
 │   └── beads-compound/             # Plugin root
 │       ├── .claude-plugin/
-│       │   └── plugin.json         # Plugin manifest (v0.2.0)
+│       │   └── plugin.json         # Plugin manifest (v0.3.0)
 │       ├── agents/
 │       │   ├── review/             # 14 review agents
 │       │   ├── research/           # 5 research agents
 │       │   ├── design/             # 3 design agents
-│       │   ├── workflow/           # 4 workflow agents
+│       │   ├── workflow/           # 5 workflow agents
 │       │   └── docs/               # 1 docs agent
-│       ├── commands/               # 11 workflow commands
-│       ├── skills/                 # 5 skills with supporting files
+│       ├── commands/               # 25 commands
+│       ├── skills/                 # 15 skills with supporting files
 │       ├── hooks/
 │       │   ├── hooks.json          # Plugin hook registration
 │       │   ├── auto-recall.sh
@@ -168,25 +168,51 @@ Tool names in matchers: `Bash`, `Edit`, `Write`, `Read`, `Task`, `Grep`, `Glob`
 - Do NOT use "Tool" suffix
 - Do NOT use object format like `{"tools": ["BashTool"]}`
 
-### Workflow Commands (11)
+### Commands (25)
 
 Commands are in `plugins/beads-compound/commands/`:
 
+**Beads Workflow (6):**
+
 | Command | File | Description |
 |---------|------|-------------|
-| `/beads-brainstorm` | beads-brainstorm.md | Explore ideas collaboratively |
-| `/beads-plan` | beads-plan.md | Research and plan with multiple agents |
-| `/beads-deepen` | beads-deepen.md | Enhance plan with parallel research |
-| `/beads-plan-review` | beads-plan-review.md | Multi-agent plan review |
-| `/beads-triage` | beads-triage.md | Prioritize and categorize beads |
-| `/beads-work` | beads-work.md | Work on a bead with auto-recall |
-| `/beads-review` | beads-review.md | Multi-agent code review |
-| `/beads-research` | beads-research.md | Deep research with 5 agents |
-| `/beads-checkpoint` | beads-checkpoint.md | Save progress and capture knowledge |
-| `/beads-compound` | beads-compound.md | Document solved problems |
-| `/beads-resolve-parallel` | beads-resolve-parallel.md | Resolve multiple beads in parallel |
+| `/beads:brainstorm` | beads-brainstorm.md | Explore ideas collaboratively |
+| `/beads:plan` | beads-plan.md | Research and plan with multiple agents |
+| `/beads:work` | beads-work.md | Work on a bead with auto-recall |
+| `/beads:review` | beads-review.md | Multi-agent code review |
+| `/beads:checkpoint` | beads-checkpoint.md | Save progress and capture knowledge |
+| `/beads:compound` | beads-compound.md | Document solved problems |
 
-### Agents (27)
+**Planning & Triage (4):**
+
+| Command | File | Description |
+|---------|------|-------------|
+| `/deepen-plan` | deepen-plan.md | Enhance plan with parallel research |
+| `/plan-review` | plan-review.md | Multi-agent plan review |
+| `/triage` | triage.md | Prioritize and categorize beads |
+| `/resolve-parallel` | resolve-parallel.md | Resolve multiple beads in parallel |
+
+**Utility (15):**
+
+| Command | File | Description |
+|---------|------|-------------|
+| `/lfg` | lfg.md | Full autonomous engineering workflow |
+| `/changelog` | changelog.md | Create engaging changelogs |
+| `/create-agent-skill` | create-agent-skill.md | Create or edit skills |
+| `/generate-command` | generate-command.md | Create new slash commands |
+| `/heal-skill` | heal-skill.md | Fix incorrect SKILL.md files |
+| `/deploy-docs` | deploy-docs.md | Validate docs for deployment |
+| `/release-docs` | release-docs.md | Build and update documentation |
+| `/feature-video` | feature-video.md | Record video walkthrough for PR |
+| `/agent-native-audit` | agent-native-audit.md | Agent-native architecture review |
+| `/test-browser` | test-browser.md | Browser tests on affected pages |
+| `/xcode-test` | xcode-test.md | iOS simulator testing |
+| `/report-bug` | report-bug.md | Report a plugin bug |
+| `/reproduce-bug` | reproduce-bug.md | Reproduce and investigate bugs |
+| `/resolve-pr-parallel` | resolve-pr-parallel.md | Resolve PR comments in parallel |
+| `/resolve-todo-parallel` | resolve-todo-parallel.md | Resolve TODOs in parallel |
+
+### Agents (28)
 
 Agents are in `plugins/beads-compound/agents/`:
 
@@ -196,11 +222,11 @@ Agents are in `plugins/beads-compound/agents/`:
 
 **Design (3)**: design-implementation-reviewer, design-iterator, figma-design-sync
 
-**Workflow (4)**: bug-reproduction-validator, lint, pr-comment-resolver, spec-flow-analyzer
+**Workflow (5)**: bug-reproduction-validator, every-style-editor, lint, pr-comment-resolver, spec-flow-analyzer
 
 **Docs (1)**: ankane-readme-writer
 
-### Skills (5)
+### Skills (15)
 
 Skills are in `plugins/beads-compound/skills/`:
 
@@ -209,6 +235,16 @@ Skills are in `plugins/beads-compound/skills/`:
 - **create-agent-skills**: Create new agents and skills
 - **agent-native-architecture**: Design agent-native system architectures
 - **beads-knowledge**: Document solved problems as knowledge entries
+- **agent-browser**: Browser automation for testing and screenshots
+- **andrew-kane-gem-writer**: Write Ruby gems following Andrew Kane's style
+- **dhh-rails-style**: Rails development following DHH's conventions
+- **dspy-ruby**: DSPy integration for Ruby applications
+- **every-style-editor**: Every's house style guide for content editing
+- **file-todos**: Find and manage TODO comments in code
+- **frontend-design**: Frontend design patterns and best practices
+- **gemini-imagegen**: Generate images using Google's Gemini
+- **rclone**: Cloud storage file management with rclone
+- **skill-creator**: Create new skills from templates
 
 ### Subagent Integration
 

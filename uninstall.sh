@@ -53,15 +53,24 @@ else
   echo "  - No hooks directory found"
 fi
 
-# Remove commands (all 11)
+# Remove commands (all plugin commands)
 echo "[2/5] Removing workflow commands..."
 
 COMMANDS_DIR="$TARGET/.claude/commands"
 
 if [ -d "$COMMANDS_DIR" ]; then
-  for cmd in beads-plan.md beads-work.md beads-review.md beads-research.md beads-checkpoint.md \
-             beads-brainstorm.md beads-compound.md beads-deepen.md beads-triage.md \
-             beads-resolve-parallel.md beads-plan-review.md; do
+  PLUGIN_COMMANDS=(
+    beads-plan.md beads-work.md beads-review.md beads-checkpoint.md
+    beads-brainstorm.md beads-compound.md
+    deepen-plan.md plan-review.md triage.md resolve-parallel.md
+    agent-native-audit.md changelog.md create-agent-skill.md deploy-docs.md
+    feature-video.md generate-command.md heal-skill.md lfg.md
+    release-docs.md report-bug.md reproduce-bug.md
+    resolve-pr-parallel.md resolve-todo-parallel.md
+    test-browser.md xcode-test.md
+  )
+
+  for cmd in "${PLUGIN_COMMANDS[@]}"; do
     if [ -f "$COMMANDS_DIR/$cmd" ]; then
       rm "$COMMANDS_DIR/$cmd"
       echo "  - Removed /${cmd%.md} command"
@@ -104,7 +113,7 @@ echo "[4/5] Removing skills..."
 SKILLS_DIR="$TARGET/.claude/skills"
 
 if [ -d "$SKILLS_DIR" ]; then
-  PLUGIN_SKILLS=(git-worktree brainstorming create-agent-skills agent-native-architecture beads-knowledge)
+  PLUGIN_SKILLS=(git-worktree brainstorming create-agent-skills agent-native-architecture beads-knowledge agent-browser andrew-kane-gem-writer dhh-rails-style dspy-ruby every-style-editor file-todos frontend-design gemini-imagegen rclone skill-creator)
 
   for skill in "${PLUGIN_SKILLS[@]}"; do
     if [ -d "$SKILLS_DIR/$skill" ]; then

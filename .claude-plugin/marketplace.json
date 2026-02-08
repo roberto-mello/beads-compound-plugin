@@ -12,8 +12,8 @@
     {
       "name": "beads-compound",
       "source": "./plugins/beads-compound",
-      "description": "27 specialized agents, 11 workflow commands, 5 skills, persistent memory with auto-recall",
-      "version": "0.2.0",
+      "description": "28 specialized agents, 25 workflow commands, 15 skills, persistent memory with auto-recall",
+      "version": "0.3.0",
       "tags": [
         "beads",
         "memory",

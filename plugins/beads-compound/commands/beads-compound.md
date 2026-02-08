@@ -151,6 +151,6 @@ This creates a compounding knowledge system:
 
 ## Related Commands
 
-- `/beads-research [topic]` - Deep investigation (searches knowledge.jsonl for patterns)
-- `/beads-plan` - Planning workflow (references documented knowledge)
-- `/beads-checkpoint` - Quick knowledge capture during work
+- `/beads:plan` - Planning workflow (references documented knowledge)
+- `/beads:checkpoint` - Quick knowledge capture during work
+- `/deepen-plan` - Enhance plans with parallel research

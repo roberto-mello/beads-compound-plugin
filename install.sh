@@ -6,9 +6,9 @@
 #   - Memory capture and auto-recall hooks
 #   - Knowledge store (.beads/memory/knowledge.jsonl)
 #   - Recall script (.beads/memory/recall.sh)
-#   - Beads-aware workflow commands (11 commands)
-#   - Specialized agents (27 agent definitions)
-#   - Skills (git-worktree, brainstorming, create-agent-skills, etc.)
+#   - Beads-aware workflow commands (25 commands)
+#   - Specialized agents (28 agent definitions)
+#   - Skills (15 skills including git-worktree, brainstorming, etc.)
 #   - MCP server configuration (Context7)
 #
 # Usage:
@@ -105,18 +105,22 @@ for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh; do
   echo "  - Installed $hook"
 done
 
-# Install commands (all 11)
+# Install commands (all from commands directory)
 echo "[5/9] Installing workflow commands..."
 
 COMMANDS_DIR="$TARGET/.claude/commands"
 mkdir -p "$COMMANDS_DIR"
 
-for cmd in beads-plan.md beads-work.md beads-review.md beads-research.md beads-checkpoint.md \
-           beads-brainstorm.md beads-compound.md beads-deepen.md beads-triage.md \
-           beads-resolve-parallel.md beads-plan-review.md; do
-  cp "$PLUGIN_DIR/commands/$cmd" "$COMMANDS_DIR/$cmd"
-  echo "  - Installed /${cmd%.md} command"
+CMD_COUNT=0
+
+for cmd in "$PLUGIN_DIR/commands"/*.md; do
+  if [ -f "$cmd" ]; then
+    cp "$cmd" "$COMMANDS_DIR/$(basename "$cmd")"
+    ((CMD_COUNT++))
+  fi
 done
+
+echo "  - Installed $CMD_COUNT commands"
 
 # Install agents
 echo "[6/9] Installing agents..."
@@ -279,24 +283,21 @@ fi
 echo ""
 echo "Done. Installed:"
 echo ""
-echo "  Workflow Commands (11):"
-echo "    /beads-plan           - Research and plan using multiple agents"
-echo "    /beads-brainstorm     - Explore ideas collaboratively"
-echo "    /beads-deepen         - Enhance plan with parallel research"
-echo "    /beads-plan-review    - Multi-agent plan review"
-echo "    /beads-work           - Work on a bead with context and assistance"
-echo "    /beads-review         - Multi-agent code review before closing"
-echo "    /beads-research       - Deep research with specialized agents"
-echo "    /beads-checkpoint     - Save progress and capture knowledge"
-echo "    /beads-compound       - Document solved problems as knowledge"
-echo "    /beads-triage         - Prioritize and categorize beads"
-echo "    /beads-resolve-parallel - Resolve multiple beads in parallel"
+echo "  Commands ($CMD_COUNT):"
+echo "    Workflow: /beads:plan, /beads:brainstorm, /beads:work, /beads:review, /beads:compound, /beads:checkpoint"
+echo "    Planning: /deepen-plan, /plan-review, /triage, /resolve-parallel"
+echo "    Utility:  /lfg, /changelog, /create-agent-skill, /generate-command, /heal-skill"
+echo "    Testing:  /test-browser, /xcode-test, /reproduce-bug, /report-bug"
+echo "    Docs:     /deploy-docs, /release-docs, /feature-video, /agent-native-audit"
+echo "    Parallel: /resolve-pr-parallel, /resolve-todo-parallel"
 echo ""
 echo "  Agents ($AGENT_COUNT):"
 echo "    Review, research, design, workflow, and docs agents"
 echo ""
 echo "  Skills ($SKILL_COUNT):"
-echo "    git-worktree, brainstorming, create-agent-skills, and more"
+echo "    git-worktree, brainstorming, create-agent-skills, agent-native-architecture, beads-knowledge,"
+echo "    agent-browser, andrew-kane-gem-writer, dhh-rails-style, dspy-ruby, every-style-editor,"
+echo "    file-todos, frontend-design, gemini-imagegen, rclone, skill-creator"
 echo ""
 echo "  Memory System:"
 echo "    - Auto-recall at session start (based on current beads)"
@@ -329,9 +330,9 @@ fi
 
 echo "Usage:"
 echo "  1. Create or work on beads normally with bd commands"
-echo "  2. Use /beads-plan for complex features requiring research"
-echo "  3. Use /beads-brainstorm to explore ideas before planning"
-echo "  4. Use /beads-review before closing beads to catch issues"
+echo "  2. Use /beads:plan for complex features requiring research"
+echo "  3. Use /beads:brainstorm to explore ideas before planning"
+echo "  4. Use /beads:review before closing beads to catch issues"
 echo "  5. Log learnings with: bd comment add ID \"LEARNED: ...\""
 echo "  6. Knowledge will be recalled automatically next session"
 echo ""
