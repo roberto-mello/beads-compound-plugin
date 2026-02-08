@@ -178,7 +178,7 @@ if [ -f "$PLUGIN_DIR/.mcp.json" ]; then
       # Merge MCP servers into existing config
       EXISTING=$(cat "$TARGET/.mcp.json")
       PLUGIN_MCP=$(cat "$PLUGIN_DIR/.mcp.json")
-      MERGED=$(echo "$EXISTING" "$PLUGIN_MCP" | jq -s '.[0].mcpServers = (.[0].mcpServers // {} | . * .[1].mcpServers) | .[0]')
+      MERGED=$(printf '%s\n%s\n' "$EXISTING" "$PLUGIN_MCP" | jq -s '.[0].mcpServers = ((.[0].mcpServers // {}) * .[1].mcpServers) | .[0]')
       echo "$MERGED" > "$TARGET/.mcp.json"
       echo "  - Merged MCP servers into existing .mcp.json"
     else
