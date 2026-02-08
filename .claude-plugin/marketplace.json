@@ -1,0 +1,27 @@
+{
+  "name": "beads-compound-marketplace",
+  "owner": {
+    "name": "Roberto Mello",
+    "url": "https://github.com/roberto-mello"
+  },
+  "metadata": {
+    "description": "Beads-based persistent memory with multi-agent workflows",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "beads-compound",
+      "source": "./plugins/beads-compound",
+      "description": "27 specialized agents, 11 workflow commands, 5 skills, persistent memory with auto-recall",
+      "version": "0.2.0",
+      "tags": [
+        "beads",
+        "memory",
+        "multi-agent",
+        "code-review",
+        "research",
+        "workflow-automation"
+      ]
+    }
+  ]
+}

@@ -4,19 +4,56 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Claude Code plugin that combines beads-based memory management with compound-engineering's multi-agent workflows. It provides:
+This is a Claude Code plugin marketplace that provides beads-based persistent memory with compound-engineering's multi-agent workflows. The primary plugin is `beads-compound`, located at `plugins/beads-compound/`.
 
+The plugin provides:
+- 27 specialized agents (14 review, 5 research, 3 design, 4 workflow, 1 docs)
+- 11 workflow commands for brainstorming, planning, research, review, and more
+- 5 skills (git-worktree, brainstorming, create-agent-skills, agent-native-architecture, beads-knowledge)
+- 3 hooks for automatic knowledge capture, recall, and subagent wrapup
+- 1 MCP server (Context7 for framework documentation)
 - Automatic knowledge capture from beads comments (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION)
 - Automatic knowledge recall at session start based on current beads
-- Five workflow commands for planning, research, review, and checkpointing
-- Three hooks for memory capture, auto-recall, and subagent wrapup
+
+## Repository Structure
+
+```
+beads-compound-plugin/              # Marketplace root
+├── .claude-plugin/
+│   └── marketplace.json            # Marketplace catalog
+├── plugins/
+│   └── beads-compound/             # Plugin root
+│       ├── .claude-plugin/
+│       │   └── plugin.json         # Plugin manifest (v0.2.0)
+│       ├── agents/
+│       │   ├── review/             # 14 review agents
+│       │   ├── research/           # 5 research agents
+│       │   ├── design/             # 3 design agents
+│       │   ├── workflow/           # 4 workflow agents
+│       │   └── docs/               # 1 docs agent
+│       ├── commands/               # 11 workflow commands
+│       ├── skills/                 # 5 skills with supporting files
+│       ├── hooks/
+│       │   ├── hooks.json          # Plugin hook registration
+│       │   ├── auto-recall.sh
+│       │   ├── memory-capture.sh
+│       │   ├── subagent-wrapup.sh
+│       │   └── recall.sh
+│       ├── scripts/
+│       │   └── import-plan.sh
+│       └── .mcp.json               # Context7 MCP server
+├── install.sh                      # Installer (at marketplace root)
+├── uninstall.sh                    # Uninstaller (at marketplace root)
+├── CLAUDE.md
+└── README.md
+```
 
 ## Plugin Installation
 
 Install this plugin into a target project:
 
 ```bash
-# From plugin directory
+# From marketplace root
 ./install.sh /path/to/target-project
 
 # Or from target project
@@ -31,20 +68,27 @@ Uninstall:
 
 **IMPORTANT**: The installer will fail if you try to install into the plugin directory itself. Always install into a separate target project.
 
+The installer copies from `plugins/beads-compound/` into the target's `.claude/` directory:
+- `hooks/` -> `.claude/hooks/`
+- `commands/` -> `.claude/commands/`
+- `agents/` -> `.claude/agents/`
+- `skills/` -> `.claude/skills/`
+- `.mcp.json` -> `.mcp.json` (merged if exists)
+- Configures `settings.json` with hook definitions
+
 ## Development Commands
 
 **Test the installer:**
 ```bash
-# Create a test project
 mkdir -p /tmp/test-project && cd /tmp/test-project
 git init && bd init
-
-# Install plugin
 bash ~/Documents/projects/beads-compound-plugin/install.sh
 
-# Verify installation
+# Verify
 ls -la .claude/hooks/
 ls -la .claude/commands/
+ls -la .claude/agents/review/
+ls -la .claude/skills/
 cat .claude/settings.json | jq .
 ```
 
@@ -55,12 +99,10 @@ bash ~/Documents/projects/beads-compound-plugin/uninstall.sh /tmp/test-project
 
 **Test hook format:**
 ```bash
-# Verify hooks.json format is valid
 cat .claude/settings.json | jq '.hooks'
-
 # Should use string matchers, not object matchers:
-# ✓ Correct: {"matcher": "Bash", "hooks": [...]}
-# ✗ Wrong:   {"matcher": {"tools": ["BashTool"]}, "hooks": [...]}
+# Correct: {"matcher": "Bash", "hooks": [...]}
+# Wrong:   {"matcher": {"tools": ["BashTool"]}, "hooks": [...]}
 ```
 
 ## Architecture
@@ -97,7 +139,7 @@ Three hooks implement the memory and subagent features:
 
 2. **PostToolUse**: `memory-capture.sh` (matcher: "Bash")
    - Runs after Bash commands
-   - Detects `bd comment add` with knowledge prefixes
+   - Detects `bd comment add` or `bd comments add` with knowledge prefixes
    - Extracts and stores in `knowledge.jsonl`
    - Auto-tags based on content keywords
 
@@ -122,38 +164,51 @@ Hook matchers MUST be regex strings, not objects:
 }
 ```
 
-Tool names in matchers:
-- `Bash`, `Edit`, `Write`, `Read`, `Task`, `Grep`, `Glob`
+Tool names in matchers: `Bash`, `Edit`, `Write`, `Read`, `Task`, `Grep`, `Glob`
 - Do NOT use "Tool" suffix
 - Do NOT use object format like `{"tools": ["BashTool"]}`
 
-### Workflow Commands
+### Workflow Commands (11)
 
-Five beads-aware commands are installed to `.claude/commands/`:
+Commands are in `plugins/beads-compound/commands/`:
 
-1. **beads-plan.md** (`/beads-plan`)
-   - Create epic bead and research using multiple agents
-   - Dispatch agents in parallel: best-practices-researcher, framework-docs-researcher, repo-research-analyst
-   - Create child beads with comprehensive descriptions including testing/validation criteria
+| Command | File | Description |
+|---------|------|-------------|
+| `/beads-brainstorm` | beads-brainstorm.md | Explore ideas collaboratively |
+| `/beads-plan` | beads-plan.md | Research and plan with multiple agents |
+| `/beads-deepen` | beads-deepen.md | Enhance plan with parallel research |
+| `/beads-plan-review` | beads-plan-review.md | Multi-agent plan review |
+| `/beads-triage` | beads-triage.md | Prioritize and categorize beads |
+| `/beads-work` | beads-work.md | Work on a bead with auto-recall |
+| `/beads-review` | beads-review.md | Multi-agent code review |
+| `/beads-research` | beads-research.md | Deep research with 5 agents |
+| `/beads-checkpoint` | beads-checkpoint.md | Save progress and capture knowledge |
+| `/beads-compound` | beads-compound.md | Document solved problems |
+| `/beads-resolve-parallel` | beads-resolve-parallel.md | Resolve multiple beads in parallel |
 
-2. **beads-work.md** (`/beads-work`)
-   - Start work on a bead with auto-recall
-   - Update status to in_progress
-   - Offer optional investigation using research agents
+### Agents (27)
 
-3. **beads-review.md** (`/beads-review`)
-   - Multi-agent code review before closing bead
-   - Dispatch language-specific and cross-cutting reviewers in parallel
-   - Create follow-up beads for critical issues
+Agents are in `plugins/beads-compound/agents/`:
 
-4. **beads-research.md** (`/beads-research`)
-   - Deep research using specialized agents
-   - Synthesize findings into organized comments
+**Review (14)**: agent-native-reviewer, architecture-strategist, code-simplicity-reviewer, data-integrity-guardian, data-migration-expert, deployment-verification-agent, dhh-rails-reviewer, julik-frontend-races-reviewer, kieran-python-reviewer, kieran-rails-reviewer, kieran-typescript-reviewer, pattern-recognition-specialist, performance-oracle, security-sentinel
 
-5. **beads-checkpoint.md** (`/beads-checkpoint`)
-   - Save progress and file beads
-   - Capture knowledge comments
-   - Commit changes
+**Research (5)**: best-practices-researcher, framework-docs-researcher, git-history-analyzer, learnings-researcher, repo-research-analyst
+
+**Design (3)**: design-implementation-reviewer, design-iterator, figma-design-sync
+
+**Workflow (4)**: bug-reproduction-validator, lint, pr-comment-resolver, spec-flow-analyzer
+
+**Docs (1)**: ankane-readme-writer
+
+### Skills (5)
+
+Skills are in `plugins/beads-compound/skills/`:
+
+- **git-worktree**: Manage git worktrees for parallel bead work
+- **brainstorming**: Structured brainstorming with bead output
+- **create-agent-skills**: Create new agents and skills
+- **agent-native-architecture**: Design agent-native system architectures
+- **beads-knowledge**: Document solved problems as knowledge entries
 
 ### Subagent Integration
 
@@ -169,23 +224,6 @@ The `subagent-wrapup.sh` hook will:
 2. Block completion until subagent logs knowledge
 3. Prompt with the five knowledge prefixes (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION)
 
-## Installation Behavior
-
-The `install.sh` script:
-1. Checks for `bd` CLI (fails if not found)
-2. Initializes `.beads` if needed (runs `bd init`)
-3. Creates `.beads/memory/` directory and `knowledge.jsonl`
-4. Copies hooks to `.claude/hooks/`
-5. Copies commands to `.claude/commands/`
-6. Updates `.claude/settings.json` using jq to merge hooks
-7. Updates `.gitignore` to exclude `.beads/`
-
-The `uninstall.sh` script:
-1. Removes hooks from `.claude/hooks/`
-2. Removes commands from `.claude/commands/`
-3. Updates `.claude/settings.json` to delete hook entries (not set to null)
-4. Preserves `.beads/` directory and accumulated knowledge
-
 ## Key Implementation Details
 
 ### Memory Capture Detection
@@ -200,7 +238,7 @@ bd comment add {BEAD_ID} "PATTERN: ..."
 bd comment add {BEAD_ID} "INVESTIGATION: ..."
 ```
 
-Note: The hook expects `bd comments add` (plural) in the regex but most users use `bd comment add` (singular). This may need to be fixed.
+The regex matches both `bd comment add` (singular) and `bd comments add` (plural).
 
 ### Auto-Recall Search Strategy
 

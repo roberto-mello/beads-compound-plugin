@@ -5,12 +5,15 @@
 # What this removes:
 #   - Hooks from .claude/hooks/
 #   - Commands from .claude/commands/
+#   - Agents from .claude/agents/
+#   - Skills from .claude/skills/
 #   - Hook configuration from .claude/settings.json
 #
 # What this PRESERVES:
 #   - .beads/ directory and all data
 #   - .beads/memory/ and knowledge.jsonl (your accumulated knowledge)
 #   - Any beads you created
+#   - .mcp.json (may contain non-plugin MCP servers)
 #
 # Usage:
 #   From within plugin directory:
@@ -34,12 +37,12 @@ echo ""
 REMOVED_COUNT=0
 
 # Remove hooks
-echo "[1/3] Removing hooks..."
+echo "[1/5] Removing hooks..."
 
 HOOKS_DIR="$TARGET/.claude/hooks"
 
 if [ -d "$HOOKS_DIR" ]; then
-  for hook in memory-capture.sh auto-recall.sh; do
+  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh; do
     if [ -f "$HOOKS_DIR/$hook" ]; then
       rm "$HOOKS_DIR/$hook"
       echo "  - Removed $hook"
@@ -50,13 +53,15 @@ else
   echo "  - No hooks directory found"
 fi
 
-# Remove commands
-echo "[2/3] Removing workflow commands..."
+# Remove commands (all 11)
+echo "[2/5] Removing workflow commands..."
 
 COMMANDS_DIR="$TARGET/.claude/commands"
 
 if [ -d "$COMMANDS_DIR" ]; then
-  for cmd in beads-plan.md beads-work.md beads-review.md beads-research.md beads-checkpoint.md; do
+  for cmd in beads-plan.md beads-work.md beads-review.md beads-research.md beads-checkpoint.md \
+             beads-brainstorm.md beads-compound.md beads-deepen.md beads-triage.md \
+             beads-resolve-parallel.md beads-plan-review.md; do
     if [ -f "$COMMANDS_DIR/$cmd" ]; then
       rm "$COMMANDS_DIR/$cmd"
       echo "  - Removed /${cmd%.md} command"
@@ -67,8 +72,59 @@ else
   echo "  - No commands directory found"
 fi
 
+# Remove agents
+echo "[3/5] Removing agents..."
+
+AGENTS_DIR="$TARGET/.claude/agents"
+
+if [ -d "$AGENTS_DIR" ]; then
+  AGENT_CATEGORIES=(review research design docs workflow)
+
+  for category in "${AGENT_CATEGORIES[@]}"; do
+    if [ -d "$AGENTS_DIR/$category" ]; then
+      agent_count=$(find "$AGENTS_DIR/$category" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+      rm -rf "$AGENTS_DIR/$category"
+      echo "  - Removed $category/ ($agent_count agents)"
+      ((REMOVED_COUNT++))
+    fi
+  done
+
+  # Remove agents dir if empty
+  if [ -d "$AGENTS_DIR" ] && [ -z "$(ls -A "$AGENTS_DIR" 2>/dev/null)" ]; then
+    rmdir "$AGENTS_DIR"
+    echo "  - Removed empty agents directory"
+  fi
+else
+  echo "  - No agents directory found"
+fi
+
+# Remove skills
+echo "[4/5] Removing skills..."
+
+SKILLS_DIR="$TARGET/.claude/skills"
+
+if [ -d "$SKILLS_DIR" ]; then
+  PLUGIN_SKILLS=(git-worktree brainstorming create-agent-skills agent-native-architecture beads-knowledge)
+
+  for skill in "${PLUGIN_SKILLS[@]}"; do
+    if [ -d "$SKILLS_DIR/$skill" ]; then
+      rm -rf "$SKILLS_DIR/$skill"
+      echo "  - Removed $skill skill"
+      ((REMOVED_COUNT++))
+    fi
+  done
+
+  # Remove skills dir if empty
+  if [ -d "$SKILLS_DIR" ] && [ -z "$(ls -A "$SKILLS_DIR" 2>/dev/null)" ]; then
+    rmdir "$SKILLS_DIR"
+    echo "  - Removed empty skills directory"
+  fi
+else
+  echo "  - No skills directory found"
+fi
+
 # Update settings.json to remove hook configuration
-echo "[3/3] Updating settings..."
+echo "[5/5] Updating settings..."
 
 SETTINGS="$TARGET/.claude/settings.json"
 
@@ -82,9 +138,10 @@ if [ -f "$SETTINGS" ]; then
       if (.hooks.SessionStart | length) == 0 then del(.hooks.SessionStart) else . end |
       .hooks.PostToolUse = [(.hooks.PostToolUse // [])[] | select(.hooks[]?.command | contains("memory-capture") | not)] |
       if (.hooks.PostToolUse | length) == 0 then del(.hooks.PostToolUse) else . end |
+      .hooks.SubagentStop = [(.hooks.SubagentStop // [])[] | select(.hooks[]?.command | contains("subagent-wrapup") | not)] |
+      if (.hooks.SubagentStop | length) == 0 then del(.hooks.SubagentStop) else . end |
       # Remove null hook arrays if they exist
       if .hooks.PreToolUse == null then del(.hooks.PreToolUse) else . end |
-      if .hooks.SubagentStop == null then del(.hooks.SubagentStop) else . end |
       # Remove hooks object if empty
       if (.hooks | to_entries | length) == 0 then del(.hooks) else . end
     ')
@@ -94,7 +151,7 @@ if [ -f "$SETTINGS" ]; then
     ((REMOVED_COUNT++))
   else
     echo "  [!] jq not found -- manual settings.json cleanup required"
-    echo "      Remove SessionStart and PostToolUse hooks manually"
+    echo "      Remove SessionStart, PostToolUse, and SubagentStop hooks manually"
   fi
 else
   echo "  - No settings.json found"
@@ -109,6 +166,7 @@ if [ $REMOVED_COUNT -gt 0 ]; then
   echo "  - .beads/ directory with all your data"
   echo "  - .beads/memory/knowledge.jsonl with accumulated knowledge"
   echo "  - All beads you created"
+  echo "  - .mcp.json (remove manually if no longer needed)"
   echo ""
   echo "To completely remove beads data:"
   echo "  rm -rf $TARGET/.beads/"

@@ -1,274 +1,158 @@
-# Beads Compound Plugin
+# Beads Compound Plugin Marketplace
 
-A Claude Code plugin that combines beads-based memory with compound-engineering's multi-agent workflows.
+A Claude Code plugin marketplace providing beads-based persistent memory with compound-engineering's multi-agent workflows.
 
 ## Philosophy
 
-**Each unit of engineering work should make subsequent units easier—not harder.**
+**Each unit of engineering work should make subsequent units easier, not harder.**
 
 This plugin achieves this through:
-- **Persistent memory**: Beads-based knowledge capture and automatic recall
-- **Multi-agent workflows**: Leverage specialized agents for research, review, and planning
-- **Lightweight by default**: Most work runs normally with automatic knowledge capture
-- **Opt-in orchestration**: Heavy workflows only when you need them
 
-## What This Provides
+- **Task Tracking**: Uses Steve Yegge's [Beads](https://github.com/steveyegge/beads) for persistent, structured memory for agents, replacing messy markdown plans with a dependency-aware graph, allowing agents to handle long-horizon tasks without losing context.
+- **Persistent Memory**: Uses Beads comments as basis to automatically capture and recall knowledge, allowing agents to learn with each iteration.
+- **Multi-Agent Workflows**: 27 specialized agents for research, review, design, and planning
+- **Lightweight by Default**: Most work runs normally with automatic knowledge capture
+- **Opt-In Orchestration**: Heavy workflows only when you need them
+
+## Available Plugins
+
+| Plugin | Version | Description |
+|--------|---------|-------------|
+| **beads-compound** | 0.2.0 | 27 agents, 11 commands, 5 skills, persistent memory |
+
+## Quick Install
+
+Prerequisites: [beads CLI](https://github.com/steveyegge/beads) (`bd`) and `jq`
+
+```bash
+# Clone the marketplace
+git clone https://github.com/roberto-mello/beads-compound-plugin.git
+cd beads-compound-plugin
+
+# Install into your project
+./install.sh /path/to/your-project
+
+# Restart Claude Code
+```
+
+### Cross-Platform Conversion
+
+For OpenCode or Codex compatibility:
+
+```bash
+# Convert to OpenCode format
+bunx @every-env/compound-plugin install ./plugins/beads-compound --to opencode
+
+# Convert to Codex format
+bunx @every-env/compound-plugin install ./plugins/beads-compound --to codex
+```
+
+## What's Included
 
 ### Always-On Features
 
-1. **Automatic Knowledge Capture**
-   - Any `bd comment add` with LEARNED/DECISION/FACT/PATTERN/INVESTIGATION gets extracted
-   - Stored in searchable `.beads/memory/knowledge.jsonl`
-   - Auto-tagged based on content
-   - Subagents are automatically prompted to log learnings before completing
+1. **Automatic Knowledge Capture** -- Any `bd comment add` with LEARNED/DECISION/FACT/PATTERN/INVESTIGATION gets extracted and stored in searchable `.beads/memory/knowledge.jsonl`
 
-2. **Automatic Knowledge Recall**
-   - Session start hook injects relevant knowledge based on your current beads
-   - No manual searching required for common workflows
+2. **Automatic Knowledge Recall** -- Session start hook injects relevant knowledge based on your current beads
 
-3. **Beads Integration**
-   - All workflows are beads-aware
-   - Commands create/update beads automatically
-   - Knowledge is linked to beads for context
+3. **Subagent Knowledge Enforcement** -- Subagents are prompted to log learnings before completing
 
-### Workflow Commands
+### Workflow Commands (11)
 
 | Command | Description |
 |---------|-------------|
-| `/beads-plan` | Research and plan using compound-engineering agents, create beads |
-| `/beads-work` | Work on a bead with agent assistance |
+| `/beads-brainstorm` | Explore ideas collaboratively before planning |
+| `/beads-plan` | Research and plan using multiple agents, create epic + child beads |
+| `/beads-deepen` | Enhance plan with parallel research agents |
+| `/beads-plan-review` | Multi-agent review of epic plan |
+| `/beads-triage` | Prioritize and categorize child beads |
+| `/beads-work` | Work on a bead with context, auto-recall, and agent assistance |
 | `/beads-review` | Multi-agent code review before closing bead |
-| `/beads-research` | Deep research using specialized agents, results logged to bead |
-| `/beads-checkpoint` | Save progress, file beads, capture knowledge |
+| `/beads-research` | Deep research using 5 specialized agents |
+| `/beads-checkpoint` | Save progress, capture knowledge, commit |
+| `/beads-compound` | Document solved problems as persistent knowledge |
+| `/beads-resolve-parallel` | Resolve multiple beads in parallel |
 
-### Agents Available
+### Agents (27)
 
-The plugin includes compound-engineering's specialized agents:
+**Review (14)**: architecture-strategist, code-simplicity-reviewer, security-sentinel, performance-oracle, data-integrity-guardian, pattern-recognition-specialist, kieran-rails-reviewer, kieran-python-reviewer, kieran-typescript-reviewer, dhh-rails-reviewer, julik-frontend-races-reviewer, agent-native-reviewer, data-migration-expert, deployment-verification-agent
 
-**Review Agents (14)**
-- `kieran-rails-reviewer`, `kieran-python-reviewer`, `kieran-typescript-reviewer`
-- `security-sentinel`, `performance-oracle`, `architecture-strategist`
-- `data-integrity-guardian`, `code-simplicity-reviewer`
-- And more...
+**Research (5)**: best-practices-researcher, framework-docs-researcher, repo-research-analyst, git-history-analyzer, learnings-researcher
 
-**Research Agents (4)**
-- `best-practices-researcher`, `framework-docs-researcher`
-- `git-history-analyzer`, `repo-research-analyst`
+**Design (3)**: design-implementation-reviewer, design-iterator, figma-design-sync
 
-**Design Agents (3)**
-- `design-implementation-reviewer`, `design-iterator`, `figma-design-sync`
+**Workflow (4)**: pr-comment-resolver, bug-reproduction-validator, lint, spec-flow-analyzer
 
-All agents automatically log their findings as knowledge comments on the relevant bead.
+**Docs (1)**: ankane-readme-writer
 
-## Installation
+### Skills (5)
 
-Prerequisites: [beads CLI](https://github.com/steveyegge/beads) and `jq`
+| Skill | Description |
+|-------|-------------|
+| `git-worktree` | Manage git worktrees for parallel bead work |
+| `brainstorming` | Structured brainstorming with bead output |
+| `create-agent-skills` | Create new agents and skills |
+| `agent-native-architecture` | Design agent-native system architectures |
+| `beads-knowledge` | Document solved problems as knowledge entries |
+
+### MCP Servers
+
+- **Context7** -- Framework documentation lookup
+
+### Hooks (3)
+
+| Hook | Trigger | Purpose |
+|------|---------|---------|
+| auto-recall.sh | SessionStart | Inject relevant knowledge at session start |
+| memory-capture.sh | PostToolUse (Bash) | Extract knowledge from bd comments |
+| subagent-wrapup.sh | SubagentStop | Ensure subagents log learnings |
+
+## Recommended Workflow
+
+```
+/beads-brainstorm "idea"        Explore what to build
+        |
+/beads-plan "feature"           Research + create epic with child beads
+        |
+/beads-deepen BD-001            Enhance plan with research
+        |
+/beads-plan-review BD-001       Get multi-agent feedback on plan
+        |
+/beads-triage BD-001            Prioritize child beads
+        |
+/beads-work BD-001.1            Implement a child bead
+        |
+/beads-checkpoint               Save progress, capture knowledge
+        |
+/beads-review BD-001.1          Multi-agent code review
+        |
+/beads-compound BD-001.1        Document what you learned
+```
+
+Or go fast:
 
 ```bash
-# Clone the plugin (one time)
-git clone <this-repo> ~/beads-compound-plugin
-
-# Install into your project
-cd ~/beads-compound-plugin
-./install.sh /path/to/your-project
-
-# Or from your project directory
-cd /path/to/your-project
-bash ~/beads-compound-plugin/install.sh
+/beads-plan "Add OAuth"                     # Plan it
+/beads-resolve-parallel BD-001              # Implement all child beads in parallel
+/beads-review BD-001                        # Review everything
+/beads-checkpoint                           # Ship it
 ```
 
-Restart Claude Code after installing.
-
-### Recommended Skills (Frontend Projects)
-
-For enhanced frontend code reviews, install these Claude Code skills:
+### Lightweight Usage (No Commands Needed)
 
 ```bash
-# UI/UX design guidelines review
-claude-code skill add web-design-guidelines
-
-# React/Next.js best practices review
-claude-code skill add vercel-react-best-practices
-```
-
-When available, `/beads-review` will automatically use these skills for frontend code changes, providing:
-- Vercel Web Interface Guidelines compliance checks
-- React performance optimization suggestions
-- Accessibility audits
-- Component architecture recommendations
-
-Install globally or per-project (add `--project` flag).
-
-## Uninstall
-
-```bash
-cd ~/beads-compound-plugin
-./uninstall.sh /path/to/your-project
-```
-
-This removes the plugin but preserves your `.beads/` data and accumulated knowledge.
-
-## Importing Existing Plans
-
-Have a plan in a markdown file? Import it into beads:
-
-```bash
-cd /path/to/your-project
-bash ~/Documents/projects/beads-compound-plugin/scripts/import-plan.sh your-plan.md "Epic Title"
-```
-
-This creates:
-- Epic bead with full plan as description
-- Child beads for each implementation step
-- Knowledge comments from research/decisions sections
-
-See [IMPORTING-PLANS.md](IMPORTING-PLANS.md) for details and [examples/example-plan.md](examples/example-plan.md) for format.
-
-## Usage
-
-### Recommended Workflow
-
-```
-Idea/Plan Document
-       │
-       ├─→ Have markdown plan? ──→ import-plan.sh ──┐
-       │                                             │
-       └─→ Starting fresh? ────────→ /beads-plan ───┤
-                                                     ↓
-                                            Epic + Child Beads
-                                                     ↓
-                                              /beads-work
-                                                     ↓
-                                          Implement & /beads-checkpoint
-                                                     ↓
-                                              /beads-review
-                                                     ↓
-                                                  Done
-```
-
-**Tip:** After `/beads-work` starts a bead, it will suggest working on all unblocked tasks in parallel. Just press `<tab>+<enter>` to begin parallel work on multiple beads.
-
-**Starting with a plan document:**
-
-```bash
-# Import existing plan into beads
-bash ~/beads-compound-plugin/scripts/import-plan.sh your-plan.md "Epic Title"
-# Creates epic + child beads from markdown
-
-# Continue with workflow below using the epic ID
-```
-
-**For typical feature development:**
-
-```bash
-# 1. Plan: Research and break down the feature
-/beads-plan "Add two-factor authentication"
-# Creates epic + child beads with research findings
-# Note the epic ID (e.g., BD-001)
-
-# 2. Work: Implement each child bead
-/beads-work BD-002
-# Opens bead, recalls relevant knowledge, optionally investigates
-# Can pass epic ID: /beads-work BD-001 to see all child beads
-
-# 3. Checkpoint: Save progress periodically
-/beads-checkpoint BD-001
-# Commits changes, captures knowledge, files completed beads
-# Can scope to epic or omit for current context
-
-# 4. Review: Before closing, multi-agent review
-/beads-review BD-002
-# Security, performance, architecture checks; creates follow-up beads if needed
-# Can pass epic ID: /beads-review BD-001 to review entire epic
-
-# 5. Research: When you hit complexity
-/beads-research BD-002 "How should we handle MFA backup codes?"
-# Deep dive with specialized agents, logs findings
-# Can scope to epic: /beads-research BD-001 "MFA implementation patterns"
-```
-
-**When to use each command:**
-- `/beads-plan`: Starting new features, need research upfront
-- `/beads-work`: Beginning work on any bead (pass bead ID or epic ID)
-- `/beads-checkpoint`: After meaningful progress (every 30-60 min), optional epic scope
-- `/beads-review`: Before closing beads, before PRs (works with bead or epic ID)
-- `/beads-research`: Hit a knowledge gap, need deep understanding (accepts bead or epic ID)
-
-### Normal Workflow (Lightweight)
-
-```bash
-# Create a bead
 bd create "Fix login bug" -d "Users can't log in with OAuth"
-
-# Work on it normally
-# Edit files, commit, etc.
-
-# Log what you learned (auto-captured)
+# Work normally...
 bd comment add BD-001 "LEARNED: OAuth redirect URI must match exactly"
-
-# Close when done
 bd close BD-001
-```
-
-**What happens automatically:**
-- Knowledge extracted to `.beads/memory/knowledge.jsonl`
-- Next session, relevant knowledge is injected if you work on similar beads
-
-**Delegating to subagents:**
-
-When you delegate work to a subagent, include a `BEAD_ID` in the prompt. The subagent will automatically be prompted to log learnings before completing:
-
-```
-Task(subagent_type="general-purpose", prompt="Investigate the OAuth flow. BEAD_ID: BD-001")
-```
-
-The subagent cannot complete until it adds at least one knowledge comment (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION). This ensures subagent discoveries are captured automatically.
-
-### Research & Planning Workflow
-
-```bash
-# Use agents to research and plan
-/beads-plan "Add two-factor authentication"
-
-# This will:
-# 1. Create an epic bead
-# 2. Dispatch research agents in parallel
-# 3. Gather best practices, framework docs, existing patterns
-# 4. Log findings as INVESTIGATION/FACT/DECISION
-# 5. Create child beads for implementation steps
-```
-
-### Review Workflow
-
-```bash
-# After implementing a feature
-/beads-review BD-005
-
-# This will:
-# 1. Dispatch multiple review agents in parallel
-# 2. Security, performance, code quality, architecture checks
-# 3. Log findings as comments on the bead
-# 4. Create follow-up beads for issues found
-```
-
-### Deep Research Workflow
-
-```bash
-# Need to understand something complex
-/beads-research BD-007 "How does Rails handle concurrent updates?"
-
-# This will:
-# 1. Dispatch specialized research agents
-# 2. Search git history, docs, best practices
-# 3. Log comprehensive findings to the bead
-# 4. Tag knowledge for future recall
+# Knowledge captured automatically, recalled next session
 ```
 
 ## Architecture
 
 ### Memory System
 
-Knowledge is stored in `.beads/memory/knowledge.jsonl` with structure:
+Knowledge stored in `.beads/memory/knowledge.jsonl`:
 
 ```json
 {
@@ -282,60 +166,58 @@ Knowledge is stored in `.beads/memory/knowledge.jsonl` with structure:
 }
 ```
 
-**Auto-tagging**: Keywords in content are detected and added as tags (auth, database, react, etc.)
+- **Auto-tagging**: Keywords detected and added as tags
+- **Rotation**: After 1000 entries, oldest 500 archived
+- **Search**: `.beads/memory/recall.sh "keyword"` or automatic at session start
 
-**Rotation**: After 1000 entries, oldest 500 are moved to archive
+### Plugin Structure
 
-**Search**: Use `.beads/memory/recall.sh` or let auto-recall inject at session start
+```
+beads-compound-plugin/              # Marketplace root
+├── .claude-plugin/
+│   └── marketplace.json
+├── plugins/
+│   └── beads-compound/             # Plugin root
+│       ├── .claude-plugin/
+│       │   └── plugin.json
+│       ├── agents/
+│       │   ├── review/             # 14 review agents
+│       │   ├── research/           # 5 research agents
+│       │   ├── design/             # 3 design agents
+│       │   ├── workflow/           # 4 workflow agents
+│       │   └── docs/               # 1 docs agent
+│       ├── commands/               # 11 workflow commands
+│       ├── skills/                 # 5 skills
+│       ├── hooks/                  # 3 hooks + hooks.json
+│       ├── scripts/
+│       └── .mcp.json
+├── install.sh
+├── uninstall.sh
+├── CLAUDE.md
+└── README.md
+```
 
-### Hooks
+## Uninstall
 
-| Hook | When | What |
-|------|------|------|
-| `SessionStart:auto-recall` | Session start | Inject relevant knowledge |
-| `PostToolUse:memory-capture` | After `bd comment add` | Extract and store knowledge |
-| `SubagentStop:subagent-wrapup` | Subagent completing | Prompt subagent to log learnings |
+```bash
+./uninstall.sh /path/to/your-project
+```
 
-### Agents Integration
+Removes plugin components but preserves `.beads/` data and accumulated knowledge.
 
-All compound-engineering agents are included and modified to:
-- Accept `BEAD_ID` in their prompts
-- Log findings using `bd comment add` with appropriate prefixes
-- Tag knowledge based on their specialty
+## Differences from Related Projects
 
-## Differences from semantic-beads
+**vs. semantic-beads**: Simpler orchestration (no worktrees, no supervisor validation). Full agent library instead of custom supervisors.
 
-**Simpler orchestration**: No worktree enforcement, no complex supervisor validation. Just use agents with beads.
+**vs. compound-engineering**: Beads-based persistent memory instead of markdown. Auto-recall. All workflows create/update beads. Tagged knowledge for better retrieval.
 
-**More agents**: Full compound-engineering agent library instead of custom supervisors.
+## Importing Existing Plans
 
-**Automatic context**: Auto-recall hook vs. manual recall.
+```bash
+bash ~/beads-compound-plugin/plugins/beads-compound/scripts/import-plan.sh your-plan.md "Epic Title"
+```
 
-**No epic complexity**: Can still create epic beads, but no special isolation/dispatch logic. Just use agents normally.
-
-## Differences from compound-engineering
-
-**Beads-based memory**: Persistent SQLite knowledge base vs. markdown docs.
-
-**Issue tracking integration**: All workflows create/update beads automatically.
-
-**Auto-recall**: Knowledge injected automatically vs. manual search.
-
-**Tagged knowledge**: Auto-tagging enables better search and retrieval.
-
-## Configuration
-
-### Disable auto-recall
-
-Edit `.claude/settings.json` and remove the `SessionStart` hook.
-
-### Customize tagging
-
-Edit `.claude/hooks/memory-capture.sh` and modify the tag detection list.
-
-### Add custom agents
-
-Place agent markdown files in `.claude/agents/` following compound-engineering's format.
+Creates an epic bead with child beads for each implementation step.
 
 ## License
 
