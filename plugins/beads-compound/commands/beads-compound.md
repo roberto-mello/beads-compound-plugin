@@ -1,5 +1,5 @@
 ---
-name: beads:compound
+name: beads-compound
 description: Document a recently solved problem to compound your team's knowledge
 argument-hint: "[optional: brief context about the fix or bead ID]"
 ---
@@ -151,6 +151,6 @@ This creates a compounding knowledge system:
 
 ## Related Commands
 
-- `/beads:plan` - Planning workflow (references documented knowledge)
-- `/beads:checkpoint` - Quick knowledge capture during work
+- `/beads-plan` - Planning workflow (references documented knowledge)
+- `/beads-checkpoint` - Quick knowledge capture during work
 - `/deepen-plan` - Enhance plans with parallel research

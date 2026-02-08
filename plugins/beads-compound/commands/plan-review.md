@@ -114,5 +114,5 @@ After presenting the review, use the **AskUserQuestion tool** to present these o
 **Options:**
 1. **Apply feedback** - Update child beads with review suggestions
 2. **Run `/deepen-plan`** - Enhance plan with additional research
-3. **Start `/beads:work`** - Begin implementing (accept plan as-is)
+3. **Start `/beads-work`** - Begin implementing (accept plan as-is)
 4. **Dismiss** - Acknowledge review without changes

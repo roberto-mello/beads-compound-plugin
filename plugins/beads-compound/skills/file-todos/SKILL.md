@@ -244,7 +244,7 @@ grep -r "payment" todos/
 - Active Record CRUD operations
 - Different from this file-based system
 
-**TodoWrite tool:**
+**TaskCreate/TaskUpdate/TaskList tools:**
 - In-memory task tracking during agent sessions
 - Temporary tracking for single conversation
 - Not persisted to disk

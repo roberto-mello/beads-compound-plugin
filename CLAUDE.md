@@ -176,12 +176,12 @@ Commands are in `plugins/beads-compound/commands/`:
 
 | Command | File | Description |
 |---------|------|-------------|
-| `/beads:brainstorm` | beads-brainstorm.md | Explore ideas collaboratively |
-| `/beads:plan` | beads-plan.md | Research and plan with multiple agents |
-| `/beads:work` | beads-work.md | Work on a bead with auto-recall |
-| `/beads:review` | beads-review.md | Multi-agent code review |
-| `/beads:checkpoint` | beads-checkpoint.md | Save progress and capture knowledge |
-| `/beads:compound` | beads-compound.md | Document solved problems |
+| `/beads-brainstorm` | beads-brainstorm.md | Explore ideas collaboratively |
+| `/beads-plan` | beads-plan.md | Research and plan with multiple agents |
+| `/beads-work` | beads-work.md | Work on a bead with auto-recall |
+| `/beads-review` | beads-review.md | Multi-agent code review |
+| `/beads-checkpoint` | beads-checkpoint.md | Save progress and capture knowledge |
+| `/beads-compound` | beads-compound.md | Document solved problems |
 
 **Planning & Triage (4):**
 

@@ -1,5 +1,5 @@
 ---
-name: beads:plan
+name: beads-plan
 description: Transform feature descriptions into well-structured beads with parallel research and multi-phase planning
 argument-hint: "[feature description, bug report, or improvement idea]"
 ---
@@ -282,11 +282,11 @@ After creating the epic and child beads, use the **AskUserQuestion tool** to pre
 Based on selection:
 - **`/deepen-plan`** -> Call the /deepen-plan command with the epic bead ID
 - **`/plan-review`** -> Call the /plan-review command with the epic bead ID
-- **`/beads:work`** -> Call the /beads:work command with the first ready child bead ID
+- **`/beads-work`** -> Call the /beads-work command with the first ready child bead ID
 - **Simplify** -> Ask "What should I simplify?" then regenerate simpler descriptions
 - **Other** (automatically provided) -> Accept free text for rework or specific changes
 
-Loop back to options after Simplify or Other changes until user selects `/beads:work` or `/plan-review`.
+Loop back to options after Simplify or Other changes until user selects `/beads-work` or `/plan-review`.
 
 ## Quality Requirements
 

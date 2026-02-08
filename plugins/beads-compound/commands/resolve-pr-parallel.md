@@ -26,7 +26,7 @@ bin/get-pr-comments PR_NUMBER
 
 ### 2. Plan
 
-Create a TodoWrite list of all unresolved items grouped by type.
+Create a task list (using TaskCreate) of all unresolved items grouped by type.
 
 ### 3. Implement (PARALLEL)
 

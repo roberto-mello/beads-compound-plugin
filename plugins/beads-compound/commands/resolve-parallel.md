@@ -40,7 +40,7 @@ bd close {BEAD_ID} --reason "wont_fix: .beads/memory/ files are pipeline artifac
 
 ### 2. Plan
 
-Create a TodoWrite list of all unresolved items grouped by type. Make sure to look at dependencies that might occur and prioritize the ones needed by others. For example, if you need to change a name, you must wait to do the others.
+Create a task list (using TaskCreate) of all unresolved items grouped by type. Make sure to look at dependencies that might occur and prioritize the ones needed by others. For example, if you need to change a name, you must wait to do the others.
 
 Output a mermaid flow diagram showing how we can do this:
 - Can we do everything in parallel?

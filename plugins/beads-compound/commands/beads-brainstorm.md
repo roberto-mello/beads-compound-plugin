@@ -1,5 +1,5 @@
 ---
-name: beads:brainstorm
+name: beads-brainstorm
 description: Explore requirements and approaches through collaborative dialogue before planning
 argument-hint: "[feature idea or problem to explore]"
 ---

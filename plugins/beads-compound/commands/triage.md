@@ -10,7 +10,7 @@ Present all findings, decisions, or issues one by one for triage. The goal is to
 
 This command is for:
 
-- Triaging code review findings (from `/beads:review`)
+- Triaging code review findings (from `/beads-review`)
 - Processing security audit results
 - Reviewing performance analysis
 - Handling any categorized findings that need tracking
@@ -128,7 +128,7 @@ After all items processed:
    ```
 2. Or pick individual items:
    ```bash
-   /beads:work {BD-XXX}
+   /beads-work {BD-XXX}
    ```
 ```
 
@@ -140,7 +140,7 @@ When done, present these options:
 What would you like to do next?
 
 1. Run /resolve-parallel to resolve the approved beads
-2. Run /beads:work on a specific bead
+2. Run /beads-work on a specific bead
 3. Nothing for now
 ```
 
@@ -148,4 +148,4 @@ What would you like to do next?
 
 - DO NOT implement fixes or write code during triage
 - Triage is for decisions only
-- Implementation happens in `/resolve-parallel` or `/beads:work`
+- Implementation happens in `/resolve-parallel` or `/beads-work`

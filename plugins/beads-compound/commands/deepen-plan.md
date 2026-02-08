@@ -10,7 +10,7 @@ argument-hint: "[epic bead ID]"
 
 **Note: The current year is 2026.** Use this when searching for recent documentation and best practices.
 
-This command takes an existing plan (from `/beads:plan`) and enhances each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
+This command takes an existing plan (from `/beads-plan`) and enhances each section with parallel research agents. Each major element gets its own dedicated research sub-agent to find:
 - Best practices and industry patterns
 - Performance optimizations
 - UI/UX improvements (if applicable)
@@ -357,13 +357,13 @@ After updating all child beads, use the **AskUserQuestion tool** to present thes
 
 **Options:**
 1. **Run `/plan-review`** - Get feedback from reviewers on enhanced plan
-2. **Start `/beads:work`** - Begin implementing the first child bead
+2. **Start `/beads-work`** - Begin implementing the first child bead
 3. **Deepen further** - Run another round of research on specific sections
 4. **View changes** - Show what was added to each child bead
 
 Based on selection:
 - **`/plan-review`** -> Call the /plan-review command with the epic bead ID
-- **`/beads:work`** -> Call the /beads:work command with the first ready child bead ID
+- **`/beads-work`** -> Call the /beads-work command with the first ready child bead ID
 - **Deepen further** -> Ask which sections need more research, then re-run those agents
 - **View changes** -> Show before/after for each child bead
 

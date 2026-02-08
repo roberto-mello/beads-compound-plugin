@@ -1,5 +1,5 @@
 ---
-name: beads:checkpoint
+name: beads-checkpoint
 description: Save session progress by filing beads, capturing knowledge, and syncing state
 ---
 

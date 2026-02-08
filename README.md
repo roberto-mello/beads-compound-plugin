@@ -65,12 +65,12 @@ bunx @every-env/compound-plugin install ./plugins/beads-compound --to codex
 
 | Command | Description |
 |---------|-------------|
-| `/beads:brainstorm` | Explore ideas collaboratively before planning |
-| `/beads:plan` | Research and plan using multiple agents, create epic + child beads |
-| `/beads:work` | Work on a bead with context, auto-recall, and agent assistance |
-| `/beads:review` | Multi-agent code review before closing bead |
-| `/beads:checkpoint` | Save progress, capture knowledge, commit |
-| `/beads:compound` | Document solved problems as persistent knowledge |
+| `/beads-brainstorm` | Explore ideas collaboratively before planning |
+| `/beads-plan` | Research and plan using multiple agents, create epic + child beads |
+| `/beads-work` | Work on a bead with context, auto-recall, and agent assistance |
+| `/beads-review` | Multi-agent code review before closing bead |
+| `/beads-checkpoint` | Save progress, capture knowledge, commit |
+| `/beads-compound` | Document solved problems as persistent knowledge |
 
 #### Planning & Triage Commands (4)
 
@@ -151,9 +151,9 @@ The most frequently invoked agents (learnings-researcher, repo-research-analyst)
 ## Recommended Workflow
 
 ```
-/beads:brainstorm "idea"        Explore what to build
+/beads-brainstorm "idea"        Explore what to build
         |
-/beads:plan "feature"           Research + create epic with child beads
+/beads-plan "feature"           Research + create epic with child beads
         |
 /deepen-plan BD-001             Enhance plan with research
         |
@@ -161,22 +161,22 @@ The most frequently invoked agents (learnings-researcher, repo-research-analyst)
         |
 /triage BD-001                  Prioritize child beads
         |
-/beads:work BD-001.1            Implement a child bead
+/beads-work BD-001.1            Implement a child bead
         |
-/beads:checkpoint               Save progress, capture knowledge
+/beads-checkpoint               Save progress, capture knowledge
         |
-/beads:review BD-001.1          Multi-agent code review
+/beads-review BD-001.1          Multi-agent code review
         |
-/beads:compound BD-001.1        Document what you learned
+/beads-compound BD-001.1        Document what you learned
 ```
 
 Or go fast:
 
 ```bash
-/beads:plan "Add OAuth"                     # Plan it
+/beads-plan "Add OAuth"                     # Plan it
 /resolve-parallel BD-001                    # Implement all child beads in parallel
-/beads:review BD-001                        # Review everything
-/beads:checkpoint                           # Ship it
+/beads-review BD-001                        # Review everything
+/beads-checkpoint                           # Ship it
 ```
 
 Or go full auto:

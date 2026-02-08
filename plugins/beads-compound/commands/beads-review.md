@@ -1,5 +1,5 @@
 ---
-name: beads:review
+name: beads-review
 description: Perform exhaustive code reviews using multi-agent analysis and ultra-thinking
 argument-hint: "[bead ID, PR number, GitHub URL, branch name, or latest]"
 ---

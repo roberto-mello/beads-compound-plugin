@@ -313,7 +313,7 @@ mcp__xcodebuildmcp__shutdown_simulator({ simulator_id: "[uuid]" })
 
 After presenting the summary, offer:
 
-1. **Run `/beads:review`** - Full code review of the changes
+1. **Run `/beads-review`** - Full code review of the changes
 2. **Fix failures** - Address test failures now
 3. **Done** - Accept results
 
@@ -330,9 +330,9 @@ After presenting the summary, offer:
 /xcode-test current
 ```
 
-## Integration with /beads:review
+## Integration with /beads-review
 
-When reviewing PRs that touch iOS code, the `/beads:review` command can spawn this as a subagent:
+When reviewing PRs that touch iOS code, the `/beads-review` command can spawn this as a subagent:
 
 ```
 Task general-purpose("Run /xcode-test for scheme [name]. Build, install on simulator, test key screens, check for crashes.")

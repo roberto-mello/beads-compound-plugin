@@ -1,5 +1,5 @@
 ---
-name: beads:work
+name: beads-work
 description: Execute work on a bead efficiently while maintaining quality and finishing features
 argument-hint: "[bead ID or path to specification]"
 ---
@@ -101,8 +101,8 @@ This command takes a bead (or specification) and executes it systematically. The
    ```
 
 6. **Create Task List**
-   - Use TodoWrite to break the bead description into actionable tasks
-   - Include dependencies between tasks
+   - Use TaskCreate to break the bead description into actionable tasks
+   - Use TaskUpdate with addBlockedBy/addBlocks for dependencies between tasks
    - Include testing and quality check tasks
 
 ### Phase 2: Execute
@@ -113,13 +113,13 @@ This command takes a bead (or specification) and executes it systematically. The
 
    ```
    while (tasks remain):
-     - Mark task as in_progress in TodoWrite
+     - Mark task as in_progress with TaskUpdate
      - Read any referenced files from the bead description
      - Look for similar patterns in codebase
      - Implement following existing conventions
      - Write tests for new functionality
      - Run tests after changes
-     - Mark task as completed in TodoWrite
+     - Mark task as completed with TaskUpdate
      - Evaluate for incremental commit (see below)
    ```
 
@@ -165,7 +165,7 @@ This command takes a bead (or specification) and executes it systematically. The
    - When in doubt, grep for similar implementations
 
 5. **Track Progress**
-   - Keep TodoWrite updated as you complete tasks
+   - Keep task list updated (TaskUpdate) as you complete tasks
    - Note any blockers or unexpected discoveries
    - Create new tasks if scope expands
    - Keep user informed of major milestones
@@ -203,7 +203,7 @@ This command takes a bead (or specification) and executes it systematically. The
    Run Task code-simplicity-reviewer() on the changes to catch unnecessary complexity before shipping.
 
 4. **Final Validation**
-   - All TodoWrite tasks marked completed
+   - All tasks marked completed (TaskList shows none pending)
    - All tests pass
    - Linting passes
    - Code follows existing patterns
@@ -301,7 +301,7 @@ This command takes a bead (or specification) and executes it systematically. The
 Before creating PR, verify:
 
 - [ ] All clarifying questions asked and answered
-- [ ] All TodoWrite tasks marked completed
+- [ ] All tasks marked completed (TaskList shows none pending)
 - [ ] Tests pass (run project's test command)
 - [ ] Linting passes
 - [ ] Code follows existing patterns
