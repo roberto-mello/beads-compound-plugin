@@ -37,15 +37,35 @@ cd beads-compound-plugin
 # Restart Claude Code
 ```
 
-### Cross-Platform Conversion
+### OpenCode Installation
 
-For OpenCode or Codex compatibility:
+For OpenCode users, download the pre-converted plugin from releases:
 
 ```bash
-# Convert to OpenCode format
-bunx @every-env/compound-plugin install ./plugins/beads-compound --to opencode
+# Download and extract the latest release
+curl -L https://github.com/roberto-mello/beads-compound-plugin/releases/latest/download/beads-compound-opencode.tar.gz | tar xz
+cd beads-compound-opencode
 
-# Convert to Codex format
+# Run installer (safely merges into existing config)
+./install-opencode.sh
+```
+
+The installer:
+- Backs up your existing `opencode.json` before merging
+- Adds 28 agents, 24 skills, 25 commands without overwriting your config
+- Installs hooks plugin with memory system
+
+**Why not use the converter directly?** The official `@every-env/compound-plugin` converter has a bug with matcher-less hooks (SessionStart, SubagentStop). We've submitted a [fix](https://github.com/EveryInc/compound-engineering-plugin/pull/160). Once merged, you can convert directly from source:
+
+```bash
+bunx @every-env/compound-plugin install ./plugins/beads-compound --to opencode
+```
+
+### Codex Conversion
+
+For Codex compatibility:
+
+```bash
 bunx @every-env/compound-plugin install ./plugins/beads-compound --to codex
 ```
 
