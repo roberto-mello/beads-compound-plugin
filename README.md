@@ -295,12 +295,6 @@ This plugin is a fork of [compound-engineering-plugin](https://github.com/EveryI
 - Renamed `compound-docs` skill to `beads-knowledge`
 - Added `beads-` prefix to all commands to avoid conflicts
 
-## Differences from Related Projects
-
-**vs. semantic-beads**: Simpler orchestration (no worktrees, no supervisor validation). Full agent library instead of custom supervisors.
-
-**vs. compound-engineering**: See [Changes from Compound Engineering](#changes-from-compound-engineering) above.
-
 ## Importing Existing Plans
 
 ```bash
