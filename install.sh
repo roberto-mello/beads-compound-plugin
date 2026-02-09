@@ -12,11 +12,14 @@
 #   - MCP server configuration (Context7)
 #
 # Usage:
-#   From within plugin directory:
+#   Global installation (recommended):
+#     ./install.sh                          # installs to ~/.claude
+#
+#   Project-specific installation:
 #     ./install.sh /path/to/your-project
-#     ./install.sh                          # installs to current directory (not recommended)
 #
 #   From anywhere:
+#     bash /path/to/beads-compound-plugin/install.sh
 #     bash /path/to/beads-compound-plugin/install.sh /path/to/your-project
 #
 
@@ -24,7 +27,20 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$SCRIPT_DIR/plugins/beads-compound"
-TARGET="${1:-.}"
+
+# Default to ~/.claude if no argument provided
+if [ $# -eq 0 ]; then
+  TARGET="$HOME/.claude"
+  GLOBAL_INSTALL=true
+else
+  TARGET="${1}"
+  GLOBAL_INSTALL=false
+fi
+
+# Resolve target to absolute path
+if [ ! -d "$TARGET" ]; then
+  mkdir -p "$TARGET"
+fi
 TARGET="$(cd "$TARGET" && pwd)"
 
 # Detect if user is trying to install into the plugin directory itself
@@ -34,12 +50,9 @@ if [[ "$TARGET" == "$SCRIPT_DIR" || "$TARGET" == "$PLUGIN_DIR" ]]; then
   echo "    You're trying to install into: $TARGET"
   echo "    This is the plugin source directory, not a project."
   echo ""
-  echo "    Usage from plugin directory:"
-  echo "      ./install.sh /path/to/your-project"
-  echo ""
-  echo "    Or cd to your project first:"
-  echo "      cd /path/to/your-project"
-  echo "      bash $SCRIPT_DIR/install.sh"
+  echo "    Usage:"
+  echo "      ./install.sh                      # global install to ~/.claude"
+  echo "      ./install.sh /path/to/project     # project-specific install"
   echo ""
   exit 1
 fi
@@ -53,62 +66,83 @@ fi
 
 echo "beads-compound plugin installer"
 echo "Plugin: $PLUGIN_DIR"
-echo "Target: $TARGET"
+if [ "$GLOBAL_INSTALL" = true ]; then
+  echo "Target: $TARGET (global)"
+else
+  echo "Target: $TARGET (project-specific)"
+fi
 echo ""
 
-# Check for bd
-if ! command -v bd &>/dev/null; then
-  echo "[!] beads CLI (bd) not found."
-  echo ""
-  echo "    Install it first:"
-  echo "      macOS:  brew install steveyegge/beads/bd"
-  echo "      npm:    npm install -g @beads/bd"
-  echo "      go:     go install github.com/steveyegge/beads/cmd/bd@latest"
-  echo ""
-  exit 1
-fi
-
-echo "[1/9] bd found: $(which bd)"
-
-# Initialize .beads if needed
-if [ ! -d "$TARGET/.beads" ]; then
-  echo "[2/9] Initializing .beads..."
-  (cd "$TARGET" && bd init)
+# Check for bd (skip for global install)
+if [ "$GLOBAL_INSTALL" = true ]; then
+  echo "[1/9] Skipping bd check (global install)"
+  echo "[2/9] Skipping .beads init (global install)"
 else
-  echo "[2/9] .beads already exists"
+  if ! command -v bd &>/dev/null; then
+    echo "[!] beads CLI (bd) not found."
+    echo ""
+    echo "    Install it first:"
+    echo "      macOS:  brew install steveyegge/beads/bd"
+    echo "      npm:    npm install -g @beads/bd"
+    echo "      go:     go install github.com/steveyegge/beads/cmd/bd@latest"
+    echo ""
+    exit 1
+  fi
+
+  echo "[1/9] bd found: $(which bd)"
+
+  # Initialize .beads if needed
+  if [ ! -d "$TARGET/.beads" ]; then
+    echo "[2/9] Initializing .beads..."
+    (cd "$TARGET" && bd init)
+  else
+    echo "[2/9] .beads already exists"
+  fi
 fi
 
-# Set up memory directory and recall script
-echo "[3/9] Setting up memory system..."
+# Set up memory directory and recall script (skip for global install)
+if [ "$GLOBAL_INSTALL" = true ]; then
+  echo "[3/9] Skipping memory system (global install)"
+else
+  echo "[3/9] Setting up memory system..."
 
-MEMORY_DIR="$TARGET/.beads/memory"
-mkdir -p "$MEMORY_DIR"
+  MEMORY_DIR="$TARGET/.beads/memory"
+  mkdir -p "$MEMORY_DIR"
 
-if [ ! -f "$MEMORY_DIR/knowledge.jsonl" ]; then
-  touch "$MEMORY_DIR/knowledge.jsonl"
-  echo "  - Created knowledge.jsonl"
+  if [ ! -f "$MEMORY_DIR/knowledge.jsonl" ]; then
+    touch "$MEMORY_DIR/knowledge.jsonl"
+    echo "  - Created knowledge.jsonl"
+  fi
+
+  cp "$PLUGIN_DIR/hooks/recall.sh" "$MEMORY_DIR/recall.sh"
+  chmod +x "$MEMORY_DIR/recall.sh"
+  echo "  - Installed recall.sh"
 fi
 
-cp "$PLUGIN_DIR/hooks/recall.sh" "$MEMORY_DIR/recall.sh"
-chmod +x "$MEMORY_DIR/recall.sh"
-echo "  - Installed recall.sh"
+# Install hooks (only for project-specific installs)
+if [ "$GLOBAL_INSTALL" = true ]; then
+  echo "[4/9] Skipping hooks (use project-specific install for beads integration)"
+else
+  echo "[4/9] Installing hooks..."
 
-# Install hooks
-echo "[4/9] Installing hooks..."
+  HOOKS_DIR="$TARGET/.claude/hooks"
+  mkdir -p "$HOOKS_DIR"
 
-HOOKS_DIR="$TARGET/.claude/hooks"
-mkdir -p "$HOOKS_DIR"
-
-for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh; do
-  cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/$hook"
-  chmod +x "$HOOKS_DIR/$hook"
-  echo "  - Installed $hook"
-done
+  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh; do
+    cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/$hook"
+    chmod +x "$HOOKS_DIR/$hook"
+    echo "  - Installed $hook"
+  done
+fi
 
 # Install commands (all from commands directory)
 echo "[5/9] Installing workflow commands..."
 
-COMMANDS_DIR="$TARGET/.claude/commands"
+if [ "$GLOBAL_INSTALL" = true ]; then
+  COMMANDS_DIR="$TARGET/commands"
+else
+  COMMANDS_DIR="$TARGET/.claude/commands"
+fi
 mkdir -p "$COMMANDS_DIR"
 
 CMD_COUNT=0
@@ -125,7 +159,11 @@ echo "  - Installed $CMD_COUNT commands"
 # Install agents
 echo "[6/9] Installing agents..."
 
-AGENTS_DIR="$TARGET/.claude/agents"
+if [ "$GLOBAL_INSTALL" = true ]; then
+  AGENTS_DIR="$TARGET/agents"
+else
+  AGENTS_DIR="$TARGET/.claude/agents"
+fi
 mkdir -p "$AGENTS_DIR"
 
 AGENT_COUNT=0
@@ -151,7 +189,11 @@ echo "  - Installed $AGENT_COUNT agents"
 # Install skills
 echo "[7/9] Installing skills..."
 
-SKILLS_DIR="$TARGET/.claude/skills"
+if [ "$GLOBAL_INSTALL" = true ]; then
+  SKILLS_DIR="$TARGET/skills"
+else
+  SKILLS_DIR="$TARGET/.claude/skills"
+fi
 mkdir -p "$SKILLS_DIR"
 
 SKILL_COUNT=0
@@ -192,44 +234,47 @@ else
   echo "  - No MCP configuration found in plugin"
 fi
 
-# Wire up settings.json
-echo "[9/9] Configuring settings..."
-
-SETTINGS="$TARGET/.claude/settings.json"
-
-if [ -f "$SETTINGS" ]; then
-  if command -v jq &>/dev/null; then
-    EXISTING=$(cat "$SETTINGS")
-
-    UPDATED=$(echo "$EXISTING" | jq '
-      # Add/update SessionStart hook
-      .hooks.SessionStart = (
-        [(.hooks.SessionStart // [])[] | select(.hooks[]?.command | contains("auto-recall") | not)] +
-        [{"hooks":[{"type":"command","command":"bash .claude/hooks/auto-recall.sh","async":true}]}]
-      ) |
-      # Add/update PostToolUse hook with matcher
-      .hooks.PostToolUse = (
-        [(.hooks.PostToolUse // [])[] | select(.hooks[]?.command | contains("memory-capture") | not)] +
-        [{"matcher":"Bash","hooks":[{"type":"command","command":"bash .claude/hooks/memory-capture.sh","async":true}]}]
-      ) |
-      # Add/update SubagentStop hook for auto-wrapup
-      .hooks.SubagentStop = (
-        [(.hooks.SubagentStop // [])[] | select(.hooks[]?.command | contains("subagent-wrapup") | not)] +
-        [{"hooks":[{"type":"command","command":"bash .claude/hooks/subagent-wrapup.sh"}]}]
-      ) |
-      # Remove any null hook arrays
-      if .hooks.PreToolUse == null then del(.hooks.PreToolUse) else . end |
-      if .hooks.SubagentStop == null then del(.hooks.SubagentStop) else . end
-    ')
-    echo "$UPDATED" > "$SETTINGS"
-    echo "  - Merged hooks into existing settings.json"
-  else
-    echo "  [!] jq not found -- manual settings.json setup required"
-    echo "      Add SessionStart and PostToolUse hooks manually"
-  fi
+# Wire up settings.json (only for project-specific installs)
+if [ "$GLOBAL_INSTALL" = true ]; then
+  echo "[9/9] Skipping settings.json (global install - hooks not applicable)"
 else
-  mkdir -p "$(dirname "$SETTINGS")"
-  cat > "$SETTINGS" << 'SETTINGS_EOF'
+  echo "[9/9] Configuring settings..."
+
+  SETTINGS="$TARGET/.claude/settings.json"
+
+  if [ -f "$SETTINGS" ]; then
+    if command -v jq &>/dev/null; then
+      EXISTING=$(cat "$SETTINGS")
+
+      UPDATED=$(echo "$EXISTING" | jq '
+        # Add/update SessionStart hook
+        .hooks.SessionStart = (
+          [(.hooks.SessionStart // [])[] | select(.hooks[]?.command | contains("auto-recall") | not)] +
+          [{"hooks":[{"type":"command","command":"bash .claude/hooks/auto-recall.sh","async":true}]}]
+        ) |
+        # Add/update PostToolUse hook with matcher
+        .hooks.PostToolUse = (
+          [(.hooks.PostToolUse // [])[] | select(.hooks[]?.command | contains("memory-capture") | not)] +
+          [{"matcher":"Bash","hooks":[{"type":"command","command":"bash .claude/hooks/memory-capture.sh","async":true}]}]
+        ) |
+        # Add/update SubagentStop hook for auto-wrapup
+        .hooks.SubagentStop = (
+          [(.hooks.SubagentStop // [])[] | select(.hooks[]?.command | contains("subagent-wrapup") | not)] +
+          [{"hooks":[{"type":"command","command":"bash .claude/hooks/subagent-wrapup.sh"}]}]
+        ) |
+        # Remove any null hook arrays
+        if .hooks.PreToolUse == null then del(.hooks.PreToolUse) else . end |
+        if .hooks.SubagentStop == null then del(.hooks.SubagentStop) else . end
+      ')
+      echo "$UPDATED" > "$SETTINGS"
+      echo "  - Merged hooks into existing settings.json"
+    else
+      echo "  [!] jq not found -- manual settings.json setup required"
+      echo "      Add SessionStart and PostToolUse hooks manually"
+    fi
+  else
+    mkdir -p "$(dirname "$SETTINGS")"
+    cat > "$SETTINGS" << 'SETTINGS_EOF'
 {
   "hooks": {
     "SessionStart": [
@@ -244,26 +289,29 @@ else
   }
 }
 SETTINGS_EOF
-  echo "  - Created settings.json"
+    echo "  - Created settings.json"
+  fi
 fi
 
-# Update .gitignore
-GITIGNORE="$TARGET/.gitignore"
+# Update .gitignore (only for project-specific installs)
+if [ "$GLOBAL_INSTALL" = false ]; then
+  GITIGNORE="$TARGET/.gitignore"
 
-if [ -f "$GITIGNORE" ]; then
-  if ! grep -qE '^\.beads/?$' "$GITIGNORE" 2>/dev/null; then
-    echo "" >> "$GITIGNORE"
-    echo "# Beads (ephemeral task data)" >> "$GITIGNORE"
-    echo ".beads/" >> "$GITIGNORE"
-    echo "  - Updated .gitignore"
-  fi
-else
-  cat > "$GITIGNORE" << 'EOF'
+  if [ -f "$GITIGNORE" ]; then
+    if ! grep -qE '^\.beads/?$' "$GITIGNORE" 2>/dev/null; then
+      echo "" >> "$GITIGNORE"
+      echo "# Beads (ephemeral task data)" >> "$GITIGNORE"
+      echo ".beads/" >> "$GITIGNORE"
+      echo "  - Updated .gitignore"
+    fi
+  else
+    cat > "$GITIGNORE" << 'EOF'
 # Beads (ephemeral task data)
 .beads/
 .mcp.json
 EOF
-  echo "  - Created .gitignore"
+    echo "  - Created .gitignore"
+  fi
 fi
 
 # Check for recommended frontend skills
@@ -299,12 +347,16 @@ echo "    git-worktree, brainstorming, create-agent-skills, agent-native-archite
 echo "    agent-browser, andrew-kane-gem-writer, dhh-rails-style, dspy-ruby, every-style-editor,"
 echo "    file-todos, frontend-design, gemini-imagegen, rclone, skill-creator"
 echo ""
-echo "  Memory System:"
-echo "    - Auto-recall at session start (based on current beads)"
-echo "    - Auto-capture from bd comment (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION)"
-echo "    - Knowledge stored at .beads/memory/knowledge.jsonl"
-echo "    - Search: .beads/memory/recall.sh \"keyword\""
-echo ""
+
+if [ "$GLOBAL_INSTALL" = false ]; then
+  echo "  Memory System:"
+  echo "    - Auto-recall at session start (based on current beads)"
+  echo "    - Auto-capture from bd comment (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION)"
+  echo "    - Knowledge stored at .beads/memory/knowledge.jsonl"
+  echo "    - Search: .beads/memory/recall.sh \"keyword\""
+  echo ""
+fi
+
 echo "  MCP Servers:"
 echo "    - Context7 (framework documentation)"
 echo ""
@@ -328,14 +380,28 @@ if [ ${#FRONTEND_SKILLS_MISSING[@]} -gt 0 ]; then
   echo ""
 fi
 
-echo "Usage:"
-echo "  1. Create or work on beads normally with bd commands"
-echo "  2. Use /beads-plan for complex features requiring research"
-echo "  3. Use /beads-brainstorm to explore ideas before planning"
-echo "  4. Use /beads-review before closing beads to catch issues"
-echo "  5. Log learnings with: bd comment add ID \"LEARNED: ...\""
-echo "  6. Knowledge will be recalled automatically next session"
-echo ""
+if [ "$GLOBAL_INSTALL" = true ]; then
+  echo "Global installation complete!"
+  echo ""
+  echo "Commands, agents, and skills are now available in all Claude Code sessions."
+  echo ""
+  echo "For beads integration (memory system + hooks):"
+  echo "  bash $SCRIPT_DIR/install.sh /path/to/your-project"
+  echo ""
+else
+  echo "Usage:"
+  echo "  1. Create or work on beads normally with bd commands"
+  echo "  2. Use /beads-plan for complex features requiring research"
+  echo "  3. Use /beads-brainstorm to explore ideas before planning"
+  echo "  4. Use /beads-review before closing beads to catch issues"
+  echo "  5. Log learnings with: bd comment add ID \"LEARNED: ...\""
+  echo "  6. Knowledge will be recalled automatically next session"
+  echo ""
+fi
+
 echo "Restart Claude Code to load the plugin."
 echo ""
-echo "To uninstall: bash $SCRIPT_DIR/uninstall.sh $TARGET"
+
+if [ "$GLOBAL_INSTALL" = false ]; then
+  echo "To uninstall: bash $SCRIPT_DIR/uninstall.sh $TARGET"
+fi

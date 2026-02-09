@@ -16,22 +16,38 @@
 #   - .mcp.json (may contain non-plugin MCP servers)
 #
 # Usage:
-#   From within plugin directory:
+#   Global uninstall:
+#     ./uninstall.sh                         # uninstalls from ~/.claude
+#
+#   Project-specific uninstall:
 #     ./uninstall.sh /path/to/your-project
-#     ./uninstall.sh                         # uninstalls from current directory
 #
 #   From anywhere:
+#     bash /path/to/beads-compound-plugin/uninstall.sh
 #     bash /path/to/beads-compound-plugin/uninstall.sh /path/to/your-project
 #
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-TARGET="${1:-.}"
+
+# Default to ~/.claude if no argument provided
+if [ $# -eq 0 ]; then
+  TARGET="$HOME/.claude"
+  GLOBAL_UNINSTALL=true
+else
+  TARGET="${1}"
+  GLOBAL_UNINSTALL=false
+fi
+
 TARGET="$(cd "$TARGET" && pwd)"
 
 echo "beads-compound plugin uninstaller"
-echo "Target: $TARGET"
+if [ "$GLOBAL_UNINSTALL" = true ]; then
+  echo "Target: $TARGET (global)"
+else
+  echo "Target: $TARGET (project-specific)"
+fi
 echo ""
 
 REMOVED_COUNT=0
@@ -56,7 +72,11 @@ fi
 # Remove commands (all plugin commands)
 echo "[2/5] Removing workflow commands..."
 
-COMMANDS_DIR="$TARGET/.claude/commands"
+if [ "$GLOBAL_UNINSTALL" = true ]; then
+  COMMANDS_DIR="$TARGET/commands"
+else
+  COMMANDS_DIR="$TARGET/.claude/commands"
+fi
 
 if [ -d "$COMMANDS_DIR" ]; then
   PLUGIN_COMMANDS=(
@@ -84,7 +104,11 @@ fi
 # Remove agents
 echo "[3/5] Removing agents..."
 
-AGENTS_DIR="$TARGET/.claude/agents"
+if [ "$GLOBAL_UNINSTALL" = true ]; then
+  AGENTS_DIR="$TARGET/agents"
+else
+  AGENTS_DIR="$TARGET/.claude/agents"
+fi
 
 if [ -d "$AGENTS_DIR" ]; then
   AGENT_CATEGORIES=(review research design docs workflow)
@@ -110,7 +134,11 @@ fi
 # Remove skills
 echo "[4/5] Removing skills..."
 
-SKILLS_DIR="$TARGET/.claude/skills"
+if [ "$GLOBAL_UNINSTALL" = true ]; then
+  SKILLS_DIR="$TARGET/skills"
+else
+  SKILLS_DIR="$TARGET/.claude/skills"
+fi
 
 if [ -d "$SKILLS_DIR" ]; then
   PLUGIN_SKILLS=(git-worktree brainstorming create-agent-skills agent-native-architecture beads-knowledge agent-browser andrew-kane-gem-writer dhh-rails-style dspy-ruby every-style-editor file-todos frontend-design gemini-imagegen rclone skill-creator)

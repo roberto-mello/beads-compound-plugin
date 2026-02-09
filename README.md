@@ -24,18 +24,25 @@ This plugin achieves this through:
 
 ## Quick Install
 
-Prerequisites: [beads CLI](https://github.com/steveyegge/beads) (`bd`) and `jq`
+Prerequisites: `jq` (required for all installs), [beads CLI](https://github.com/steveyegge/beads) (`bd` - only for project-specific installs)
 
 ```bash
 # Clone the marketplace
 git clone https://github.com/roberto-mello/beads-compound-plugin.git
 cd beads-compound-plugin
 
-# Install into your project
+# Global install (recommended - commands, agents, skills available everywhere)
+./install.sh
+
+# Or project-specific install (includes beads memory integration)
 ./install.sh /path/to/your-project
 
 # Restart Claude Code
 ```
+
+**Global vs Project-Specific:**
+- **Global** (`./install.sh`): Installs to `~/.claude` - commands, agents, and skills available in all sessions
+- **Project-Specific** (`./install.sh /path/to/project`): Additionally includes beads memory hooks and auto-recall system
 
 ### OpenCode Installation
 
