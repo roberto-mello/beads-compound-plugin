@@ -1,6 +1,6 @@
-# Beads Compound Plugin Marketplace
+# Beads Compound Claude Code Plugin
 
-A Claude Code plugin marketplace providing beads-based persistent memory with multi-agent workflows.
+A Claude Code plugin providing beads-based persistent memory with multi-agent workflows.
 
 Built on [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by the team at [Every](https://every.to) -- Kieran Klaassen, Dan Shipper, Julik Tarkhanov, and contributors. Their plugin pioneered the idea that each unit of engineering work should make subsequent units easier, not harder. This project extends that philosophy with beads-based persistent memory and several performance optimizations.
 
