@@ -1,6 +1,7 @@
 ---
 name: git-worktree
 description: This skill manages Git worktrees for isolated parallel development. It handles creating, listing, switching, and cleaning up worktrees with a simple interactive interface, following KISS principles.
+disable-model-invocation: true
 ---
 
 # Git Worktree Manager

@@ -1,7 +1,8 @@
 ---
 name: reproduce-bug
-description: Reproduce and investigate a bug using logs, console inspection, and browser screenshots
-argument-hint: "[GitHub issue number]"
+description: "Reproduce and investigate a bug using logs, console inspection, and browser screenshots"
+argument-hint: [GitHub issue number]
+disable-model-invocation: true
 ---
 
 # Reproduce Bug Command

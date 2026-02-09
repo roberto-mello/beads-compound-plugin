@@ -1,7 +1,8 @@
 ---
 name: triage
 description: Triage and categorize beads for prioritization
-argument-hint: "[epic bead ID or list of bead IDs]"
+argument-hint: [epic bead ID or list of bead IDs]
+disable-model-invocation: true
 ---
 
 Present all findings, decisions, or issues one by one for triage. The goal is to go through each bead and decide whether to keep, modify, dismiss, or defer it.

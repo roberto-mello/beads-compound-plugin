@@ -1,14 +1,13 @@
 ---
 name: beads-knowledge
-description: Capture solved problems as knowledge entries in JSONL format for fast recall. Use when a problem has been solved and the solution should be preserved for future sessions.
-allowed-tools:
-  - Read # Parse conversation context
+description: "Capture solved problems as knowledge entries in JSONL format for fast recall. Use when a problem has been solved and the solution should be preserved for future sessions."
+allowed-tools: "- Read # Parse conversation context
   - Write # Append to knowledge.jsonl
   - Bash # Run bd commands, search knowledge
-  - Grep # Search existing knowledge
-preconditions:
-  - Problem has been solved (not in-progress)
-  - Solution has been verified working
+  - Grep # Search existing knowledge"
+preconditions: "- Problem has been solved (not in-progress)
+  - Solution has been verified working"
+disable-model-invocation: true
 ---
 
 # beads-knowledge Skill

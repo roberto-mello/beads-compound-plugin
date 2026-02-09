@@ -1,6 +1,6 @@
 ---
 name: lint
-description: "Use this agent when you need to run linting and code quality checks on Ruby and ERB files. Run before pushing to origin."
+description: "Runs linting and code quality checks on Ruby and ERB files. Use before pushing to origin to catch style violations, syntax errors, and code quality issues."
 model: haiku
 color: yellow
 ---

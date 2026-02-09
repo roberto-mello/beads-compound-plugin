@@ -1,7 +1,8 @@
 ---
 name: lfg
 description: Full autonomous engineering workflow
-argument-hint: "[feature description]"
+argument-hint: [feature description]
+disable-model-invocation: true
 ---
 
 Run these slash commands in order. Do not do anything else.

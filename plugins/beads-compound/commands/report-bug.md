@@ -1,7 +1,8 @@
 ---
 name: report-bug
 description: Report a bug in the beads-compound plugin
-argument-hint: "[optional: brief description of the bug]"
+argument-hint: [optional: brief description of the bug]
+disable-model-invocation: true
 ---
 
 # Report a Beads-Compound Plugin Bug

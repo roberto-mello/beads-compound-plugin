@@ -311,7 +311,11 @@ This plugin is a fork of [compound-engineering-plugin](https://github.com/EveryI
 
 ### Performance Optimizations
 
-- **Agent description reduction (80% token savings at startup)**: Moved verbose few-shot examples and XML tags from frontmatter `description` fields into agent bodies as `## Delegation Examples` sections. Descriptions went from ~40KB to ~8KB. The frontmatter description is only used by Claude Code's routing logic to decide when to delegate; the examples now live in the body where the subagent can actually use them as few-shot context.
+- **Context budget optimization (94% reduction)**: Plugin now uses only 8,227 chars of Claude Code's 16,000 char description budget (51.4%), down from 136,639 chars (854% over budget). This prevents components from being silently excluded from Claude's context. Achieved through:
+  - Trimmed all 28 agent descriptions to under 250 chars, moving verbose examples into agent bodies wrapped in `<examples>` tags
+  - Added `disable-model-invocation: true` to 17 manual utility commands (they remain available when explicitly invoked via `/command-name` but don't clutter Claude's auto-suggestion context)
+  - Added `disable-model-invocation: true` to 7 manual utility skills (beads-knowledge, create-agent-skills, file-todos, skill-creator, git-worktree, rclone, gemini-imagegen)
+  - Core beads workflow commands (`/beads-brainstorm`, `/beads-plan`, `/beads-work`, `/beads-review`, `/beads-compound`, `/deepen-plan`, `/plan-review`, `/resolve-parallel`) remain fully auto-discoverable
 - **Model tier assignments**: Each agent specifies a `model:` field (haiku/sonnet/opus) based on reasoning complexity, reducing costs 60-70% compared to running all agents on the default model. High-frequency agents like `learnings-researcher` run on Haiku; deep reasoning agents like `architecture-strategist` run on Opus.
 
 ### Structural Changes

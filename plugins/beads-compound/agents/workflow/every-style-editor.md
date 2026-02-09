@@ -1,7 +1,7 @@
 ---
 name: every-style-editor
 description: "Reviews and edits text content to conform to Every's house style guide - checking headline casing, company usage, adverbs, active voice, number formatting, and punctuation rules."
-tools: Task, Glob, Grep, LS, ExitPlanMode, Read, Edit, MultiEdit, Write, NotebookRead, NotebookEdit, WebFetch, TaskCreate, TaskUpdate, TaskList, WebSearch
+tools: "Task, Glob, Grep, LS, ExitPlanMode, Read, Edit, MultiEdit, Write, NotebookRead, NotebookEdit, WebFetch, TaskCreate, TaskUpdate, TaskList, WebSearch"
 model: sonnet
 ---
 
@@ -62,8 +62,6 @@ Provide your review as a numbered list of suggested edits, grouping related chan
 If the text is already compliant with the style guide, acknowledge this and highlight any particularly well-executed style choices.
 
 Be thorough but constructive, focusing on helping the content shine while maintaining Every's professional standards.
-
-## Delegation Examples
 
 ```
 Task(subagent_type="every-style-editor", prompt="Review this article for Every style compliance: [paste text]")
