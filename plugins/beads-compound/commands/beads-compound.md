@@ -22,6 +22,12 @@ Captures problem solutions while context is fresh, creating structured knowledge
 /beads-compound [brief context]    # Provide additional context hint
 ```
 
+<critical_requirement>
+**Research subagents return TEXT DATA only - NO file writes.**
+
+Subagents in Phase 1 (research) must NOT use Write, Edit, or create any files. They analyze and return text data to the orchestrator. Only knowledge entries via `bd comment add` should be written (which triggers automatic capture via the memory-capture hook).
+</critical_requirement>
+
 ## Execution Strategy: Parallel Subagents
 
 This command launches multiple specialized subagents IN PARALLEL to maximize efficiency:
