@@ -12,7 +12,8 @@
 #   kb_ensure_db DB_PATH         - Create schema if missing
 #   kb_insert DB_PATH KEY TYPE CONTENT SOURCE TAGS_TEXT TS BEAD - Insert entry
 #   kb_search DB_PATH QUERY TOP_N - FTS5 search with BM25 ranking
-#   kb_backfill DB_PATH MEMORY_DIR - One-time import from existing sources
+#   kb_sync DB_PATH MEMORY_DIR     - Incremental sync from JSONL + first-time beads import
+#   kb_backfill DB_PATH MEMORY_DIR - Alias for kb_sync (backward compat)
 #
 
 # Create knowledge.db with FTS5 schema if missing
@@ -148,8 +149,10 @@ LIMIT $TOP_N;
 SQL
 }
 
-# One-time backfill from beads.db comments + existing knowledge.jsonl
-kb_backfill() {
+# Incremental sync from JSONL files into SQLite FTS5
+# Compares line counts to import only new entries. Safe to call every session.
+# First-time: also imports knowledge-prefixed comments from beads.db.
+kb_sync() {
   local DB_PATH="$1"
   local MEMORY_DIR="$2"
 
@@ -157,92 +160,91 @@ kb_backfill() {
     return 1
   fi
 
-  local MARKER="$MEMORY_DIR/.backfill_done"
-
-  # Skip if already done
-  if [[ -f "$MARKER" ]]; then
-    return 0
-  fi
-
   kb_ensure_db "$DB_PATH"
 
-  # Import from beads.db if it exists
-  local BEADS_DB
-  BEADS_DB="${CLAUDE_PROJECT_DIR:-.}/.beads/beads.db"
+  local DB_COUNT
+  DB_COUNT=$(sqlite3 "$DB_PATH" "SELECT count(*) FROM knowledge;" 2>/dev/null || echo "0")
 
-  if [[ -f "$BEADS_DB" ]] && command -v sqlite3 &>/dev/null; then
-    local COMMENTS
-    COMMENTS=$(sqlite3 "$BEADS_DB" "SELECT text FROM comments WHERE text LIKE 'LEARNED:%' OR text LIKE 'DECISION:%' OR text LIKE 'FACT:%' OR text LIKE 'PATTERN:%' OR text LIKE 'INVESTIGATION:%';" 2>/dev/null || true)
+  # First-time: import from beads.db comments (only when SQLite is empty)
+  if [[ "$DB_COUNT" -eq 0 ]]; then
+    local BEADS_DB
+    BEADS_DB="${CLAUDE_PROJECT_DIR:-.}/.beads/beads.db"
 
-    if [[ -n "$COMMENTS" ]]; then
-      while IFS= read -r COMMENT; do
-        [[ -z "$COMMENT" ]] && continue
+    if [[ -f "$BEADS_DB" ]] && command -v sqlite3 &>/dev/null; then
+      local COMMENTS
+      COMMENTS=$(sqlite3 "$BEADS_DB" "SELECT text FROM comments WHERE text LIKE 'LEARNED:%' OR text LIKE 'DECISION:%' OR text LIKE 'FACT:%' OR text LIKE 'PATTERN:%' OR text LIKE 'INVESTIGATION:%';" 2>/dev/null || true)
 
-        local PREFIX TYPE CONTENT SLUG KEY
+      if [[ -n "$COMMENTS" ]]; then
+        while IFS= read -r COMMENT; do
+          [[ -z "$COMMENT" ]] && continue
 
-        for P in INVESTIGATION LEARNED DECISION FACT PATTERN; do
-          if echo "$COMMENT" | grep -q "^${P}:"; then
-            PREFIX="$P"
-            break
-          fi
-        done
+          local PREFIX TYPE CONTENT SLUG KEY
 
-        [[ -z "$PREFIX" ]] && continue
+          for P in INVESTIGATION LEARNED DECISION FACT PATTERN; do
+            if echo "$COMMENT" | grep -q "^${P}:"; then
+              PREFIX="$P"
+              break
+            fi
+          done
 
-        TYPE=$(echo "$PREFIX" | tr '[:upper:]' '[:lower:]')
-        CONTENT=$(echo "$COMMENT" | sed "s/^${PREFIX}:[[:space:]]*//" | head -c 2048)
-        SLUG=$(echo "$CONTENT" | head -c 60 | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-//;s/-$//')
-        KEY="${TYPE}-${SLUG}"
+          [[ -z "$PREFIX" ]] && continue
 
-        kb_insert "$DB_PATH" "$KEY" "$TYPE" "$CONTENT" "backfill" "" "$(date +%s)" ""
-      done <<< "$COMMENTS"
+          TYPE=$(echo "$PREFIX" | tr '[:upper:]' '[:lower:]')
+          CONTENT=$(echo "$COMMENT" | sed "s/^${PREFIX}:[[:space:]]*//" | head -c 2048)
+          SLUG=$(echo "$CONTENT" | head -c 60 | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-//;s/-$//')
+          KEY="${TYPE}-${SLUG}"
+
+          kb_insert "$DB_PATH" "$KEY" "$TYPE" "$CONTENT" "backfill" "" "$(date +%s)" ""
+        done <<< "$COMMENTS"
+      fi
     fi
+
+    # Re-read count after beads import
+    DB_COUNT=$(sqlite3 "$DB_PATH" "SELECT count(*) FROM knowledge;" 2>/dev/null || echo "0")
   fi
 
-  # Import from existing knowledge.jsonl
-  local JSONL_FILE="$MEMORY_DIR/knowledge.jsonl"
+  # Incremental import from JSONL files
+  _kb_sync_jsonl "$DB_PATH" "$MEMORY_DIR/knowledge.jsonl" "$DB_COUNT"
+  _kb_sync_jsonl "$DB_PATH" "$MEMORY_DIR/knowledge.archive.jsonl" "$DB_COUNT"
+}
 
-  if [[ -f "$JSONL_FILE" ]]; then
-    while IFS= read -r LINE; do
-      [[ -z "$LINE" ]] && continue
+# Import tail of a JSONL file, skipping lines likely already in SQLite.
+# $3 = current DB row count (used to compute how many lines to skip).
+# kb_insert already deduplicates on key, so re-importing a few lines is safe.
+_kb_sync_jsonl() {
+  local DB_PATH="$1"
+  local JSONL_FILE="$2"
+  local DB_COUNT="$3"
 
-      local KEY TYPE CONTENT SOURCE TAGS_TEXT TS BEAD
-      KEY=$(echo "$LINE" | jq -r '.key // empty' 2>/dev/null)
-      [[ -z "$KEY" ]] && continue
+  [[ ! -f "$JSONL_FILE" ]] && return 0
 
-      TYPE=$(echo "$LINE" | jq -r '.type // ""' 2>/dev/null)
-      CONTENT=$(echo "$LINE" | jq -r '.content // ""' 2>/dev/null)
-      SOURCE=$(echo "$LINE" | jq -r '.source // ""' 2>/dev/null)
-      TAGS_TEXT=$(echo "$LINE" | jq -r '(.tags // []) | join(" ")' 2>/dev/null)
-      TS=$(echo "$LINE" | jq -r '.ts // 0' 2>/dev/null)
-      BEAD=$(echo "$LINE" | jq -r '.bead // ""' 2>/dev/null)
+  local FILE_LINES
+  FILE_LINES=$(wc -l < "$JSONL_FILE" 2>/dev/null | tr -d ' ')
+  [[ "$FILE_LINES" -eq 0 ]] && return 0
 
-      kb_insert "$DB_PATH" "$KEY" "$TYPE" "$CONTENT" "$SOURCE" "$TAGS_TEXT" "$TS" "$BEAD"
-    done < "$JSONL_FILE"
-  fi
+  # How many lines to import: difference + 50 margin for safety
+  local SKIP=$(( DB_COUNT - 50 ))
+  [[ "$SKIP" -lt 0 ]] && SKIP=0
 
-  # Also import from archive if it exists
-  local ARCHIVE_FILE="$MEMORY_DIR/knowledge.archive.jsonl"
+  tail -n +"$(( SKIP + 1 ))" "$JSONL_FILE" | while IFS= read -r LINE; do
+    [[ -z "$LINE" ]] && continue
 
-  if [[ -f "$ARCHIVE_FILE" ]]; then
-    while IFS= read -r LINE; do
-      [[ -z "$LINE" ]] && continue
+    local KEY TYPE CONTENT SOURCE TAGS_TEXT TS BEAD
+    KEY=$(echo "$LINE" | jq -r '.key // empty' 2>/dev/null)
+    [[ -z "$KEY" ]] && continue
 
-      local KEY TYPE CONTENT SOURCE TAGS_TEXT TS BEAD
-      KEY=$(echo "$LINE" | jq -r '.key // empty' 2>/dev/null)
-      [[ -z "$KEY" ]] && continue
+    TYPE=$(echo "$LINE" | jq -r '.type // ""' 2>/dev/null)
+    CONTENT=$(echo "$LINE" | jq -r '.content // ""' 2>/dev/null)
+    SOURCE=$(echo "$LINE" | jq -r '.source // ""' 2>/dev/null)
+    TAGS_TEXT=$(echo "$LINE" | jq -r '(.tags // []) | join(" ")' 2>/dev/null)
+    TS=$(echo "$LINE" | jq -r '.ts // 0' 2>/dev/null)
+    BEAD=$(echo "$LINE" | jq -r '.bead // ""' 2>/dev/null)
 
-      TYPE=$(echo "$LINE" | jq -r '.type // ""' 2>/dev/null)
-      CONTENT=$(echo "$LINE" | jq -r '.content // ""' 2>/dev/null)
-      SOURCE=$(echo "$LINE" | jq -r '.source // ""' 2>/dev/null)
-      TAGS_TEXT=$(echo "$LINE" | jq -r '(.tags // []) | join(" ")' 2>/dev/null)
-      TS=$(echo "$LINE" | jq -r '.ts // 0' 2>/dev/null)
-      BEAD=$(echo "$LINE" | jq -r '.bead // ""' 2>/dev/null)
+    kb_insert "$DB_PATH" "$KEY" "$TYPE" "$CONTENT" "$SOURCE" "$TAGS_TEXT" "$TS" "$BEAD"
+  done
+}
 
-      kb_insert "$DB_PATH" "$KEY" "$TYPE" "$CONTENT" "$SOURCE" "$TAGS_TEXT" "$TS" "$BEAD"
-    done < "$ARCHIVE_FILE"
-  fi
-
-  # Mark backfill as done
-  touch "$MARKER"
+# Backward-compatible alias
+kb_backfill() {
+  kb_sync "$@"
 }

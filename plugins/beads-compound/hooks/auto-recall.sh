@@ -58,8 +58,8 @@ else
       source "$SCRIPT_DIR/knowledge-db.sh"
       DB_PATH="$MEMORY_DIR/knowledge.db"
 
-      # One-time backfill on first run
-      kb_backfill "$DB_PATH" "$MEMORY_DIR"
+      # Incremental sync (imports new entries from JSONL into FTS5)
+      kb_sync "$DB_PATH" "$MEMORY_DIR"
       kb_ensure_db "$DB_PATH"
 
       RELEVANT_KNOWLEDGE=$(kb_search "$DB_PATH" "$SEARCH_TERMS" 10 | while IFS='|' read -r type content bead tags; do

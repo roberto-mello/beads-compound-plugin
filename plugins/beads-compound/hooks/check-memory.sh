@@ -110,6 +110,23 @@ elif [ ! -f "$SETTINGS" ]; then
 SETTINGS_EOF
 fi
 
+# 4. Set up .gitattributes for union merge on knowledge files
+if git rev-parse --git-dir &>/dev/null; then
+  GITATTRIBUTES=".gitattributes"
+
+  if ! grep -q 'knowledge.jsonl' "$GITATTRIBUTES" 2>/dev/null; then
+    {
+      [[ -s "$GITATTRIBUTES" ]] && echo ""
+      echo "# Beads knowledge: union merge keeps both sides (append-only JSONL)"
+      echo ".beads/memory/knowledge.jsonl merge=union"
+      echo ".beads/memory/knowledge.archive.jsonl merge=union"
+    } >> "$GITATTRIBUTES"
+  fi
+
+  git add -f .beads/memory/knowledge.jsonl .beads/memory/recall.sh .beads/memory/knowledge-db.sh 2>/dev/null || true
+  git add .gitattributes 2>/dev/null || true
+fi
+
 # Report success
 cat <<'EOF'
 {

@@ -103,13 +103,14 @@ fi
 
 echo "$ENTRY" >> "$KNOWLEDGE_FILE"
 
-# Rotation: archive oldest 500 when file exceeds 1000 lines
+# Rotation: archive oldest 2500 when file exceeds 5000 lines
+# High threshold avoids rewriting the file (which breaks merge=union)
 LINE_COUNT=$(wc -l < "$KNOWLEDGE_FILE" 2>/dev/null | tr -d ' ')
 
-if [[ "$LINE_COUNT" -gt 1000 ]]; then
+if [[ "$LINE_COUNT" -gt 5000 ]]; then
   ARCHIVE_FILE="$MEMORY_DIR/knowledge.archive.jsonl"
-  head -500 "$KNOWLEDGE_FILE" >> "$ARCHIVE_FILE"
-  tail -n +501 "$KNOWLEDGE_FILE" > "$KNOWLEDGE_FILE.tmp"
+  head -2500 "$KNOWLEDGE_FILE" >> "$ARCHIVE_FILE"
+  tail -n +2501 "$KNOWLEDGE_FILE" > "$KNOWLEDGE_FILE.tmp"
   mv "$KNOWLEDGE_FILE.tmp" "$KNOWLEDGE_FILE"
 fi
 

@@ -455,6 +455,25 @@ EOF
   fi
 fi
 
+# Set up .gitattributes for union merge on knowledge files (project installs only)
+if [ "$GLOBAL_INSTALL" = false ] && git -C "$TARGET" rev-parse --git-dir &>/dev/null; then
+  GITATTRIBUTES="$TARGET/.gitattributes"
+
+  if ! grep -q 'knowledge.jsonl' "$GITATTRIBUTES" 2>/dev/null; then
+    {
+      [[ -s "$GITATTRIBUTES" ]] && echo ""
+      echo "# Beads knowledge: union merge keeps both sides (append-only JSONL)"
+      echo ".beads/memory/knowledge.jsonl merge=union"
+      echo ".beads/memory/knowledge.archive.jsonl merge=union"
+    } >> "$GITATTRIBUTES"
+    echo "  - Configured .gitattributes for union merge"
+  fi
+
+  git -C "$TARGET" add -f .beads/memory/knowledge.jsonl .beads/memory/recall.sh .beads/memory/knowledge-db.sh 2>/dev/null || true
+  git -C "$TARGET" add .gitattributes 2>/dev/null || true
+  echo "  - Tracked memory files in git"
+fi
+
 # Check for recommended frontend skills
 FRONTEND_SKILLS_MISSING=()
 
