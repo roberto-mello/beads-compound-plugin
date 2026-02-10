@@ -60,7 +60,7 @@ bunx @every-env/compound-plugin install ./plugins/beads-compound --to codex
 
 ### Always-On Features
 
-1. **Automatic Knowledge Capture** -- Any `bd comment add` with LEARNED/DECISION/FACT/PATTERN/INVESTIGATION gets extracted and stored in both SQLite FTS5 (`knowledge.db`) and JSONL (`knowledge.jsonl`)
+1. **Automatic Knowledge Capture** -- Any `bd comments add` with LEARNED/DECISION/FACT/PATTERN/INVESTIGATION gets extracted and stored in both SQLite FTS5 (`knowledge.db`) and JSONL (`knowledge.jsonl`)
 
 2. **Automatic Knowledge Recall** -- Session start hook injects relevant knowledge based on your current beads, using FTS5 full-text search with BM25 ranking for significantly better results on conceptual and multi-word queries
 
@@ -193,12 +193,16 @@ Or go full auto:
 /lfg "Add OAuth"                            # Full autonomous workflow
 ```
 
+For ad-hoc sessions where you might have been working on something without a beads issue,
+you can `/beads-checkpoint` to capture memories about the current context, and then
+continue working.
+
 ### Lightweight Usage (No Commands Needed)
 
 ```bash
 bd create "Fix login bug" -d "Users can't log in with OAuth"
 # Work normally...
-bd comment add BD-001 "LEARNED: OAuth redirect URI must match exactly"
+bd comments add BD-001 "LEARNED: OAuth redirect URI must match exactly"
 bd close BD-001
 # Knowledge captured automatically, recalled next session
 ```
@@ -313,16 +317,17 @@ This plugin is a fork of [compound-engineering-plugin](https://github.com/EveryI
 ### Memory System
 
 - Replaced markdown-based knowledge storage with beads-based persistent memory (`.beads/memory/knowledge.jsonl`)
-- Added SQLite FTS5 full-text search with BM25 ranking for knowledge recall, improving precision by 18%, recall by 17%, and MRR by 24% over grep-based search across 25 benchmark queries
-- Added automatic knowledge capture from `bd comment add` with typed prefixes (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION), dual-writing to SQLite and JSONL
-- Added automatic knowledge recall at session start based on open beads and git branch context
-- Added subagent knowledge enforcement via `SubagentStop` hook
+- SQLite FTS5 full-text search with BM25 ranking for knowledge recall, improving precision by 18%, recall by 17%, and MRR by 24% over grep-based search across 25 benchmark queries
+- Automatic knowledge capture from `bd comments add` with typed prefixes (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION), dual-writing to SQLite (for fast searching with fuzzy matching) and JSONL (for committing to git)
+- Automatic knowledge recall at session start based on open beads and git branch context
+- Subagent knowledge enforcement via `SubagentStop` hook
 - All workflows create and update beads instead of markdown files
 - Automatic one-time backfill from existing JSONL and beads.db comments on first FTS5 run
+- First session (like cloning a beads-compound enabled repo) triggers rebuilding the FTS5 index from the JSONL in git. Everything self-heals on first session.
 
 ### Performance Optimizations
 
-- **Context budget optimization (94% reduction)**: Plugin now uses only 8,227 chars of Claude Code's 16,000 char description budget (51.4%), down from 136,639 chars (854% over budget). This prevents components from being silently excluded from Claude's context. Achieved through:
+- **Context budget optimization (94% reduction)**: Plugin now uses only 8,227 chars of Claude Code's 16,000 char description budget. This prevents components from being silently excluded from Claude's context.
   - Trimmed all 28 agent descriptions to under 250 chars, moving verbose examples into agent bodies wrapped in `<examples>` tags
   - Added `disable-model-invocation: true` to 17 manual utility commands (they remain available when explicitly invoked via `/command-name` but don't clutter Claude's auto-suggestion context)
   - Added `disable-model-invocation: true` to 7 manual utility skills (beads-knowledge, create-agent-skills, file-todos, skill-creator, git-worktree, rclone, gemini-imagegen)
@@ -331,7 +336,6 @@ This plugin is a fork of [compound-engineering-plugin](https://github.com/EveryI
 
 ### Structural Changes
 
-- Restructured as a marketplace plugin with `install.sh`/`uninstall.sh` at root
 - Rewrote `learnings-researcher` to search `knowledge.jsonl` instead of markdown docs
 - Adapted `code-simplicity-reviewer` to protect `.beads/memory/` files
 - Renamed `compound-docs` skill to `beads-knowledge`
@@ -347,7 +351,7 @@ Creates an epic bead with child beads for each implementation step.
 
 ## Acknowledgments
 
-This project builds on the excellent work of the [Every](https://every.to) team and their [compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin). The multi-agent workflow architecture, agent designs, and the core philosophy of compounding engineering knowledge were created by Kieran Klaassen, Dan Shipper, Julik Tarkhanov, and the Every engineering team. Their [writing on compound engineering](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents) is well worth reading.
+[Every](https://every.to)'s [writing on compound engineering](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents) is well worth reading.
 
 Task tracking is powered by Steve Yegge's [Beads](https://github.com/steveyegge/beads).
 
