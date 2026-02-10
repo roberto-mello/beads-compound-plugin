@@ -201,21 +201,37 @@ fi
 mkdir -p "$SKILLS_DIR"
 
 SKILL_COUNT=0
+SKILL_SKIPPED=0
 
 if [ -d "$PLUGIN_DIR/skills" ]; then
   for skill_dir in "$PLUGIN_DIR/skills"/*/; do
     if [ -d "$skill_dir" ]; then
       skill_name=$(basename "$skill_dir")
+
+      if [ -d "$SKILLS_DIR/$skill_name" ]; then
+        if [ -f "$SKILLS_DIR/$skill_name/.beads-compound" ]; then
+          # Our plugin installed this -- safe to overwrite
+          rm -rf "$SKILLS_DIR/$skill_name"
+        else
+          # User's own skill -- skip it
+          echo "  - Skipped $skill_name (already exists, not ours)"
+          ((SKILL_SKIPPED++))
+          continue
+        fi
+      fi
+
       # Copy entire skill directory (may contain references/, templates/, etc.)
-      # Use -Rf to overwrite existing skill directories on reinstall
-      rm -rf "$SKILLS_DIR/$skill_name"
       cp -r "$skill_dir" "$SKILLS_DIR/$skill_name"
+      touch "$SKILLS_DIR/$skill_name/.beads-compound"
       ((SKILL_COUNT++))
     fi
   done
 fi
 
 echo "  - Installed $SKILL_COUNT skills"
+if [ "$SKILL_SKIPPED" -gt 0 ]; then
+  echo "  - Skipped $SKILL_SKIPPED existing skill(s) not managed by this plugin"
+fi
 
 # Install MCP configuration
 echo "[8/9] Configuring MCP servers..."

@@ -145,9 +145,13 @@ if [ -d "$SKILLS_DIR" ]; then
 
   for skill in "${PLUGIN_SKILLS[@]}"; do
     if [ -d "$SKILLS_DIR/$skill" ]; then
-      rm -rf "$SKILLS_DIR/$skill"
-      echo "  - Removed $skill skill"
-      ((REMOVED_COUNT++))
+      if [ -f "$SKILLS_DIR/$skill/.beads-compound" ]; then
+        rm -rf "$SKILLS_DIR/$skill"
+        echo "  - Removed $skill skill"
+        ((REMOVED_COUNT++))
+      else
+        echo "  - Kept $skill (not managed by this plugin)"
+      fi
     fi
   done
 
