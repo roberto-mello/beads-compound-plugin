@@ -93,18 +93,55 @@ if [[ -z "$QUERY" ]]; then
   exit 0
 fi
 
-RESULTS=$(grep -i "$QUERY" $INPUT_FILES 2>/dev/null)
+# FTS5 search if available
+USED_FTS5=false
 
-# Apply type filter
-if [[ -n "$TYPE_FILTER" ]]; then
-  RESULTS=$(echo "$RESULTS" | jq -r "select(.type == \"$TYPE_FILTER\")" 2>/dev/null)
+if command -v sqlite3 &>/dev/null; then
+  DB_PATH="$MEMORY_DIR/knowledge.db"
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+  if [[ -f "$DB_PATH" ]] && [[ -f "$SCRIPT_DIR/knowledge-db.sh" ]]; then
+    source "$SCRIPT_DIR/knowledge-db.sh"
+    RAW_RESULTS=$(kb_search "$DB_PATH" "$QUERY" 20)
+
+    if [[ -n "$RAW_RESULTS" ]]; then
+      # Apply type filter and format
+      RESULTS=""
+
+      while IFS='|' read -r type content bead tags; do
+        [[ -z "$type" ]] && continue
+
+        if [[ -n "$TYPE_FILTER" ]] && [[ "$type" != "$TYPE_FILTER" ]]; then
+          continue
+        fi
+
+        TYPE_UPPER=$(echo "$type" | tr '[:lower:]' '[:upper:]')
+        RESULTS="${RESULTS}[$TYPE_UPPER] $content
+  bead: $bead | $tags
+"
+      done <<< "$RAW_RESULTS"
+
+      if [[ -n "$RESULTS" ]]; then
+        echo "$RESULTS"
+        USED_FTS5=true
+      fi
+    fi
+  fi
 fi
 
-# Deduplicate by key and format
-echo "$RESULTS" | jq -rs '
-  [.[] | select(.key != null)] |
-  unique_by(.key) |
-  sort_by(-.ts) |
-  .[] |
-  "[\(.type | ascii_upcase)] \(.content)\n  bead: \(.bead) | \(.tags | join(", "))"
-' 2>/dev/null
+if [[ "$USED_FTS5" = false ]]; then
+  # Grep fallback
+  RESULTS=$(grep -i "$QUERY" $INPUT_FILES 2>/dev/null)
+
+  if [[ -n "$TYPE_FILTER" ]]; then
+    RESULTS=$(echo "$RESULTS" | jq -r "select(.type == \"$TYPE_FILTER\")" 2>/dev/null)
+  fi
+
+  echo "$RESULTS" | jq -rs '
+    [.[] | select(.key != null)] |
+    unique_by(.key) |
+    sort_by(-.ts) |
+    .[] |
+    "[\(.type | ascii_upcase)] \(.content)\n  bead: \(.bead) | \(.tags | join(", "))"
+  ' 2>/dev/null
+fi
