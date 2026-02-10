@@ -34,15 +34,17 @@ cd beads-compound-plugin
 # Global install (recommended - commands, agents, skills available everywhere)
 ./install.sh
 
-# Or project-specific install (includes beads memory integration)
-./install.sh /path/to/your-project
+# Then per-project install for memory features
+cd /path/to/your-project
+bash /path/to/beads-compound-plugin/install.sh .
 
 # Restart Claude Code
 ```
 
 **Global vs Project-Specific:**
-- **Global** (`./install.sh`): Installs to `~/.claude` - commands, agents, and skills available in all sessions
-- **Project-Specific** (`./install.sh /path/to/project`): Additionally includes beads memory hooks and auto-recall system
+- **Global** (`./install.sh`): Installs commands, agents, and skills to `~/.claude` for all sessions. Also installs a `check-memory` SessionStart hook that auto-detects beads projects missing memory setup and tells you how to fix it.
+- **Project-Specific** (`./install.sh /path/to/project`): Installs memory hooks, auto-recall, and knowledge capture. If commands/agents/skills are already installed globally, they are skipped to avoid duplication.
+- Use `--yes` or `-y` to skip the global install confirmation prompt (e.g. `./install.sh --yes`).
 
 ### OpenCode/Codex Installation
 
@@ -147,13 +149,14 @@ The most frequently invoked agents (learnings-researcher, repo-research-analyst)
 
 - **Context7** -- Framework documentation lookup
 
-### Hooks (3 + shared library)
+### Hooks (4 + shared library)
 
 | Hook | Trigger | Purpose |
 |------|---------|---------|
 | auto-recall.sh | SessionStart | Inject relevant knowledge at session start (FTS5-first, grep fallback) |
 | memory-capture.sh | PostToolUse (Bash) | Extract knowledge from bd comments (dual-write to SQLite + JSONL) |
 | subagent-wrapup.sh | SubagentStop | Ensure subagents log learnings |
+| check-memory.sh | SessionStart (global) | Auto-detect beads projects missing memory setup |
 | knowledge-db.sh | (library) | Shared SQLite FTS5 functions sourced by other hooks |
 
 ## Recommended Workflow
@@ -272,7 +275,7 @@ beads-compound-plugin/              # Marketplace root
 │       │   └── docs/               # 1 docs agent
 │       ├── commands/               # 25 commands
 │       ├── skills/                 # 15 skills
-│       ├── hooks/                  # 3 hooks + shared library + hooks.json
+│       ├── hooks/                  # 4 hooks + shared library + hooks.json
 │       ├── scripts/
 │       └── .mcp.json
 ├── install.sh
@@ -305,10 +308,14 @@ This is a one-time operation. After backfill, new entries are dual-written to bo
 ## Uninstall
 
 ```bash
+# Global uninstall
+./uninstall.sh
+
+# Project-specific uninstall
 ./uninstall.sh /path/to/your-project
 ```
 
-Removes plugin components but preserves `.beads/` data and accumulated knowledge.
+Removes plugin components but preserves `.beads/` data and accumulated knowledge. Global uninstall also removes the `check-memory` hook and plugin source path.
 
 ## Changes from Compound Engineering
 
