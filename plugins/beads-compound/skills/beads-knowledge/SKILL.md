@@ -212,8 +212,8 @@ echo '{"key":"learned-oauth-redirect-must-match","type":"learned","content":"OAu
 For each knowledge entry, also log it as a bead comment using the appropriate prefix:
 
 ```bash
-bd comment add BD-001 "LEARNED: OAuth redirect URI must match exactly including trailing slash"
-bd comment add BD-001 "PATTERN: Always verify OAuth redirect URIs match exactly, including protocol and trailing slash"
+bd comments add BD-001 "LEARNED: OAuth redirect URI must match exactly including trailing slash"
+bd comments add BD-001 "PATTERN: Always verify OAuth redirect URIs match exactly, including protocol and trailing slash"
 ```
 
 **Handle rotation:** If knowledge.jsonl exceeds 1000 lines after appending:
@@ -317,12 +317,12 @@ What's next?
 
 **Works with:**
 - `auto-recall.sh` hook reads from knowledge.jsonl at session start
-- `memory-capture.sh` hook captures knowledge from `bd comment add` commands
+- `memory-capture.sh` hook captures knowledge from `bd comments add` commands
 - `recall.sh` script provides manual search
 
 **Data flow:**
 1. This skill writes structured entries to `.beads/memory/knowledge.jsonl`
-2. This skill also logs comments via `bd comment add` (which triggers `memory-capture.sh`)
+2. This skill also logs comments via `bd comments add` (which triggers `memory-capture.sh`)
 3. At next session start, `auto-recall.sh` searches knowledge.jsonl and injects relevant entries
 
 </integration_protocol>
@@ -337,7 +337,7 @@ Knowledge capture is successful when ALL of the following are true:
 
 - All JSONL entries have valid schema (required fields, correct types)
 - Entries appended to `.beads/memory/knowledge.jsonl`
-- Bead comments logged via `bd comment add` (if bead ID available)
+- Bead comments logged via `bd comments add` (if bead ID available)
 - Content is specific and searchable (not vague)
 - Tags are appropriate for future recall
 - User presented with decision menu and action confirmed
@@ -362,7 +362,7 @@ Knowledge capture is successful when ALL of the following are true:
 **Missing bead ID:**
 
 - Knowledge can still be captured to knowledge.jsonl
-- Skip `bd comment add` step
+- Skip `bd comments add` step
 - Warn: "No active bead - knowledge saved to JSONL only, not linked to a bead"
 
 **Knowledge.jsonl doesn't exist:**
@@ -378,7 +378,7 @@ Knowledge capture is successful when ALL of the following are true:
 - Validate JSONL entries (BLOCK if invalid per Step 5 validation gate)
 - Extract exact error messages from conversation
 - Include specific, searchable content
-- Use `bd comment add` with knowledge prefixes when bead ID is available
+- Use `bd comments add` with knowledge prefixes when bead ID is available
 - Auto-tag based on content keywords
 
 **MUST NOT do:**
@@ -435,8 +435,8 @@ Knowledge capture is successful when ALL of the following are true:
    - Appended to `.beads/memory/knowledge.jsonl`
    - Logged bead comments:
      ```bash
-     bd comment add BD-042 "LEARNED: Order listing N+1 query fixed by adding .includes(:items). Missing eager loading caused separate DB query per order item."
-     bd comment add BD-042 "PATTERN: When listing parent records that display child data, always use .includes() for associations. Check with bullet gem or query logs."
+     bd comments add BD-042 "LEARNED: Order listing N+1 query fixed by adding .includes(:items). Missing eager loading caused separate DB query per order item."
+     bd comments add BD-042 "PATTERN: When listing parent records that display child data, always use .includes() for associations. Check with bullet gem or query logs."
      ```
 7. **Cross-reference:** None needed (no similar knowledge)
 

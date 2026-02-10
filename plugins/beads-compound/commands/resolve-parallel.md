@@ -73,7 +73,7 @@ After agents complete:
 For each resolved bead:
 ```bash
 # Verify the fix
-# (agent should have logged knowledge via bd comment add)
+# (agent should have logged knowledge via bd comments add)
 
 # Close the bead
 bd close {BEAD_ID}

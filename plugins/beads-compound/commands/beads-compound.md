@@ -25,7 +25,7 @@ Captures problem solutions while context is fresh, creating structured knowledge
 <critical_requirement>
 **Research subagents return TEXT DATA only - NO file writes.**
 
-Subagents in Phase 1 (research) must NOT use Write, Edit, or create any files. They analyze and return text data to the orchestrator. Only knowledge entries via `bd comment add` should be written (which triggers automatic capture via the memory-capture hook).
+Subagents in Phase 1 (research) must NOT use Write, Edit, or create any files. They analyze and return text data to the orchestrator. Only knowledge entries via `bd comments add` should be written (which triggers automatic capture via the memory-capture hook).
 </critical_requirement>
 
 ## Execution Strategy: Parallel Subagents
@@ -64,7 +64,7 @@ This command launches multiple specialized subagents IN PARALLEL to maximize eff
 ### 6. **Knowledge Writer** (Parallel)
    - Assembles complete knowledge entries
    - Validates JSONL format
-   - Writes entries using `bd comment add` for auto-capture
+   - Writes entries using `bd comments add` for auto-capture
    - Creates the entries
 
 ### 7. **Optional: Specialized Agent Invocation** (Post-Documentation)
@@ -85,23 +85,23 @@ This command launches multiple specialized subagents IN PARALLEL to maximize eff
 
 ## Knowledge Entry Format
 
-All knowledge is logged via `bd comment add` which triggers the memory-capture hook:
+All knowledge is logged via `bd comments add` which triggers the memory-capture hook:
 
 ```bash
 # Root cause analysis
-bd comment add {BEAD_ID} "INVESTIGATION: {root cause explanation with technical details}"
+bd comments add {BEAD_ID} "INVESTIGATION: {root cause explanation with technical details}"
 
 # Key learnings
-bd comment add {BEAD_ID} "LEARNED: {what worked, including code patterns}"
+bd comments add {BEAD_ID} "LEARNED: {what worked, including code patterns}"
 
 # Important facts/constraints
-bd comment add {BEAD_ID} "FACT: {constraint, gotcha, or important detail}"
+bd comments add {BEAD_ID} "FACT: {constraint, gotcha, or important detail}"
 
 # Patterns to follow
-bd comment add {BEAD_ID} "PATTERN: {coding pattern or convention that solved the problem}"
+bd comments add {BEAD_ID} "PATTERN: {coding pattern or convention that solved the problem}"
 
 # Decisions made
-bd comment add {BEAD_ID} "DECISION: {what was chosen and why, with alternatives considered}"
+bd comments add {BEAD_ID} "DECISION: {what was chosen and why, with alternatives considered}"
 ```
 
 Each entry is auto-tagged based on content keywords and stored in `knowledge.jsonl`.

@@ -113,13 +113,13 @@ For each significant decision or finding, log it to the active bead:
 
 ```bash
 # Log the chosen approach
-bd comment add {BEAD_ID} "DECISION: Chose [approach name] because [rationale]. Alternatives considered: [list]"
+bd comments add {BEAD_ID} "DECISION: Chose [approach name] because [rationale]. Alternatives considered: [list]"
 
 # Log key investigation findings
-bd comment add {BEAD_ID} "INVESTIGATION: Explored [topic]. Found that [key finding]. This means [implication]."
+bd comments add {BEAD_ID} "INVESTIGATION: Explored [topic]. Found that [key finding]. This means [implication]."
 
 # Log important facts discovered during brainstorming
-bd comment add {BEAD_ID} "FACT: [Constraint or requirement discovered during brainstorming]"
+bd comments add {BEAD_ID} "FACT: [Constraint or requirement discovered during brainstorming]"
 ```
 
 **If no active bead exists**, present a summary in this format:

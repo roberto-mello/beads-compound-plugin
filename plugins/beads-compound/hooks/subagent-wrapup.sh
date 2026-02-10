@@ -27,11 +27,11 @@ if [[ -n "$TRANSCRIPT_PATH" ]] && [[ -f "$TRANSCRIPT_PATH" ]]; then
   "decision": "block",
   "reason": "Before completing, please log what you learned to the bead using one or more of these formats:
 
-bd comment add $BEAD_ID \"LEARNED: [key technical insight you discovered]\"
-bd comment add $BEAD_ID \"DECISION: [important choice you made and why]\"
-bd comment add $BEAD_ID \"FACT: [constraint, gotcha, or important detail]\"
-bd comment add $BEAD_ID \"PATTERN: [coding pattern or convention you followed]\"
-bd comment add $BEAD_ID \"INVESTIGATION: [root cause or how something works]\"
+bd comments add $BEAD_ID \"LEARNED: [key technical insight you discovered]\"
+bd comments add $BEAD_ID \"DECISION: [important choice you made and why]\"
+bd comments add $BEAD_ID \"FACT: [constraint, gotcha, or important detail]\"
+bd comments add $BEAD_ID \"PATTERN: [coding pattern or convention you followed]\"
+bd comments add $BEAD_ID \"INVESTIGATION: [root cause or how something works]\"
 
 After logging at least one insight, you may complete."
 }

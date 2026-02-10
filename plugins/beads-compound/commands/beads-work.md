@@ -150,10 +150,10 @@ This command takes a bead (or specification) and executes it systematically. The
    When you discover something worth remembering:
 
    ```bash
-   bd comment add {BEAD_ID} "LEARNED: {key technical insight}"
-   bd comment add {BEAD_ID} "DECISION: {what was chosen and why}"
-   bd comment add {BEAD_ID} "FACT: {constraint or gotcha discovered}"
-   bd comment add {BEAD_ID} "PATTERN: {coding pattern followed}"
+   bd comments add {BEAD_ID} "LEARNED: {key technical insight}"
+   bd comments add {BEAD_ID} "DECISION: {what was chosen and why}"
+   bd comments add {BEAD_ID} "FACT: {constraint or gotcha discovered}"
+   bd comments add {BEAD_ID} "PATTERN: {coding pattern followed}"
    ```
 
 4. **Follow Existing Patterns**
@@ -248,7 +248,7 @@ This command takes a bead (or specification) and executes it systematically. The
    Log at least one knowledge comment summarizing the work:
 
    ```bash
-   bd comment add {BEAD_ID} "LEARNED: {most important insight from this work}"
+   bd comments add {BEAD_ID} "LEARNED: {most important insight from this work}"
    ```
 
 4. **Offer Next Steps**

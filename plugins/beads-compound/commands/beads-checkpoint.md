@@ -56,11 +56,11 @@ bd list --status=in_progress
 For each filed or existing bead that was worked on, add at least one knowledge comment:
 
 ```bash
-bd comment add <id> "LEARNED: <key technical insight>"
-bd comment add <id> "DECISION: <what was chosen and why>"
-bd comment add <id> "FACT: <constraint, gotcha, or environment detail>"
-bd comment add <id> "PATTERN: <recurring convention or idiom>"
-bd comment add <id> "INVESTIGATION: <root cause analysis>"
+bd comments add <id> "LEARNED: <key technical insight>"
+bd comments add <id> "DECISION: <what was chosen and why>"
+bd comments add <id> "FACT: <constraint, gotcha, or environment detail>"
+bd comments add <id> "PATTERN: <recurring convention or idiom>"
+bd comments add <id> "INVESTIGATION: <root cause analysis>"
 ```
 
 These will be auto-captured by the memory-capture hook.

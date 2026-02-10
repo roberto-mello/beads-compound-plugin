@@ -326,9 +326,9 @@ bd update {CHILD_ID} -d "## What
 **Log findings as knowledge comments:**
 
 ```bash
-bd comment add {CHILD_ID} "INVESTIGATION: {key research finding for this step}"
-bd comment add {CHILD_ID} "PATTERN: {recommended pattern discovered}"
-bd comment add {CHILD_ID} "FACT: {constraint or gotcha from research}"
+bd comments add {CHILD_ID} "INVESTIGATION: {key research finding for this step}"
+bd comments add {CHILD_ID} "PATTERN: {recommended pattern discovered}"
+bd comments add {CHILD_ID} "FACT: {constraint or gotcha from research}"
 ```
 
 ### 8. Add Enhancement Summary to Epic
@@ -336,7 +336,7 @@ bd comment add {CHILD_ID} "FACT: {constraint or gotcha from research}"
 Update the epic bead description with a summary:
 
 ```bash
-bd comment add {EPIC_ID} "INVESTIGATION: Plan deepened with research from [count] agents, [count] skills, and [count] learnings. Key improvements: [top 3 improvements]"
+bd comments add {EPIC_ID} "INVESTIGATION: Plan deepened with research from [count] agents, [count] skills, and [count] learnings. Key improvements: [top 3 improvements]"
 ```
 
 ## Quality Checks

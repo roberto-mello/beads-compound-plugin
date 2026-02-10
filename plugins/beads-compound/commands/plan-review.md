@@ -102,7 +102,7 @@ After all agents complete, synthesize their feedback into a categorized report:
 For significant findings, log knowledge:
 
 ```bash
-bd comment add {EPIC_ID} "LEARNED: Plan review found: {key insight}"
+bd comments add {EPIC_ID} "LEARNED: Plan review found: {key insight}"
 ```
 
 ## Post-Review Options

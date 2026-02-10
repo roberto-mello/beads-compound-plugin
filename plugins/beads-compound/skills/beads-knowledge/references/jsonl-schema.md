@@ -89,7 +89,7 @@ When logging to both knowledge.jsonl AND bead comments:
 echo '{"key":"learned-example","type":"learned","content":"...","source":"agent","tags":["tag"],"ts":1706918400,"bead":"BD-001"}' >> .beads/memory/knowledge.jsonl
 
 # Corresponding bead comment
-bd comment add BD-001 "LEARNED: [content from entry]"
+bd comments add BD-001 "LEARNED: [content from entry]"
 ```
 
 ## Search Behavior

@@ -89,10 +89,10 @@ Create a brainstorm bead and log findings as comments:
 bd create "Brainstorm: {topic}" --type chore --labels brainstorm -d "{summary of what we're exploring}"
 
 # Log key decisions
-bd comment add {BEAD_ID} "DECISION: {approach chosen and why}"
-bd comment add {BEAD_ID} "INVESTIGATION: {key findings from exploration}"
-bd comment add {BEAD_ID} "FACT: {constraints discovered}"
-bd comment add {BEAD_ID} "PATTERN: {patterns to follow}"
+bd comments add {BEAD_ID} "DECISION: {approach chosen and why}"
+bd comments add {BEAD_ID} "INVESTIGATION: {key findings from exploration}"
+bd comments add {BEAD_ID} "FACT: {constraints discovered}"
+bd comments add {BEAD_ID} "PATTERN: {patterns to follow}"
 ```
 
 ### Phase 4: Handoff

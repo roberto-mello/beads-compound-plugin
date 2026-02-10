@@ -239,8 +239,8 @@ This ensures the original bead cannot be closed until critical issues are resolv
 For significant findings, log knowledge:
 
 ```bash
-bd comment add {BEAD_ID} "LEARNED: {key insight from review}"
-bd comment add {BEAD_ID} "PATTERN: {pattern issue discovered}"
+bd comments add {BEAD_ID} "LEARNED: {key insight from review}"
+bd comments add {BEAD_ID} "PATTERN: {pattern issue discovered}"
 ```
 
 #### Step 5: Summary Report

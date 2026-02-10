@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# PostToolUse:Bash (async) - Capture knowledge from bd comment add commands
+# PostToolUse:Bash (async) - Capture knowledge from bd comments add commands
 #
-# Detects: bd comment add {BEAD_ID} "INVESTIGATION: ..." / "LEARNED: ..." /
+# Detects: bd comments add {BEAD_ID} "INVESTIGATION: ..." / "LEARNED: ..." /
 #          "DECISION: ..." / "FACT: ..." / "PATTERN: ..."
 # Extracts knowledge entries into .beads/memory/knowledge.jsonl
 #

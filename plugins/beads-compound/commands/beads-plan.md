@@ -246,9 +246,9 @@ bd create "{step title}" --parent {EPIC_ID} -d "{comprehensive description}"
 **Add research context as comments:**
 
 ```bash
-bd comment add {CHILD_ID} "INVESTIGATION: {key research findings specific to this step}"
-bd comment add {CHILD_ID} "PATTERN: {recommended patterns for this step}"
-bd comment add {CHILD_ID} "FACT: {constraints or gotchas discovered}"
+bd comments add {CHILD_ID} "INVESTIGATION: {key research findings specific to this step}"
+bd comments add {CHILD_ID} "PATTERN: {recommended patterns for this step}"
+bd comments add {CHILD_ID} "FACT: {constraints or gotchas discovered}"
 ```
 
 **AI-Era Considerations:**

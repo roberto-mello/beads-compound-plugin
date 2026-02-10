@@ -65,9 +65,9 @@ Just code normally:
 ### 5. Log learnings
 
 ```bash
-bd comment add BD-001.1 "LEARNED: Profile images should be lazy-loaded for performance"
-bd comment add BD-001.1 "DECISION: Using Gravatar for default avatars"
-bd comment add BD-001.1 "FACT: Max upload size is 5MB (nginx limit)"
+bd comments add BD-001.1 "LEARNED: Profile images should be lazy-loaded for performance"
+bd comments add BD-001.1 "DECISION: Using Gravatar for default avatars"
+bd comments add BD-001.1 "FACT: Max upload size is 5MB (nginx limit)"
 ```
 
 These get auto-captured to `.beads/memory/knowledge.jsonl`.
@@ -152,9 +152,9 @@ bd create "Add two-factor authentication" -d "TOTP-based 2FA with QR codes"
 git add -A
 git commit -m "Add OTP secrets table"
 
-bd comment add BD-050.1 "LEARNED: OTP secrets MUST be encrypted at rest"
-bd comment add BD-050.1 "DECISION: Using rotp gem for TOTP generation"
-bd comment add BD-050.1 "FACT: Backup codes needed for account recovery"
+bd comments add BD-050.1 "LEARNED: OTP secrets MUST be encrypted at rest"
+bd comments add BD-050.1 "DECISION: Using rotp gem for TOTP generation"
+bd comments add BD-050.1 "FACT: Backup codes needed for account recovery"
 
 /beads-review BD-050.1
 # Security review catches missing index on user_id

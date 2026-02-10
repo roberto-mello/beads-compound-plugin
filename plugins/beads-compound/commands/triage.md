@@ -85,13 +85,13 @@ What would you like to do with this bead?
 
 **When user says "Dismiss":**
 - Close the bead: `bd close {BEAD_ID} --reason "Dismissed during triage"`
-- Log: `bd comment add {BEAD_ID} "DECISION: Dismissed during triage - {reason}"`
+- Log: `bd comments add {BEAD_ID} "DECISION: Dismissed during triage - {reason}"`
 - Skip to next item
 
 **When user says "Defer":**
 - Lower priority: `bd update {BEAD_ID} --priority 5`
 - Add tag: `bd update {BEAD_ID} --tags "deferred"`
-- Log: `bd comment add {BEAD_ID} "DECISION: Deferred during triage - {reason}"`
+- Log: `bd comments add {BEAD_ID} "DECISION: Deferred during triage - {reason}"`
 
 ### Step 3: Progress Tracking
 

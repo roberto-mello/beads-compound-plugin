@@ -7,7 +7,7 @@ A Claude Code plugin that combines beads-based persistent memory with compound-e
 - **27 specialized agents** (cost-optimized across Haiku/Sonnet/Opus tiers)
 - **11 workflow commands** for brainstorming, planning, research, review, and more
 - **5 skills** for worktrees, brainstorming, agent creation, and documentation
-- **Automatic knowledge capture** from `bd comment add` with knowledge prefixes
+- **Automatic knowledge capture** from `bd comments add` with knowledge prefixes
 - **Automatic knowledge recall** at session start based on current beads
 - **Context7 MCP server** for framework documentation
 - **60-70% cost reduction** via intelligent model tier assignment
@@ -98,7 +98,7 @@ Knowledge prefixes recognized by the memory capture hook:
 
 Usage:
 ```bash
-bd comment add BD-001 "LEARNED: OAuth redirect URI must match exactly"
+bd comments add BD-001 "LEARNED: OAuth redirect URI must match exactly"
 ```
 
 Knowledge is stored in `.beads/memory/knowledge.jsonl` and automatically recalled at the start of each session.

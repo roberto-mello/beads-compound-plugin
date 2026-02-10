@@ -70,7 +70,7 @@ RESEARCH=$(awk '/^## (Research|Background|Context)/{flag=1;next}/^## /{flag=0}fl
 
 if [[ -n "$RESEARCH" ]]; then
   echo "Adding research findings as INVESTIGATION..."
-  bd comment add "$EPIC_ID" "INVESTIGATION: Background and Research
+  bd comments add "$EPIC_ID" "INVESTIGATION: Background and Research
 
 $RESEARCH"
 fi
@@ -80,7 +80,7 @@ DECISIONS=$(awk '/^## (Decisions|Choices|Approach)/{flag=1;next}/^## /{flag=0}fl
 
 if [[ -n "$DECISIONS" ]]; then
   echo "Adding decisions..."
-  bd comment add "$EPIC_ID" "DECISION: Architectural Decisions
+  bd comments add "$EPIC_ID" "DECISION: Architectural Decisions
 
 $DECISIONS"
 fi
