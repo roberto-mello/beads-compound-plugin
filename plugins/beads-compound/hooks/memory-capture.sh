@@ -90,6 +90,17 @@ MEMORY_DIR="${CLAUDE_PROJECT_DIR:-.}/.beads/memory"
 mkdir -p "$MEMORY_DIR"
 KNOWLEDGE_FILE="$MEMORY_DIR/knowledge.jsonl"
 
+# SQLite dual-write (graceful fallback if sqlite3 unavailable)
+if command -v sqlite3 &>/dev/null; then
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  if [[ -f "$SCRIPT_DIR/knowledge-db.sh" ]]; then
+    source "$SCRIPT_DIR/knowledge-db.sh"
+    TAGS_TEXT=$(echo "$TAGS_JSON" | jq -r '.[]' 2>/dev/null | tr '\n' ' ')
+    kb_ensure_db "$MEMORY_DIR/knowledge.db"
+    kb_insert "$MEMORY_DIR/knowledge.db" "$KEY" "$TYPE" "$CONTENT" "$SOURCE" "$TAGS_TEXT" "$TS" "$BEAD_ID"
+  fi
+fi
+
 echo "$ENTRY" >> "$KNOWLEDGE_FILE"
 
 # Rotation: archive oldest 500 when file exceeds 1000 lines
