@@ -253,9 +253,11 @@ Both are written to simultaneously. If `sqlite3` is unavailable, only JSONL is w
 
 - **FTS5 Search**: Uses porter stemming and BM25 ranking -- "webhook authentication" finds entries about HMAC signature verification even when those exact words don't appear together
 - **Auto-tagging**: Keywords detected and added as tags
-- **Rotation**: After 1000 entries, oldest 500 archived (JSONL only)
+- **Git-tracked**: Knowledge files are committed to git for team sharing and portability
+- **Conflict-free collaboration**: Multiple users can capture knowledge simultaneously without merge conflicts
+- **Auto-sync**: First session after `git pull` automatically imports new knowledge into local search index
+- **Rotation**: After 5000 entries, oldest 2500 archived (JSONL only)
 - **Search**: `.beads/memory/recall.sh "keyword"` or automatic at session start
-- **Backfill**: On first run, existing JSONL entries and beads.db comments are imported into FTS5 automatically
 
 ### Plugin Structure
 
@@ -293,15 +295,12 @@ If you already have a project using the plugin with an existing `knowledge.jsonl
 bash /path/to/beads-compound-plugin/install.sh /path/to/your-project
 ```
 
-On the next Claude Code session start, the `auto-recall.sh` hook will automatically:
+On the next Claude Code session start, the system will automatically:
 1. Create `knowledge.db` with the FTS5 schema
-2. Backfill all entries from your existing `knowledge.jsonl` and `knowledge.archive.jsonl`
+2. Import all entries from your existing `knowledge.jsonl` and `knowledge.archive.jsonl`
 3. Import any knowledge-prefixed comments from `beads.db`
-4. Mark the migration as complete (`.backfill_done` marker)
 
-This is a one-time operation. After backfill, new entries are dual-written to both formats.
-
-**No data is lost or modified** -- your existing JSONL files remain intact and continue to be written to. The SQLite database is purely additive.
+After this one-time import, new entries are written to both formats. Your existing JSONL files remain intact and continue to be written to.
 
 **Prerequisite**: `sqlite3` must be available (pre-installed on macOS and most Linux distributions). If missing, the system gracefully falls back to grep-based search with no errors.
 
