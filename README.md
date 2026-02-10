@@ -20,7 +20,7 @@ This plugin achieves this through:
 
 | Plugin | Version | Description |
 |--------|---------|-------------|
-| **beads-compound** | 0.3.0 | 28 agents, 25 commands, 15 skills, persistent memory |
+| **beads-compound** | 0.4.0 | 28 agents, 25 commands, 15 skills, persistent memory |
 
 ## Quick Install
 
