@@ -255,7 +255,12 @@ else
       if [ -d "$skill_dir" ]; then
         skill_name=$(basename "$skill_dir")
 
-        if [ -d "$SKILLS_DIR/$skill_name" ]; then
+        if [ -L "$SKILLS_DIR/$skill_name" ]; then
+          # Symlink -- installed by Claude's plugin system, don't touch
+          echo "  - Skipped $skill_name (symlink, not ours)"
+          ((SKILL_SKIPPED++))
+          continue
+        elif [ -d "$SKILLS_DIR/$skill_name" ]; then
           if [ -f "$SKILLS_DIR/$skill_name/.beads-compound" ]; then
             # Our plugin installed this -- safe to overwrite
             rm -rf "$SKILLS_DIR/$skill_name"
@@ -350,10 +355,10 @@ if [ "$GLOBAL_INSTALL" = true ]; then
     if command -v jq &>/dev/null; then
       EXISTING=$(cat "$SETTINGS")
 
-      UPDATED=$(echo "$EXISTING" | jq '
+      UPDATED=$(echo "$EXISTING" | jq --arg cmd "bash $TARGET/hooks/check-memory.sh" '
         .hooks.SessionStart = (
           [(.hooks.SessionStart // [])[] | select(.hooks[]?.command | contains("check-memory") | not)] +
-          [{"hooks":[{"type":"command","command":"bash ~/.claude/hooks/check-memory.sh","async":true}]}]
+          [{"matcher":"","hooks":[{"type":"command","command":$cmd}]}]
         )
       ')
       echo "$UPDATED" > "$SETTINGS"
@@ -362,11 +367,11 @@ if [ "$GLOBAL_INSTALL" = true ]; then
       echo "  [!] jq not found -- manual settings.json setup required"
     fi
   else
-    cat > "$SETTINGS" << 'SETTINGS_EOF'
+    cat > "$SETTINGS" << SETTINGS_EOF
 {
   "hooks": {
     "SessionStart": [
-      {"hooks": [{"type": "command", "command": "bash ~/.claude/hooks/check-memory.sh", "async": true}]}
+      {"matcher": "", "hooks": [{"type": "command", "command": "bash $TARGET/hooks/check-memory.sh"}]}
     ]
   }
 }

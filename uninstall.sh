@@ -155,7 +155,9 @@ if [ -d "$SKILLS_DIR" ]; then
   PLUGIN_SKILLS=(git-worktree brainstorming create-agent-skills agent-native-architecture beads-knowledge agent-browser andrew-kane-gem-writer dhh-rails-style dspy-ruby every-style-editor file-todos frontend-design gemini-imagegen rclone skill-creator)
 
   for skill in "${PLUGIN_SKILLS[@]}"; do
-    if [ -d "$SKILLS_DIR/$skill" ]; then
+    if [ -L "$SKILLS_DIR/$skill" ]; then
+      echo "  - Kept $skill (symlink, not ours)"
+    elif [ -d "$SKILLS_DIR/$skill" ]; then
       if [ -f "$SKILLS_DIR/$skill/.beads-compound" ]; then
         rm -rf "$SKILLS_DIR/$skill"
         echo "  - Removed $skill skill"
