@@ -8,7 +8,7 @@ This is a Claude Code plugin marketplace that provides beads-based persistent me
 
 The plugin provides:
 - 28 specialized agents (14 review, 5 research, 3 design, 5 workflow, 1 docs)
-- 25 commands for brainstorming, planning, review, testing, and more
+- 26 commands for brainstorming, planning, review, testing, and more
 - 15 skills (git-worktree, brainstorming, create-agent-skills, agent-browser, dhh-rails-style, etc.)
 - 3 hooks for automatic knowledge capture, recall, and subagent wrapup
 - 1 MCP server (Context7 for framework documentation)
@@ -31,7 +31,7 @@ beads-compound-plugin/              # Marketplace root
 │       │   ├── design/             # 3 design agents
 │       │   ├── workflow/           # 5 workflow agents
 │       │   └── docs/               # 1 docs agent
-│       ├── commands/               # 25 commands
+│       ├── commands/               # 26 commands
 │       ├── skills/                 # 15 skills with supporting files
 │       ├── hooks/
 │       │   ├── hooks.json          # Plugin hook registration
@@ -172,13 +172,14 @@ Tool names in matchers: `Bash`, `Edit`, `Write`, `Read`, `Task`, `Grep`, `Glob`
 
 Commands are in `plugins/beads-compound/commands/`:
 
-**Beads Workflow (6):**
+**Beads Workflow (7):**
 
 | Command | File | Description |
 |---------|------|-------------|
 | `/beads-brainstorm` | beads-brainstorm.md | Explore ideas collaboratively |
 | `/beads-plan` | beads-plan.md | Research and plan with multiple agents |
-| `/beads-work` | beads-work.md | Work on a bead with auto-recall |
+| `/beads-work` | beads-work.md | Work on a single bead with full lifecycle |
+| `/beads-parallel` | beads-parallel.md | Work on multiple beads in parallel via subagents |
 | `/beads-review` | beads-review.md | Multi-agent code review |
 | `/beads-checkpoint` | beads-checkpoint.md | Save progress and capture knowledge |
 | `/beads-compound` | beads-compound.md | Document solved problems |

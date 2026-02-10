@@ -20,7 +20,7 @@ This plugin achieves this through:
 
 | Plugin | Version | Description |
 |--------|---------|-------------|
-| **beads-compound** | 0.4.0 | 28 agents, 25 commands, 15 skills, persistent memory |
+| **beads-compound** | 0.4.0 | 28 agents, 26 commands, 15 skills, persistent memory |
 
 ## Quick Install
 
@@ -76,13 +76,14 @@ bunx @every-env/compound-plugin install ./plugins/beads-compound --to codex
 
 ### Commands (25)
 
-#### Beads Workflow Commands (6)
+#### Beads Workflow Commands (7)
 
 | Command | Description |
 |---------|-------------|
 | `/beads-brainstorm` | Explore ideas collaboratively before planning |
 | `/beads-plan` | Research and plan using multiple agents, create epic + child beads |
-| `/beads-work` | Work on a bead with context, auto-recall, and agent assistance |
+| `/beads-work` | Work on a single bead with full lifecycle |
+| `/beads-parallel` | Work on multiple beads in parallel via subagents |
 | `/beads-review` | Multi-agent code review before closing bead |
 | `/beads-checkpoint` | Save progress, capture knowledge, commit |
 | `/beads-compound` | Document solved problems as persistent knowledge |
@@ -191,7 +192,7 @@ Or go fast:
 
 ```bash
 /beads-plan "Add OAuth"                     # Plan it
-/resolve-parallel BD-001                    # Implement all child beads in parallel
+/beads-parallel BD-001                      # Implement all child beads in parallel
 /beads-review BD-001                        # Review everything
 /beads-checkpoint                           # Ship it
 ```
@@ -281,7 +282,7 @@ beads-compound-plugin/              # Marketplace root
 │       │   ├── design/             # 3 design agents
 │       │   ├── workflow/           # 5 workflow agents
 │       │   └── docs/               # 1 docs agent
-│       ├── commands/               # 25 commands
+│       ├── commands/               # 26 commands
 │       ├── skills/                 # 15 skills
 │       ├── hooks/                  # 4 hooks + shared library + hooks.json
 │       ├── scripts/
@@ -343,7 +344,7 @@ This plugin is a fork of [compound-engineering-plugin](https://github.com/EveryI
   - Trimmed all 28 agent descriptions to under 250 chars, moving verbose examples into agent bodies wrapped in `<examples>` tags
   - Added `disable-model-invocation: true` to 17 manual utility commands (they remain available when explicitly invoked via `/command-name` but don't clutter Claude's auto-suggestion context)
   - Added `disable-model-invocation: true` to 7 manual utility skills (beads-knowledge, create-agent-skills, file-todos, skill-creator, git-worktree, rclone, gemini-imagegen)
-  - Core beads workflow commands (`/beads-brainstorm`, `/beads-plan`, `/beads-work`, `/beads-review`, `/beads-compound`, `/deepen-plan`, `/plan-review`, `/resolve-parallel`) remain fully auto-discoverable
+  - Core beads workflow commands (`/beads-brainstorm`, `/beads-plan`, `/beads-work`, `/beads-parallel`, `/beads-review`, `/beads-compound`, `/deepen-plan`, `/plan-review`, `/resolve-parallel`) remain fully auto-discoverable
 - **Model tier assignments**: Each agent specifies a `model:` field (haiku/sonnet/opus) based on reasoning complexity, reducing costs 60-70% compared to running all agents on the default model. High-frequency agents like `learnings-researcher` run on Haiku; deep reasoning agents like `architecture-strategist` run on Opus.
 
 ### Structural Changes

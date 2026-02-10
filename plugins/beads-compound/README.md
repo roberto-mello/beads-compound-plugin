@@ -32,7 +32,8 @@ See the [marketplace README](../../README.md) for full details.
 | `/beads-deepen` | Enhance plan with parallel research agents |
 | `/beads-plan-review` | Multi-agent review of epic plan |
 | `/beads-triage` | Prioritize and categorize child beads |
-| `/beads-work` | Work on a bead with context and auto-recall |
+| `/beads-work` | Work on a single bead with full lifecycle |
+| `/beads-parallel` | Work on multiple beads in parallel via subagents |
 | `/beads-review` | Multi-agent code review before closing |
 | `/beads-research` | Deep research using 5 specialized agents |
 | `/beads-checkpoint` | Save progress, capture knowledge, commit |
