@@ -293,16 +293,42 @@ When `knowledge.jsonl` exceeds 1000 lines:
 2. Remaining 500 lines become the new `knowledge.jsonl`
 3. Search with `recall.sh --all` to include archive
 
-## Design Differences from Related Projects
+## Agent Instructions
 
-**vs. semantic-beads**:
-- No worktree enforcement
-- No supervisor validation
-- No epic isolation complexity
-- Same memory system, simpler orchestration
+This project uses **bd** (beads) for issue tracking.
 
-**vs. compound-engineering**:
-- Persistent SQLite-backed knowledge (not markdown)
-- Issue tracking integration (all workflows create/update beads)
-- Auto-recall (knowledge injected automatically)
-- Tagged knowledge for better search/retrieval
+### Quick Reference
+
+```bash
+bd ready              # Find available work
+bd show <id>          # View issue details
+bd update <id> --status in_progress  # Claim work
+bd close <id>         # Complete work
+bd sync               # Sync with git
+```
+
+### Landing the Plane (Session Completion)
+
+**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+
+**MANDATORY WORKFLOW:**
+
+1. **File issues for remaining work** - Create issues for anything that needs follow-up
+2. **Run quality gates** (if code changed) - Tests, linters, builds
+3. **Update issue status** - Close finished work, update in-progress items
+4. **PUSH TO REMOTE** - This is MANDATORY:
+   ```bash
+   git pull --rebase
+   bd sync
+   git push
+   git status  # MUST show "up to date with origin"
+   ```
+5. **Clean up** - Clear stashes, prune remote branches
+6. **Verify** - All changes committed AND pushed
+7. **Hand off** - Provide context for next session
+
+**CRITICAL RULES:**
+- Work is NOT complete until `git push` succeeds
+- NEVER stop before pushing - that leaves work stranded locally
+- NEVER say "ready to push when you are" - YOU must push
+- If push fails, resolve and retry until it succeeds
