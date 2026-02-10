@@ -28,12 +28,23 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$SCRIPT_DIR/plugins/beads-compound"
 
-# Default to ~/.claude if no argument provided
-if [ $# -eq 0 ]; then
+# Parse --yes/-y flag (skip confirmation prompts)
+AUTO_YES=false
+POSITIONAL_ARGS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --yes|-y) AUTO_YES=true ;;
+    *) POSITIONAL_ARGS+=("$arg") ;;
+  esac
+done
+
+# Default to ~/.claude if no positional argument provided
+if [ ${#POSITIONAL_ARGS[@]} -eq 0 ]; then
   TARGET="$HOME/.claude"
   GLOBAL_INSTALL=true
 else
-  TARGET="${1}"
+  TARGET="${POSITIONAL_ARGS[0]}"
   GLOBAL_INSTALL=false
 fi
 
@@ -72,6 +83,22 @@ else
   echo "Target: $TARGET (project-specific)"
 fi
 echo ""
+
+# Global install: warn about memory features and confirm
+if [ "$GLOBAL_INSTALL" = true ] && [ "$AUTO_YES" = false ]; then
+  echo "[!] Note: Global install provides commands, agents, and skills everywhere,"
+  echo "    but memory features (auto-recall, knowledge capture) require per-project"
+  echo "    installation. You'll be prompted automatically in projects that use beads."
+  echo ""
+  read -r -p "    Continue? [Y/n] " response
+  case "$response" in
+    [nN]|[nN][oO])
+      echo "Aborted."
+      exit 0
+      ;;
+  esac
+  echo ""
+fi
 
 # Check for bd (skip for global install)
 if [ "$GLOBAL_INSTALL" = true ]; then
@@ -139,126 +166,213 @@ else
   done
 fi
 
+# Detect if commands/agents/skills are already installed globally
+GLOBALLY_INSTALLED=false
+
+if [ "$GLOBAL_INSTALL" = false ] && [ -f "$HOME/.claude/commands/beads-plan.md" ]; then
+  GLOBALLY_INSTALLED=true
+fi
+
 # Install commands (all from commands directory)
 echo "[5/9] Installing workflow commands..."
 
-if [ "$GLOBAL_INSTALL" = true ]; then
-  COMMANDS_DIR="$TARGET/commands"
+if [ "$GLOBALLY_INSTALLED" = true ]; then
+  CMD_COUNT=0
+  echo "  - Already installed globally -- skipping"
 else
-  COMMANDS_DIR="$TARGET/.claude/commands"
-fi
-mkdir -p "$COMMANDS_DIR"
-
-CMD_COUNT=0
-
-for cmd in "$PLUGIN_DIR/commands"/*.md; do
-  if [ -f "$cmd" ]; then
-    cp "$cmd" "$COMMANDS_DIR/$(basename "$cmd")"
-    ((CMD_COUNT++))
+  if [ "$GLOBAL_INSTALL" = true ]; then
+    COMMANDS_DIR="$TARGET/commands"
+  else
+    COMMANDS_DIR="$TARGET/.claude/commands"
   fi
-done
+  mkdir -p "$COMMANDS_DIR"
 
-echo "  - Installed $CMD_COUNT commands"
+  CMD_COUNT=0
+
+  for cmd in "$PLUGIN_DIR/commands"/*.md; do
+    if [ -f "$cmd" ]; then
+      cp "$cmd" "$COMMANDS_DIR/$(basename "$cmd")"
+      ((CMD_COUNT++))
+    fi
+  done
+
+  echo "  - Installed $CMD_COUNT commands"
+fi
 
 # Install agents
 echo "[6/9] Installing agents..."
 
-if [ "$GLOBAL_INSTALL" = true ]; then
-  AGENTS_DIR="$TARGET/agents"
+if [ "$GLOBALLY_INSTALLED" = true ]; then
+  AGENT_COUNT=0
+  echo "  - Already installed globally -- skipping"
 else
-  AGENTS_DIR="$TARGET/.claude/agents"
+  if [ "$GLOBAL_INSTALL" = true ]; then
+    AGENTS_DIR="$TARGET/agents"
+  else
+    AGENTS_DIR="$TARGET/.claude/agents"
+  fi
+  mkdir -p "$AGENTS_DIR"
+
+  AGENT_COUNT=0
+
+  if [ -d "$PLUGIN_DIR/agents" ]; then
+    for category in "$PLUGIN_DIR/agents"/*/; do
+      if [ -d "$category" ]; then
+        category_name=$(basename "$category")
+        mkdir -p "$AGENTS_DIR/$category_name"
+
+        for agent in "$category"/*.md; do
+          if [ -f "$agent" ]; then
+            cp "$agent" "$AGENTS_DIR/$category_name/$(basename "$agent")"
+            ((AGENT_COUNT++))
+          fi
+        done
+      fi
+    done
+  fi
+
+  echo "  - Installed $AGENT_COUNT agents"
 fi
-mkdir -p "$AGENTS_DIR"
-
-AGENT_COUNT=0
-
-if [ -d "$PLUGIN_DIR/agents" ]; then
-  for category in "$PLUGIN_DIR/agents"/*/; do
-    if [ -d "$category" ]; then
-      category_name=$(basename "$category")
-      mkdir -p "$AGENTS_DIR/$category_name"
-
-      for agent in "$category"/*.md; do
-        if [ -f "$agent" ]; then
-          cp "$agent" "$AGENTS_DIR/$category_name/$(basename "$agent")"
-          ((AGENT_COUNT++))
-        fi
-      done
-    fi
-  done
-fi
-
-echo "  - Installed $AGENT_COUNT agents"
 
 # Install skills
 echo "[7/9] Installing skills..."
 
-if [ "$GLOBAL_INSTALL" = true ]; then
-  SKILLS_DIR="$TARGET/skills"
-else
-  SKILLS_DIR="$TARGET/.claude/skills"
-fi
-mkdir -p "$SKILLS_DIR"
-
 SKILL_COUNT=0
 SKILL_SKIPPED=0
 
-if [ -d "$PLUGIN_DIR/skills" ]; then
-  for skill_dir in "$PLUGIN_DIR/skills"/*/; do
-    if [ -d "$skill_dir" ]; then
-      skill_name=$(basename "$skill_dir")
+if [ "$GLOBALLY_INSTALLED" = true ]; then
+  echo "  - Already installed globally -- skipping"
+else
+  if [ "$GLOBAL_INSTALL" = true ]; then
+    SKILLS_DIR="$TARGET/skills"
+  else
+    SKILLS_DIR="$TARGET/.claude/skills"
+  fi
+  mkdir -p "$SKILLS_DIR"
 
-      if [ -d "$SKILLS_DIR/$skill_name" ]; then
-        if [ -f "$SKILLS_DIR/$skill_name/.beads-compound" ]; then
-          # Our plugin installed this -- safe to overwrite
-          rm -rf "$SKILLS_DIR/$skill_name"
-        else
-          # User's own skill -- skip it
-          echo "  - Skipped $skill_name (already exists, not ours)"
-          ((SKILL_SKIPPED++))
-          continue
+  if [ -d "$PLUGIN_DIR/skills" ]; then
+    for skill_dir in "$PLUGIN_DIR/skills"/*/; do
+      if [ -d "$skill_dir" ]; then
+        skill_name=$(basename "$skill_dir")
+
+        if [ -d "$SKILLS_DIR/$skill_name" ]; then
+          if [ -f "$SKILLS_DIR/$skill_name/.beads-compound" ]; then
+            # Our plugin installed this -- safe to overwrite
+            rm -rf "$SKILLS_DIR/$skill_name"
+          else
+            # User's own skill -- skip it
+            echo "  - Skipped $skill_name (already exists, not ours)"
+            ((SKILL_SKIPPED++))
+            continue
+          fi
         fi
+
+        # Copy entire skill directory (may contain references/, templates/, etc.)
+        cp -r "$skill_dir" "$SKILLS_DIR/$skill_name"
+        touch "$SKILLS_DIR/$skill_name/.beads-compound"
+        ((SKILL_COUNT++))
       fi
+    done
+  fi
 
-      # Copy entire skill directory (may contain references/, templates/, etc.)
-      cp -r "$skill_dir" "$SKILLS_DIR/$skill_name"
-      touch "$SKILLS_DIR/$skill_name/.beads-compound"
-      ((SKILL_COUNT++))
-    fi
-  done
-fi
-
-echo "  - Installed $SKILL_COUNT skills"
-if [ "$SKILL_SKIPPED" -gt 0 ]; then
-  echo "  - Skipped $SKILL_SKIPPED existing skill(s) not managed by this plugin"
+  echo "  - Installed $SKILL_COUNT skills"
+  if [ "$SKILL_SKIPPED" -gt 0 ]; then
+    echo "  - Skipped $SKILL_SKIPPED existing skill(s) not managed by this plugin"
+  fi
 fi
 
 # Install MCP configuration
 echo "[8/9] Configuring MCP servers..."
 
-if [ -f "$PLUGIN_DIR/.mcp.json" ]; then
-  if [ -f "$TARGET/.mcp.json" ]; then
-    if command -v jq &>/dev/null; then
-      # Merge MCP servers into existing config
-      EXISTING=$(cat "$TARGET/.mcp.json")
-      PLUGIN_MCP=$(cat "$PLUGIN_DIR/.mcp.json")
-      MERGED=$(printf '%s\n%s\n' "$EXISTING" "$PLUGIN_MCP" | jq -s '.[0].mcpServers = ((.[0].mcpServers // {}) * .[1].mcpServers) | .[0]')
-      echo "$MERGED" > "$TARGET/.mcp.json"
-      echo "  - Merged MCP servers into existing .mcp.json"
+if [ "$GLOBALLY_INSTALLED" = true ]; then
+  # Check if MCP is already configured globally
+  if [ -f "$HOME/.mcp.json" ] && command -v jq &>/dev/null; then
+    if jq -e '.mcpServers["context7"]' "$HOME/.mcp.json" &>/dev/null; then
+      echo "  - Already configured globally -- skipping"
     else
-      echo "  [!] jq not found -- skipping MCP merge (manual setup required)"
+      # Global install exists but MCP wasn't set up -- install it
+      if [ -f "$PLUGIN_DIR/.mcp.json" ]; then
+        if [ -f "$TARGET/.mcp.json" ]; then
+          EXISTING=$(cat "$TARGET/.mcp.json")
+          PLUGIN_MCP=$(cat "$PLUGIN_DIR/.mcp.json")
+          MERGED=$(printf '%s\n%s\n' "$EXISTING" "$PLUGIN_MCP" | jq -s '.[0].mcpServers = ((.[0].mcpServers // {}) * .[1].mcpServers) | .[0]')
+          echo "$MERGED" > "$TARGET/.mcp.json"
+          echo "  - Merged MCP servers into existing .mcp.json"
+        else
+          cp "$PLUGIN_DIR/.mcp.json" "$TARGET/.mcp.json"
+          echo "  - Created .mcp.json with Context7 MCP server"
+        fi
+      fi
     fi
   else
-    cp "$PLUGIN_DIR/.mcp.json" "$TARGET/.mcp.json"
-    echo "  - Created .mcp.json with Context7 MCP server"
+    echo "  - Already installed globally -- skipping"
   fi
 else
-  echo "  - No MCP configuration found in plugin"
+  if [ -f "$PLUGIN_DIR/.mcp.json" ]; then
+    if [ -f "$TARGET/.mcp.json" ]; then
+      if command -v jq &>/dev/null; then
+        # Merge MCP servers into existing config
+        EXISTING=$(cat "$TARGET/.mcp.json")
+        PLUGIN_MCP=$(cat "$PLUGIN_DIR/.mcp.json")
+        MERGED=$(printf '%s\n%s\n' "$EXISTING" "$PLUGIN_MCP" | jq -s '.[0].mcpServers = ((.[0].mcpServers // {}) * .[1].mcpServers) | .[0]')
+        echo "$MERGED" > "$TARGET/.mcp.json"
+        echo "  - Merged MCP servers into existing .mcp.json"
+      else
+        echo "  [!] jq not found -- skipping MCP merge (manual setup required)"
+      fi
+    else
+      cp "$PLUGIN_DIR/.mcp.json" "$TARGET/.mcp.json"
+      echo "  - Created .mcp.json with Context7 MCP server"
+    fi
+  else
+    echo "  - No MCP configuration found in plugin"
+  fi
 fi
 
-# Wire up settings.json (only for project-specific installs)
+# Wire up settings.json
 if [ "$GLOBAL_INSTALL" = true ]; then
-  echo "[9/9] Skipping settings.json (global install - hooks not applicable)"
+  echo "[9/9] Configuring global settings..."
+
+  # Install check-memory hook for auto-detection in beads projects
+  mkdir -p "$TARGET/hooks"
+  cp "$PLUGIN_DIR/hooks/check-memory.sh" "$TARGET/hooks/check-memory.sh"
+  chmod +x "$TARGET/hooks/check-memory.sh"
+  echo "  - Installed check-memory.sh hook"
+
+  # Save plugin source path for check-memory.sh to reference
+  echo "$SCRIPT_DIR" > "$TARGET/.beads-compound-source"
+  echo "  - Saved plugin source path"
+
+  # Add SessionStart hook for check-memory to global settings.json
+  SETTINGS="$TARGET/settings.json"
+
+  if [ -f "$SETTINGS" ]; then
+    if command -v jq &>/dev/null; then
+      EXISTING=$(cat "$SETTINGS")
+
+      UPDATED=$(echo "$EXISTING" | jq '
+        .hooks.SessionStart = (
+          [(.hooks.SessionStart // [])[] | select(.hooks[]?.command | contains("check-memory") | not)] +
+          [{"hooks":[{"type":"command","command":"bash ~/.claude/hooks/check-memory.sh","async":true}]}]
+        )
+      ')
+      echo "$UPDATED" > "$SETTINGS"
+      echo "  - Added check-memory hook to settings.json"
+    else
+      echo "  [!] jq not found -- manual settings.json setup required"
+    fi
+  else
+    cat > "$SETTINGS" << 'SETTINGS_EOF'
+{
+  "hooks": {
+    "SessionStart": [
+      {"hooks": [{"type": "command", "command": "bash ~/.claude/hooks/check-memory.sh", "async": true}]}
+    ]
+  }
+}
+SETTINGS_EOF
+    echo "  - Created settings.json with check-memory hook"
+  fi
 else
   echo "[9/9] Configuring settings..."
 

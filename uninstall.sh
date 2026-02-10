@@ -55,10 +55,14 @@ REMOVED_COUNT=0
 # Remove hooks
 echo "[1/5] Removing hooks..."
 
-HOOKS_DIR="$TARGET/.claude/hooks"
+if [ "$GLOBAL_UNINSTALL" = true ]; then
+  HOOKS_DIR="$TARGET/hooks"
+else
+  HOOKS_DIR="$TARGET/.claude/hooks"
+fi
 
 if [ -d "$HOOKS_DIR" ]; then
-  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh; do
+  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh check-memory.sh; do
     if [ -f "$HOOKS_DIR/$hook" ]; then
       rm "$HOOKS_DIR/$hook"
       echo "  - Removed $hook"
@@ -67,6 +71,13 @@ if [ -d "$HOOKS_DIR" ]; then
   done
 else
   echo "  - No hooks directory found"
+fi
+
+# Remove global source path sentinel
+if [ "$GLOBAL_UNINSTALL" = true ] && [ -f "$TARGET/.beads-compound-source" ]; then
+  rm "$TARGET/.beads-compound-source"
+  echo "  - Removed plugin source path"
+  ((REMOVED_COUNT++))
 fi
 
 # Remove commands (all plugin commands)
@@ -167,7 +178,11 @@ fi
 # Update settings.json to remove hook configuration
 echo "[5/5] Updating settings..."
 
-SETTINGS="$TARGET/.claude/settings.json"
+if [ "$GLOBAL_UNINSTALL" = true ]; then
+  SETTINGS="$TARGET/settings.json"
+else
+  SETTINGS="$TARGET/.claude/settings.json"
+fi
 
 if [ -f "$SETTINGS" ]; then
   if command -v jq &>/dev/null; then
@@ -175,7 +190,7 @@ if [ -f "$SETTINGS" ]; then
 
     # Remove our hooks from configuration and clean up empty/null arrays
     UPDATED=$(echo "$EXISTING" | jq '
-      .hooks.SessionStart = [(.hooks.SessionStart // [])[] | select(.hooks[]?.command | contains("auto-recall") | not)] |
+      .hooks.SessionStart = [(.hooks.SessionStart // [])[] | select(.hooks[]?.command | (contains("auto-recall") or contains("check-memory")) | not)] |
       if (.hooks.SessionStart | length) == 0 then del(.hooks.SessionStart) else . end |
       .hooks.PostToolUse = [(.hooks.PostToolUse // [])[] | select(.hooks[]?.command | contains("memory-capture") | not)] |
       if (.hooks.PostToolUse | length) == 0 then del(.hooks.PostToolUse) else . end |
