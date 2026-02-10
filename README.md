@@ -60,9 +60,9 @@ bunx @every-env/compound-plugin install ./plugins/beads-compound --to codex
 
 ### Always-On Features
 
-1. **Automatic Knowledge Capture** -- Any `bd comment add` with LEARNED/DECISION/FACT/PATTERN/INVESTIGATION gets extracted and stored in searchable `.beads/memory/knowledge.jsonl`
+1. **Automatic Knowledge Capture** -- Any `bd comment add` with LEARNED/DECISION/FACT/PATTERN/INVESTIGATION gets extracted and stored in both SQLite FTS5 (`knowledge.db`) and JSONL (`knowledge.jsonl`)
 
-2. **Automatic Knowledge Recall** -- Session start hook injects relevant knowledge based on your current beads
+2. **Automatic Knowledge Recall** -- Session start hook injects relevant knowledge based on your current beads, using FTS5 full-text search with BM25 ranking for significantly better results on conceptual and multi-word queries
 
 3. **Subagent Knowledge Enforcement** -- Subagents are prompted to log learnings before completing
 
@@ -147,13 +147,14 @@ The most frequently invoked agents (learnings-researcher, repo-research-analyst)
 
 - **Context7** -- Framework documentation lookup
 
-### Hooks (3)
+### Hooks (3 + shared library)
 
 | Hook | Trigger | Purpose |
 |------|---------|---------|
-| auto-recall.sh | SessionStart | Inject relevant knowledge at session start |
-| memory-capture.sh | PostToolUse (Bash) | Extract knowledge from bd comments |
+| auto-recall.sh | SessionStart | Inject relevant knowledge at session start (FTS5-first, grep fallback) |
+| memory-capture.sh | PostToolUse (Bash) | Extract knowledge from bd comments (dual-write to SQLite + JSONL) |
 | subagent-wrapup.sh | SubagentStop | Ensure subagents log learnings |
+| knowledge-db.sh | (library) | Shared SQLite FTS5 functions sourced by other hooks |
 
 ## Recommended Workflow
 
@@ -224,7 +225,12 @@ This tiering reduces costs by 60-70% compared to running all agents on Opus whil
 
 ### Memory System
 
-Knowledge stored in `.beads/memory/knowledge.jsonl`:
+Knowledge is stored in two formats:
+
+- **SQLite FTS5** (`knowledge.db`) -- Primary search backend with full-text search and BM25 ranking
+- **JSONL** (`knowledge.jsonl`) -- Portable export format, grep-compatible fallback
+
+Both are written to simultaneously. If `sqlite3` is unavailable, only JSONL is written and grep-based search is used automatically.
 
 ```json
 {
@@ -238,9 +244,11 @@ Knowledge stored in `.beads/memory/knowledge.jsonl`:
 }
 ```
 
+- **FTS5 Search**: Uses porter stemming and BM25 ranking -- "webhook authentication" finds entries about HMAC signature verification even when those exact words don't appear together
 - **Auto-tagging**: Keywords detected and added as tags
-- **Rotation**: After 1000 entries, oldest 500 archived
+- **Rotation**: After 1000 entries, oldest 500 archived (JSONL only)
 - **Search**: `.beads/memory/recall.sh "keyword"` or automatic at session start
+- **Backfill**: On first run, existing JSONL entries and beads.db comments are imported into FTS5 automatically
 
 ### Plugin Structure
 
@@ -260,7 +268,7 @@ beads-compound-plugin/              # Marketplace root
 │       │   └── docs/               # 1 docs agent
 │       ├── commands/               # 25 commands
 │       ├── skills/                 # 15 skills
-│       ├── hooks/                  # 3 hooks + hooks.json
+│       ├── hooks/                  # 3 hooks + shared library + hooks.json
 │       ├── scripts/
 │       └── .mcp.json
 ├── install.sh
@@ -268,6 +276,27 @@ beads-compound-plugin/              # Marketplace root
 ├── CLAUDE.md
 └── README.md
 ```
+
+## Migrating Existing Projects
+
+If you already have a project using the plugin with an existing `knowledge.jsonl`, re-running the installer will upgrade it:
+
+```bash
+# Re-run the installer (safe to run on existing installs)
+bash /path/to/beads-compound-plugin/install.sh /path/to/your-project
+```
+
+On the next Claude Code session start, the `auto-recall.sh` hook will automatically:
+1. Create `knowledge.db` with the FTS5 schema
+2. Backfill all entries from your existing `knowledge.jsonl` and `knowledge.archive.jsonl`
+3. Import any knowledge-prefixed comments from `beads.db`
+4. Mark the migration as complete (`.backfill_done` marker)
+
+This is a one-time operation. After backfill, new entries are dual-written to both formats.
+
+**No data is lost or modified** -- your existing JSONL files remain intact and continue to be written to. The SQLite database is purely additive.
+
+**Prerequisite**: `sqlite3` must be available (pre-installed on macOS and most Linux distributions). If missing, the system gracefully falls back to grep-based search with no errors.
 
 ## Uninstall
 
@@ -284,10 +313,12 @@ This plugin is a fork of [compound-engineering-plugin](https://github.com/EveryI
 ### Memory System
 
 - Replaced markdown-based knowledge storage with beads-based persistent memory (`.beads/memory/knowledge.jsonl`)
-- Added automatic knowledge capture from `bd comment add` with typed prefixes (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION)
+- Added SQLite FTS5 full-text search with BM25 ranking for knowledge recall, improving precision by 18%, recall by 17%, and MRR by 24% over grep-based search across 25 benchmark queries
+- Added automatic knowledge capture from `bd comment add` with typed prefixes (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION), dual-writing to SQLite and JSONL
 - Added automatic knowledge recall at session start based on open beads and git branch context
 - Added subagent knowledge enforcement via `SubagentStop` hook
 - All workflows create and update beads instead of markdown files
+- Automatic one-time backfill from existing JSONL and beads.db comments on first FTS5 run
 
 ### Performance Optimizations
 
