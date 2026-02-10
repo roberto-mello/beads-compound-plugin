@@ -117,6 +117,10 @@ else
   cp "$PLUGIN_DIR/hooks/recall.sh" "$MEMORY_DIR/recall.sh"
   chmod +x "$MEMORY_DIR/recall.sh"
   echo "  - Installed recall.sh"
+
+  cp "$PLUGIN_DIR/hooks/knowledge-db.sh" "$MEMORY_DIR/knowledge-db.sh"
+  chmod +x "$MEMORY_DIR/knowledge-db.sh"
+  echo "  - Installed knowledge-db.sh"
 fi
 
 # Install hooks (only for project-specific installs)
@@ -128,7 +132,7 @@ else
   HOOKS_DIR="$TARGET/.claude/hooks"
   mkdir -p "$HOOKS_DIR"
 
-  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh; do
+  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh; do
     cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/$hook"
     chmod +x "$HOOKS_DIR/$hook"
     echo "  - Installed $hook"

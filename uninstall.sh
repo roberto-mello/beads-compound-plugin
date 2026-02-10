@@ -58,7 +58,7 @@ echo "[1/5] Removing hooks..."
 HOOKS_DIR="$TARGET/.claude/hooks"
 
 if [ -d "$HOOKS_DIR" ]; then
-  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh; do
+  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh; do
     if [ -f "$HOOKS_DIR/$hook" ]; then
       rm "$HOOKS_DIR/$hook"
       echo "  - Removed $hook"
