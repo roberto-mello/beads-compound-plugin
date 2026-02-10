@@ -91,7 +91,7 @@ fi
 
 if [ -d "$COMMANDS_DIR" ]; then
   PLUGIN_COMMANDS=(
-    beads-plan.md beads-work.md beads-review.md beads-checkpoint.md
+    beads-plan.md beads-work.md beads-parallel.md beads-review.md beads-checkpoint.md
     beads-brainstorm.md beads-compound.md
     deepen-plan.md plan-review.md triage.md resolve-parallel.md
     agent-native-audit.md changelog.md create-agent-skill.md deploy-docs.md
