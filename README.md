@@ -31,20 +31,26 @@ Prerequisites: `jq` (required for all installs), [beads CLI](https://github.com/
 git clone https://github.com/roberto-mello/beads-compound-plugin.git
 cd beads-compound-plugin
 
-# Global install (recommended - commands, agents, skills available everywhere)
+# Step 1: Global install (commands, agents, skills available everywhere)
 ./install.sh
 
-# Then per-project install for memory features
-cd /path/to/your-project
-bash /path/to/beads-compound-plugin/install.sh .
+# Step 2: Per-project install for memory features (repeat for each project)
+./install.sh /path/to/your-project
 
-# Restart Claude Code
+# Restart Claude Code after each install
 ```
 
-**Global vs Project-Specific:**
-- **Global** (`./install.sh`): Installs commands, agents, and skills to `~/.claude` for all sessions. Also installs a `check-memory` SessionStart hook that auto-detects beads projects missing memory setup and tells you how to fix it.
-- **Project-Specific** (`./install.sh /path/to/project`): Installs memory hooks, auto-recall, and knowledge capture. If commands/agents/skills are already installed globally, they are skipped to avoid duplication.
-- Use `--yes` or `-y` to skip the global install confirmation prompt (e.g. `./install.sh --yes`).
+**Recommended Setup:**
+1. **Global install first** (`./install.sh`): Makes commands, agents, and skills available in all Claude Code sessions
+2. **Per-project install second** (`./install.sh /path/to/project`): Enables memory features (auto-recall, knowledge capture) for that specific project
+3. **Repeat step 2** for each project where you want persistent memory
+
+**What each install does:**
+- **Global**: Commands, agents, skills → `~/.claude` + auto-detection hook that prompts you to run per-project install when it finds a beads project
+- **Per-Project**: Memory hooks, knowledge storage, auto-recall → `.claude/hooks` and `.beads/memory/`
+- **Smart duplication prevention**: If commands/agents/skills are already global, per-project install skips them
+
+**Tip:** Use `--yes` or `-y` to skip confirmation prompts (e.g. `./install.sh --yes`).
 
 ### OpenCode/Codex Installation
 
