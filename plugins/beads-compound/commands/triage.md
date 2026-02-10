@@ -125,7 +125,7 @@ After all items processed:
 
 1. Start work on approved items:
    ```bash
-   /resolve-parallel    # Work on multiple beads efficiently
+   /beads-parallel    # Work on multiple beads efficiently
    ```
 2. Or pick individual items:
    ```bash
@@ -140,7 +140,7 @@ When done, present these options:
 ```markdown
 What would you like to do next?
 
-1. Run /resolve-parallel to resolve the approved beads
+1. Run /beads-parallel to resolve the approved beads
 2. Run /beads-work on a specific bead
 3. Nothing for now
 ```
@@ -149,4 +149,4 @@ What would you like to do next?
 
 - DO NOT implement fixes or write code during triage
 - Triage is for decisions only
-- Implementation happens in `/resolve-parallel` or `/beads-work`
+- Implementation happens in `/beads-parallel` or `/beads-work`

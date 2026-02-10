@@ -38,7 +38,7 @@ See the [marketplace README](../../README.md) for full details.
 | `/beads-research` | Deep research using 5 specialized agents |
 | `/beads-checkpoint` | Save progress, capture knowledge, commit |
 | `/beads-compound` | Document solved problems as knowledge |
-| `/beads-resolve-parallel` | Resolve multiple beads in parallel |
+
 
 ## Agents (Model Tier Optimized)
 

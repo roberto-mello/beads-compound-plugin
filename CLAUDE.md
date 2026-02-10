@@ -8,7 +8,7 @@ This is a Claude Code plugin marketplace that provides beads-based persistent me
 
 The plugin provides:
 - 28 specialized agents (14 review, 5 research, 3 design, 5 workflow, 1 docs)
-- 26 commands for brainstorming, planning, review, testing, and more
+- 25 commands for brainstorming, planning, review, testing, and more
 - 15 skills (git-worktree, brainstorming, create-agent-skills, agent-browser, dhh-rails-style, etc.)
 - 3 hooks for automatic knowledge capture, recall, and subagent wrapup
 - 1 MCP server (Context7 for framework documentation)
@@ -31,7 +31,7 @@ beads-compound-plugin/              # Marketplace root
 │       │   ├── design/             # 3 design agents
 │       │   ├── workflow/           # 5 workflow agents
 │       │   └── docs/               # 1 docs agent
-│       ├── commands/               # 26 commands
+│       ├── commands/               # 25 commands
 │       ├── skills/                 # 15 skills with supporting files
 │       ├── hooks/
 │       │   ├── hooks.json          # Plugin hook registration
@@ -184,14 +184,13 @@ Commands are in `plugins/beads-compound/commands/`:
 | `/beads-checkpoint` | beads-checkpoint.md | Save progress and capture knowledge |
 | `/beads-compound` | beads-compound.md | Document solved problems |
 
-**Planning & Triage (4):**
+**Planning & Triage (3):**
 
 | Command | File | Description |
 |---------|------|-------------|
 | `/deepen-plan` | deepen-plan.md | Enhance plan with parallel research |
 | `/plan-review` | plan-review.md | Multi-agent plan review |
 | `/triage` | triage.md | Prioritize and categorize beads |
-| `/resolve-parallel` | resolve-parallel.md | Resolve multiple beads in parallel |
 
 **Utility (15):**
 

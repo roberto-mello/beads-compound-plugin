@@ -6,7 +6,7 @@
 #   - Memory capture and auto-recall hooks
 #   - Knowledge store (.beads/memory/knowledge.jsonl)
 #   - Recall script (.beads/memory/recall.sh)
-#   - Beads-aware workflow commands (26 commands)
+#   - Beads-aware workflow commands (25 commands)
 #   - Specialized agents (28 agent definitions)
 #   - Skills (15 skills including git-worktree, brainstorming, etc.)
 #   - MCP server configuration (Context7)
@@ -493,7 +493,7 @@ echo "Done. Installed:"
 echo ""
 echo "  Commands ($CMD_COUNT):"
 echo "    Workflow: /beads-plan, /beads-brainstorm, /beads-work, /beads-parallel, /beads-review, /beads-compound, /beads-checkpoint"
-echo "    Planning: /deepen-plan, /plan-review, /triage, /resolve-parallel"
+echo "    Planning: /deepen-plan, /plan-review, /triage"
 echo "    Utility:  /lfg, /changelog, /create-agent-skill, /generate-command, /heal-skill"
 echo "    Testing:  /test-browser, /xcode-test, /reproduce-bug, /report-bug"
 echo "    Docs:     /deploy-docs, /release-docs, /feature-video, /agent-native-audit"
