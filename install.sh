@@ -207,6 +207,8 @@ if [ -d "$PLUGIN_DIR/skills" ]; then
     if [ -d "$skill_dir" ]; then
       skill_name=$(basename "$skill_dir")
       # Copy entire skill directory (may contain references/, templates/, etc.)
+      # Use -Rf to overwrite existing skill directories on reinstall
+      rm -rf "$SKILLS_DIR/$skill_name"
       cp -r "$skill_dir" "$SKILLS_DIR/$skill_name"
       ((SKILL_COUNT++))
     fi
