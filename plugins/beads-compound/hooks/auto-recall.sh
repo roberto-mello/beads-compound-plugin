@@ -49,18 +49,37 @@ SEARCH_TERMS=$(echo "$SEARCH_TERMS" | tr ' ' '\n' | sort -u | head -5 | tr '\n' 
 if [[ -z "$SEARCH_TERMS" ]]; then
   RELEVANT_KNOWLEDGE=$(tail -10 "$KNOWLEDGE_FILE" | jq -r '"\(.type | ascii_upcase): \(.content)"' 2>/dev/null)
 else
-  # Search for relevant knowledge
   RELEVANT_KNOWLEDGE=""
-  for TERM in $SEARCH_TERMS; do
-    MATCHES=$(grep -i "$TERM" "$KNOWLEDGE_FILE" 2>/dev/null | jq -r '"\(.type | ascii_upcase): \(.content)"' 2>/dev/null | head -3)
-    if [[ -n "$MATCHES" ]]; then
-      RELEVANT_KNOWLEDGE="$RELEVANT_KNOWLEDGE
-$MATCHES"
-    fi
-  done
 
-  # Deduplicate and limit
-  RELEVANT_KNOWLEDGE=$(echo "$RELEVANT_KNOWLEDGE" | sort -u | head -10)
+  # Try FTS5 first
+  if command -v sqlite3 &>/dev/null; then
+    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+    if [[ -f "$SCRIPT_DIR/knowledge-db.sh" ]]; then
+      source "$SCRIPT_DIR/knowledge-db.sh"
+      DB_PATH="$MEMORY_DIR/knowledge.db"
+
+      # One-time backfill on first run
+      kb_backfill "$DB_PATH" "$MEMORY_DIR"
+      kb_ensure_db "$DB_PATH"
+
+      RELEVANT_KNOWLEDGE=$(kb_search "$DB_PATH" "$SEARCH_TERMS" 10 | while IFS='|' read -r type content bead tags; do
+        echo "$(echo "$type" | tr '[:lower:]' '[:upper:]'): $content"
+      done)
+    fi
+  fi
+
+  # Grep fallback if FTS5 didn't produce results
+  if [[ -z "$RELEVANT_KNOWLEDGE" ]]; then
+    for TERM in $SEARCH_TERMS; do
+      MATCHES=$(grep -i "$TERM" "$KNOWLEDGE_FILE" 2>/dev/null | jq -r '"\(.type | ascii_upcase): \(.content)"' 2>/dev/null | head -3)
+      if [[ -n "$MATCHES" ]]; then
+        RELEVANT_KNOWLEDGE="$RELEVANT_KNOWLEDGE
+$MATCHES"
+      fi
+    done
+
+    RELEVANT_KNOWLEDGE=$(echo "$RELEVANT_KNOWLEDGE" | sort -u | head -10)
+  fi
 fi
 
 # If we found relevant knowledge, output it
