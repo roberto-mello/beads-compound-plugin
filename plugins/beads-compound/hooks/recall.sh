@@ -39,6 +39,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Validate numeric parameters
+if ! [[ "$RECENT" =~ ^[0-9]+$ ]]; then
+  RECENT=0
+fi
+
 # Stats mode
 if $SHOW_STATS; then
   TOTAL=$(wc -l < "$KNOWLEDGE_FILE" | tr -d ' ')

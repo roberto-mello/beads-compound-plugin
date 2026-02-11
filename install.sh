@@ -133,21 +133,13 @@ if [ "$GLOBAL_INSTALL" = true ]; then
 else
   echo "[3/9] Setting up memory system..."
 
-  MEMORY_DIR="$TARGET/.beads/memory"
-  mkdir -p "$MEMORY_DIR"
+  PROVISION_SCRIPT="$PLUGIN_DIR/hooks/provision-memory.sh"
 
-  if [ ! -f "$MEMORY_DIR/knowledge.jsonl" ]; then
-    touch "$MEMORY_DIR/knowledge.jsonl"
-    echo "  - Created knowledge.jsonl"
+  if [ -f "$PROVISION_SCRIPT" ]; then
+    source "$PROVISION_SCRIPT"
+    provision_memory_dir "$TARGET" "$PLUGIN_DIR/hooks"
+    echo "  - Memory system configured"
   fi
-
-  cp "$PLUGIN_DIR/hooks/recall.sh" "$MEMORY_DIR/recall.sh"
-  chmod +x "$MEMORY_DIR/recall.sh"
-  echo "  - Installed recall.sh"
-
-  cp "$PLUGIN_DIR/hooks/knowledge-db.sh" "$MEMORY_DIR/knowledge-db.sh"
-  chmod +x "$MEMORY_DIR/knowledge-db.sh"
-  echo "  - Installed knowledge-db.sh"
 fi
 
 # Install hooks (only for project-specific installs)
@@ -159,7 +151,7 @@ else
   HOOKS_DIR="$TARGET/.claude/hooks"
   mkdir -p "$HOOKS_DIR"
 
-  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh; do
+  for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh; do
     cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/$hook"
     chmod +x "$HOOKS_DIR/$hook"
     echo "  - Installed $hook"
@@ -453,25 +445,6 @@ if [ "$GLOBAL_INSTALL" = false ]; then
 EOF
     echo "  - Created .gitignore"
   fi
-fi
-
-# Set up .gitattributes for union merge on knowledge files (project installs only)
-if [ "$GLOBAL_INSTALL" = false ] && git -C "$TARGET" rev-parse --git-dir &>/dev/null; then
-  GITATTRIBUTES="$TARGET/.gitattributes"
-
-  if ! grep -q 'knowledge.jsonl' "$GITATTRIBUTES" 2>/dev/null; then
-    {
-      [[ -s "$GITATTRIBUTES" ]] && echo ""
-      echo "# Beads knowledge: union merge keeps both sides (append-only JSONL)"
-      echo ".beads/memory/knowledge.jsonl merge=union"
-      echo ".beads/memory/knowledge.archive.jsonl merge=union"
-    } >> "$GITATTRIBUTES"
-    echo "  - Configured .gitattributes for union merge"
-  fi
-
-  git -C "$TARGET" add -f .beads/memory/knowledge.jsonl .beads/memory/recall.sh .beads/memory/knowledge-db.sh 2>/dev/null || true
-  git -C "$TARGET" add .gitattributes 2>/dev/null || true
-  echo "  - Tracked memory files in git"
 fi
 
 # Check for recommended frontend skills

@@ -112,6 +112,11 @@ kb_search() {
   local QUERY="$2"
   local TOP_N="${3:-10}"
 
+  # Validate TOP_N is numeric to prevent SQL injection
+  if ! [[ "$TOP_N" =~ ^[0-9]+$ ]]; then
+    TOP_N=10
+  fi
+
   if [[ -z "$DB_PATH" ]] || [[ -z "$QUERY" ]] || [[ ! -f "$DB_PATH" ]]; then
     return 0
   fi

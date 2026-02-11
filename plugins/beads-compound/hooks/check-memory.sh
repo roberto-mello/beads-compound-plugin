@@ -43,25 +43,23 @@ fi
 # --- Auto-install memory features ---
 
 # 1. Set up memory directory
-MEMORY_DIR=".beads/memory"
-mkdir -p "$MEMORY_DIR"
+PROVISION_SCRIPT="$PLUGIN_DIR/hooks/provision-memory.sh"
 
-if [ ! -f "$MEMORY_DIR/knowledge.jsonl" ]; then
-  touch "$MEMORY_DIR/knowledge.jsonl"
+if [ -f "$PROVISION_SCRIPT" ]; then
+  source "$PROVISION_SCRIPT"
+  provision_memory_dir "." "$PLUGIN_DIR/hooks"
+else
+  # Fallback: minimal setup if provision script missing
+  MEMORY_DIR=".beads/memory"
+  mkdir -p "$MEMORY_DIR"
+  [ ! -f "$MEMORY_DIR/knowledge.jsonl" ] && touch "$MEMORY_DIR/knowledge.jsonl"
 fi
-
-for script in recall.sh knowledge-db.sh; do
-  if [ -f "$PLUGIN_DIR/hooks/$script" ]; then
-    cp "$PLUGIN_DIR/hooks/$script" "$MEMORY_DIR/$script"
-    chmod +x "$MEMORY_DIR/$script"
-  fi
-done
 
 # 2. Install hook scripts
 HOOKS_DIR=".claude/hooks"
 mkdir -p "$HOOKS_DIR"
 
-for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh; do
+for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh; do
   if [ -f "$PLUGIN_DIR/hooks/$hook" ]; then
     cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/$hook"
     chmod +x "$HOOKS_DIR/$hook"
@@ -108,23 +106,6 @@ elif [ ! -f "$SETTINGS" ]; then
   }
 }
 SETTINGS_EOF
-fi
-
-# 4. Set up .gitattributes for union merge on knowledge files
-if git rev-parse --git-dir &>/dev/null; then
-  GITATTRIBUTES=".gitattributes"
-
-  if ! grep -q 'knowledge.jsonl' "$GITATTRIBUTES" 2>/dev/null; then
-    {
-      [[ -s "$GITATTRIBUTES" ]] && echo ""
-      echo "# Beads knowledge: union merge keeps both sides (append-only JSONL)"
-      echo ".beads/memory/knowledge.jsonl merge=union"
-      echo ".beads/memory/knowledge.archive.jsonl merge=union"
-    } >> "$GITATTRIBUTES"
-  fi
-
-  git add -f .beads/memory/knowledge.jsonl .beads/memory/recall.sh .beads/memory/knowledge-db.sh 2>/dev/null || true
-  git add .gitattributes 2>/dev/null || true
 fi
 
 # Report success

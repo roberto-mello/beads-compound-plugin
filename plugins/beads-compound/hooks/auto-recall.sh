@@ -32,29 +32,8 @@ fi
 
 # Auto-bootstrap memory directory if missing
 if [[ ! -d "$PROJECT_DIR/.beads/memory" ]]; then
-  mkdir -p "$PROJECT_DIR/.beads/memory"
-
-  # Create empty knowledge file
-  touch "$PROJECT_DIR/.beads/memory/knowledge.jsonl"
-
-  # Copy recall.sh if available in hook directory
-  if [[ -f "$SCRIPT_DIR/recall.sh" ]]; then
-    cp "$SCRIPT_DIR/recall.sh" "$PROJECT_DIR/.beads/memory/recall.sh"
-    chmod +x "$PROJECT_DIR/.beads/memory/recall.sh"
-  fi
-
-  # Copy knowledge-db.sh if available
-  if [[ -f "$SCRIPT_DIR/knowledge-db.sh" ]]; then
-    cp "$SCRIPT_DIR/knowledge-db.sh" "$PROJECT_DIR/.beads/memory/knowledge-db.sh"
-  fi
-
-  # Setup .gitattributes for union merge strategy on knowledge files
-  GITATTR="$PROJECT_DIR/.beads/memory/.gitattributes"
-  echo "knowledge.jsonl merge=union" > "$GITATTR"
-  echo "knowledge.archive.jsonl merge=union" >> "$GITATTR"
-
-  # Stage the new memory files
-  (cd "$PROJECT_DIR" && git add .beads/memory/ 2>/dev/null)
+  source "$SCRIPT_DIR/provision-memory.sh"
+  provision_memory_dir "$PROJECT_DIR" "$SCRIPT_DIR"
 
   cat << 'BOOTSTRAP'
 {"hookSpecificOutput":{"systemMessage":"## Memory System Bootstrapped\n\nAuto-created `.beads/memory/` with knowledge tracking. Your discoveries will be captured automatically via beads comments.\n\nUse `bd comments add <BEAD_ID> \"LEARNED: ...\"` to log knowledge."}}
