@@ -24,7 +24,7 @@ beads-compound-plugin/              # Marketplace root
 ├── plugins/
 │   └── beads-compound/             # Plugin root
 │       ├── .claude-plugin/
-│       │   └── plugin.json         # Plugin manifest (v0.4.2)
+│       │   └── plugin.json         # Plugin manifest (v0.5.0)
 │       ├── agents/
 │       │   ├── review/             # 14 review agents
 │       │   ├── research/           # 5 research agents
