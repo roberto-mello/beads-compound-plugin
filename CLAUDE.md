@@ -24,7 +24,7 @@ beads-compound-plugin/              # Marketplace root
 ├── plugins/
 │   └── beads-compound/             # Plugin root
 │       ├── .claude-plugin/
-│       │   └── plugin.json         # Plugin manifest (v0.3.0)
+│       │   └── plugin.json         # Plugin manifest (v0.4.2)
 │       ├── agents/
 │       │   ├── review/             # 14 review agents
 │       │   ├── research/           # 5 research agents
@@ -50,7 +50,17 @@ beads-compound-plugin/              # Marketplace root
 
 ## Plugin Installation
 
-Install this plugin into a target project:
+### Native Plugin System (Recommended)
+
+```bash
+# In Claude Code
+/plugin marketplace add https://github.com/roberto-mello/beads-compound-plugin
+/plugin install beads-compound
+```
+
+Memory auto-bootstraps on first session in any beads-enabled project.
+
+### Manual Install
 
 ```bash
 # From marketplace root
@@ -58,12 +68,6 @@ Install this plugin into a target project:
 
 # Or from target project
 bash /path/to/beads-compound-plugin/install.sh
-```
-
-Uninstall:
-
-```bash
-./uninstall.sh /path/to/target-project
 ```
 
 **IMPORTANT**: The installer will fail if you try to install into the plugin directory itself. Always install into a separate target project.
@@ -75,6 +79,12 @@ The installer copies from `plugins/beads-compound/` into the target's `.claude/`
 - `skills/` -> `.claude/skills/`
 - `.mcp.json` -> `.mcp.json` (merged if exists)
 - Configures `settings.json` with hook definitions
+
+### Uninstall
+
+```bash
+./uninstall.sh /path/to/target-project
+```
 
 ## Development Commands
 

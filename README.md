@@ -24,31 +24,42 @@ This plugin achieves this through:
 
 ## Quick Install
 
-Prerequisites: `jq` (required for all installs), [beads CLI](https://github.com/steveyegge/beads) (`bd` - only for project-specific installs)
+Prerequisites: [beads CLI](https://github.com/steveyegge/beads) (`bd`), `jq`
+
+### Option A: Native Plugin System (Recommended)
 
 ```bash
-# Clone the marketplace
+# Add the marketplace
+/plugin marketplace add https://github.com/roberto-mello/beads-compound-plugin
+
+# Install the plugin
+/plugin install beads-compound
+
+# Restart Claude Code
+```
+
+Memory auto-bootstraps on first session in any beads-enabled project -- no extra setup needed.
+
+### Option B: Manual Install (Review Code First)
+
+```bash
+# Clone and review the source
 git clone https://github.com/roberto-mello/beads-compound-plugin.git
 cd beads-compound-plugin
 
-# Step 1: Global install (commands, agents, skills available everywhere)
+# Global install (commands, agents, skills available everywhere)
 ./install.sh
 
-# Step 2: Per-project install for memory features (repeat for each project)
+# Per-project install for memory features (repeat per project)
 ./install.sh /path/to/your-project
 
 # Restart Claude Code after each install
 ```
 
-**Recommended Setup:**
-1. **Global install first** (`./install.sh`): Makes commands, agents, and skills available in all Claude Code sessions
-2. **Per-project install second** (`./install.sh /path/to/project`): Enables memory features (auto-recall, knowledge capture) for that specific project
-3. **Repeat step 2** for each project where you want persistent memory
-
 **What each install does:**
-- **Global**: Commands, agents, skills → `~/.claude` + auto-detection hook that prompts you to run per-project install when it finds a beads project
-- **Per-Project**: Memory hooks, knowledge storage, auto-recall → `.claude/hooks` and `.beads/memory/`
-- **Smart duplication prevention**: If commands/agents/skills are already global, per-project install skips them
+- **Global**: Commands, agents, skills -> `~/.claude` + auto-detection hook for beads projects
+- **Per-Project**: Memory hooks, knowledge storage, auto-recall -> `.claude/hooks` and `.beads/memory/`
+- **Smart duplication prevention**: Per-project install skips components already installed globally
 
 **Tip:** Use `--yes` or `-y` to skip confirmation prompts (e.g. `./install.sh --yes`).
 
