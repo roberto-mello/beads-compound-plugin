@@ -18,11 +18,5 @@
     "research"
   ],
   "homepage": "https://github.com/roberto-mello/beads-compound-plugin",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/roberto-mello/beads-compound-plugin"
-  },
-  "requirements": {
-    "cli_tools": ["bd", "jq"]
-  }
+  "repository": "https://github.com/roberto-mello/beads-compound-plugin"
 }

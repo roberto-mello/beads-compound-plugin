@@ -2,7 +2,7 @@
   "name": "beads-compound-marketplace",
   "owner": {
     "name": "Roberto Mello",
-    "url": "https://github.com/roberto-mello"
+    "email": "roberto.mello@gmail.com"
   },
   "metadata": {
     "description": "Beads-based persistent memory with multi-agent workflows",

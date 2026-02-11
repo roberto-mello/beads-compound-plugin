@@ -9,12 +9,62 @@
 #
 # Injects top results as context for the session
 #
+# Bootstrap: auto-creates .beads/memory/ if missing
+#
 
-MEMORY_DIR="${CLAUDE_PROJECT_DIR:-.}/.beads/memory"
+# Resolve script directory early (works for both native plugin and manual install)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Exit silently if bd is not installed
+if ! command -v bd &>/dev/null; then
+  exit 0
+fi
+
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-.}"
+
+# If .beads/ doesn't exist, hint to run bd init
+if [[ ! -d "$PROJECT_DIR/.beads" ]]; then
+  cat << 'HINT'
+{"hookSpecificOutput":{"systemMessage":"## Beads Not Initialized\n\nThis project doesn't have beads set up yet. Run `bd init` to enable issue tracking and knowledge management."}}
+HINT
+  exit 0
+fi
+
+# Auto-bootstrap memory directory if missing
+if [[ ! -d "$PROJECT_DIR/.beads/memory" ]]; then
+  mkdir -p "$PROJECT_DIR/.beads/memory"
+
+  # Create empty knowledge file
+  touch "$PROJECT_DIR/.beads/memory/knowledge.jsonl"
+
+  # Copy recall.sh if available in hook directory
+  if [[ -f "$SCRIPT_DIR/recall.sh" ]]; then
+    cp "$SCRIPT_DIR/recall.sh" "$PROJECT_DIR/.beads/memory/recall.sh"
+    chmod +x "$PROJECT_DIR/.beads/memory/recall.sh"
+  fi
+
+  # Copy knowledge-db.sh if available
+  if [[ -f "$SCRIPT_DIR/knowledge-db.sh" ]]; then
+    cp "$SCRIPT_DIR/knowledge-db.sh" "$PROJECT_DIR/.beads/memory/knowledge-db.sh"
+  fi
+
+  # Setup .gitattributes for union merge strategy on knowledge files
+  GITATTR="$PROJECT_DIR/.beads/memory/.gitattributes"
+  echo "knowledge.jsonl merge=union" > "$GITATTR"
+  echo "knowledge.archive.jsonl merge=union" >> "$GITATTR"
+
+  # Stage the new memory files
+  (cd "$PROJECT_DIR" && git add .beads/memory/ 2>/dev/null)
+
+  cat << 'BOOTSTRAP'
+{"hookSpecificOutput":{"systemMessage":"## Memory System Bootstrapped\n\nAuto-created `.beads/memory/` with knowledge tracking. Your discoveries will be captured automatically via beads comments.\n\nUse `bd comments add <BEAD_ID> \"LEARNED: ...\"` to log knowledge."}}
+BOOTSTRAP
+  exit 0
+fi
+
+# Memory directory exists -- proceed with recall
+MEMORY_DIR="$PROJECT_DIR/.beads/memory"
 KNOWLEDGE_FILE="$MEMORY_DIR/knowledge.jsonl"
-
-# Exit silently if no knowledge base exists
-[[ ! -f "$KNOWLEDGE_FILE" ]] && exit 0
 
 # Get currently open beads
 OPEN_BEADS=$(bd list --status=open --json 2>/dev/null | jq -r '.[].id' 2>/dev/null | head -5)
@@ -53,7 +103,6 @@ else
 
   # Try FTS5 first
   if command -v sqlite3 &>/dev/null; then
-    SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
     if [[ -f "$SCRIPT_DIR/knowledge-db.sh" ]]; then
       source "$SCRIPT_DIR/knowledge-db.sh"
       DB_PATH="$MEMORY_DIR/knowledge.db"
