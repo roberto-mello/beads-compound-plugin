@@ -26,7 +26,7 @@ This plugin achieves this through:
 
 Prerequisites: [beads CLI](https://github.com/steveyegge/beads) (`bd`), `jq`
 
-### Option A: Native Plugin System (Recommended)
+### Native Plugin System (not deployed yet)
 
 ```bash
 # Add the marketplace
@@ -40,7 +40,7 @@ Prerequisites: [beads CLI](https://github.com/steveyegge/beads) (`bd`), `jq`
 
 Memory auto-bootstraps on first session in any beads-enabled project -- no extra setup needed.
 
-### Option B: Manual Install (Review Code First)
+### Manual Install
 
 ```bash
 # Clone and review the source
