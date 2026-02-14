@@ -105,19 +105,27 @@ cd .opencode/plugins/beads-compound && bun install && cd ../..
 
 #### Gemini CLI
 
-Gemini CLI uses the same stdin/stdout JSON protocol as Claude Code, so shell scripts work without modification.
+Gemini CLI has **full compatibility** for memory system, commands, and skills. Uses same stdin/stdout JSON protocol as Claude Code.
 
 **Install via extension:**
 ```bash
 gemini extensions install https://github.com/roberto-mello/beads-compound-plugin
 ```
 
-**What works:**
-- SessionStart → auto-recall.sh
-- AfterTool (bash) → memory-capture.sh
-- AfterAgent → subagent-wrapup.sh
+**What's compatible:**
+- **Memory system**: Auto-recall, knowledge capture, subagent wrapup ✅ (shipped via extension hooks)
+- **Skills**: `.gemini/skills/*/SKILL.md` - **compatible with Claude Code skills** (Anthropic's open standard format)
+- **Commands**: `.gemini/commands/*.toml` with `{{args}}` template syntax (different format than OpenCode's `.md` files)
+- **MCP Prompts**: MCP prompts automatically become slash commands
+- **GEMINI.md**: Gemini CLI reads `GEMINI.md` by default (configurable via `context.fileName` setting)
 
-**Note:** Gemini CLI reads `GEMINI.md` by default (configurable via `context.fileName` setting).
+**Status**: Memory system shipped (v0.6.0). Skills can be copied as-is. Commands need .toml conversion (see bdcompound-xr3).
+
+**Note:** Commands use `.toml` format, not `.md`. Example:
+```toml
+prompt = "Your command prompt here with {{args}}"
+description = "Command description"
+```
 
 #### Codex CLI / Antigravity
 
