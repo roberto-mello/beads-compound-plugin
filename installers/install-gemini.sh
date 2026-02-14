@@ -27,6 +27,11 @@ fi
 
 PLUGIN_DIR="$SCRIPT_DIR/plugins/beads-compound"
 
+# Source shared functions
+# Use BASH_SOURCE to get the correct path when sourced
+INSTALLER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$INSTALLER_DIR/shared-functions.sh"
+
 # Parse --yes/-y flag (skip confirmation prompts)
 AUTO_YES=false
 POSITIONAL_ARGS=()
@@ -48,14 +53,7 @@ else
 fi
 
 # Resolve to absolute path
-mkdir -p "$TARGET" || {
-  echo "[!] Error: Could not create target directory: $TARGET"
-  exit 1
-}
-TARGET="$(cd "$TARGET" && pwd)" || {
-  echo "[!] Error: Could not access target directory: $TARGET"
-  exit 1
-}
+TARGET="$(resolve_target_dir "$TARGET")"
 
 echo "📦 beads-compound Gemini CLI Installer"
 echo ""
@@ -107,7 +105,7 @@ echo ""
 echo "📂 Step 2/4: Installing hooks..."
 
 HOOKS_DIR="$TARGET/hooks"
-mkdir -p "$HOOKS_DIR"
+create_dir_with_symlink_handling "$HOOKS_DIR"
 
 for hook in auto-recall.sh memory-capture.sh subagent-wrapup.sh; do
   cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/"
@@ -122,7 +120,7 @@ echo "📋 Step 3/4: Installing commands, agents, and skills..."
 
 # Commands (.toml format)
 COMMANDS_DIR="$TARGET/commands"
-mkdir -p "$COMMANDS_DIR"
+create_dir_with_symlink_handling "$COMMANDS_DIR"
 
 find "$PLUGIN_DIR/gemini/commands" -name "*.toml" -exec cp {} "$COMMANDS_DIR/" \;
 find "$COMMANDS_DIR" -type f -exec chmod 644 {} \;
@@ -131,7 +129,7 @@ echo "  ✓ Installed $(find "$PLUGIN_DIR/gemini/commands" -name "*.toml" | wc -
 
 # Agents
 AGENTS_DIR="$TARGET/agents"
-mkdir -p "$AGENTS_DIR"
+create_dir_with_symlink_handling "$AGENTS_DIR"
 
 for category in review research design workflow docs; do
   mkdir -p "$AGENTS_DIR/$category"

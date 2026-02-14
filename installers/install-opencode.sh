@@ -27,6 +27,11 @@ fi
 
 PLUGIN_DIR="$SCRIPT_DIR/plugins/beads-compound"
 
+# Source shared functions
+# Use BASH_SOURCE to get the correct path when sourced
+INSTALLER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$INSTALLER_DIR/shared-functions.sh"
+
 # Parse --yes/-y flag (skip confirmation prompts)
 AUTO_YES=false
 POSITIONAL_ARGS=()
@@ -48,14 +53,7 @@ else
 fi
 
 # Resolve to absolute path
-mkdir -p "$TARGET" || {
-  echo "[!] Error: Could not create target directory: $TARGET"
-  exit 1
-}
-TARGET="$(cd "$TARGET" && pwd)" || {
-  echo "[!] Error: Could not access target directory: $TARGET"
-  exit 1
-}
+TARGET="$(resolve_target_dir "$TARGET")"
 
 echo "📦 beads-compound OpenCode Installer"
 echo ""
@@ -107,27 +105,7 @@ echo ""
 echo "🔧 Step 2/5: Installing TypeScript plugin..."
 
 PLUGINS_DIR="$TARGET/plugins/beads-compound"
-
-# Handle symlinked directories (e.g., dotfiles repos)
-if [[ -L "$TARGET/plugins" ]]; then
-  REAL_PLUGINS=$(readlink "$TARGET/plugins")
-  echo "  [!] Note: plugins directory is a symlink to: $REAL_PLUGINS"
-
-  # Create the symlink target if it doesn't exist
-  if [[ ! -d "$REAL_PLUGINS" ]]; then
-    mkdir -p "$REAL_PLUGINS" || {
-      echo "[!] Error: Could not create symlink target: $REAL_PLUGINS"
-      echo "    Please create this directory manually or adjust your symlink setup"
-      exit 1
-    }
-    echo "  ✓ Created symlink target directory"
-  fi
-fi
-
-mkdir -p "$PLUGINS_DIR" || {
-  echo "[!] Error: Could not create plugins directory: $PLUGINS_DIR"
-  exit 1
-}
+create_dir_with_symlink_handling "$PLUGINS_DIR"
 
 cp "$PLUGIN_DIR/opencode/plugin.ts" "$PLUGINS_DIR/"
 cp "$PLUGIN_DIR/opencode/package.json" "$PLUGINS_DIR/"
@@ -152,7 +130,7 @@ echo ""
 echo "📂 Step 3/5: Installing hooks..."
 
 HOOKS_DIR="$TARGET/hooks"
-mkdir -p "$HOOKS_DIR"
+create_dir_with_symlink_handling "$HOOKS_DIR"
 
 for hook in auto-recall.sh memory-capture.sh subagent-wrapup.sh; do
   cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/"

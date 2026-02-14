@@ -34,6 +34,11 @@ fi
 
 PLUGIN_DIR="$SCRIPT_DIR/plugins/beads-compound"
 
+# Source shared functions
+# Use BASH_SOURCE to get the correct path when sourced
+INSTALLER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$INSTALLER_DIR/shared-functions.sh"
+
 # Parse --yes/-y flag (skip confirmation prompts)
 AUTO_YES=false
 POSITIONAL_ARGS=()
@@ -55,10 +60,7 @@ else
 fi
 
 # Resolve target to absolute path
-if [ ! -d "$TARGET" ]; then
-  mkdir -p "$TARGET"
-fi
-TARGET="$(cd "$TARGET" && pwd)"
+TARGET="$(resolve_target_dir "$TARGET")"
 
 # Detect if user is trying to install into the plugin directory itself
 if [[ "$TARGET" == "$SCRIPT_DIR" || "$TARGET" == "$PLUGIN_DIR" ]]; then
@@ -155,7 +157,7 @@ else
   echo "[4/9] Installing hooks..."
 
   HOOKS_DIR="$TARGET/.claude/hooks"
-  mkdir -p "$HOOKS_DIR"
+  create_dir_with_symlink_handling "$HOOKS_DIR"
 
   for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh; do
     cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/$hook"
@@ -183,7 +185,7 @@ else
   else
     COMMANDS_DIR="$TARGET/.claude/commands"
   fi
-  mkdir -p "$COMMANDS_DIR"
+  create_dir_with_symlink_handling "$COMMANDS_DIR"
 
   CMD_COUNT=0
 
