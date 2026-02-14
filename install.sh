@@ -121,7 +121,9 @@ if [[ ! "$INSTALLER_REAL" =~ ^"$EXPECTED_DIR"/install-[a-z]+\.sh$ ]]; then
 fi
 
 # Execute platform-specific installer
-# Use source instead of exec to allow better error handling
+# Export SCRIPT_DIR so sourced installer can use it
+export BEADS_MARKETPLACE_ROOT="$SCRIPT_DIR"
+
 echo "🔄 Installing beads-compound for $PLATFORM..."
 echo ""
 

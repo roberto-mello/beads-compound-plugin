@@ -25,7 +25,13 @@
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Use marketplace root from router if available, else derive from script location
+if [ -n "${BEADS_MARKETPLACE_ROOT:-}" ]; then
+  SCRIPT_DIR="$BEADS_MARKETPLACE_ROOT"
+else
+  SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+fi
+
 PLUGIN_DIR="$SCRIPT_DIR/plugins/beads-compound"
 
 # Parse --yes/-y flag (skip confirmation prompts)

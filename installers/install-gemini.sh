@@ -18,8 +18,14 @@ set -euo pipefail
 # Security: Set restrictive umask
 umask 077
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PLUGIN_DIR="$SCRIPT_DIR/../plugins/beads-compound"
+# Use marketplace root from router if available, else derive from script location
+if [ -n "${BEADS_MARKETPLACE_ROOT:-}" ]; then
+  SCRIPT_DIR="$BEADS_MARKETPLACE_ROOT"
+else
+  SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+fi
+
+PLUGIN_DIR="$SCRIPT_DIR/plugins/beads-compound"
 
 # Parse --yes/-y flag (skip confirmation prompts)
 AUTO_YES=false
@@ -83,7 +89,7 @@ if ! command -v bun &>/dev/null; then
 fi
 
 # Run conversion
-cd "$SCRIPT_DIR/../scripts"
+cd "$SCRIPT_DIR/scripts"
 if ! bun run convert-gemini.ts; then
   echo "[!] Error: Conversion failed"
   exit 1

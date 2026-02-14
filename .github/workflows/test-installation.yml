@@ -1,0 +1,97 @@
+name: Test Installation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  test-compatibility:
+    name: Security & Compatibility Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: cd scripts && bun install
+
+      - name: Run compatibility tests
+        run: cd scripts && bun run test-compatibility.ts
+
+  test-installation:
+    name: Multi-Platform Installation Tests
+    runs-on: ubuntu-latest
+    needs: test-compatibility
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install beads CLI
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/beadshq/beads/main/install.sh | bash
+          echo "$HOME/.beads/bin" >> $GITHUB_PATH
+
+      - name: Run installation tests
+        run: bash scripts/test-installation.sh
+
+      - name: Upload test artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: installation-test-logs
+          path: /tmp/beads-install-test-*/
+
+  verify-release:
+    name: Verify Release Readiness
+    runs-on: ubuntu-latest
+    needs: [test-compatibility, test-installation]
+    if: github.event_name == 'release'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify version consistency
+        run: |
+          PLUGIN_VERSION=$(jq -r '.version' plugins/beads-compound/.claude-plugin/plugin.json)
+          MARKETPLACE_VERSION=$(jq -r '.plugins[] | select(.id == "beads-compound") | .version' .claude-plugin/marketplace.json)
+
+          if [[ "$PLUGIN_VERSION" != "$MARKETPLACE_VERSION" ]]; then
+            echo "❌ Version mismatch: plugin.json=$PLUGIN_VERSION, marketplace.json=$MARKETPLACE_VERSION"
+            exit 1
+          fi
+
+          echo "✅ Versions consistent: $PLUGIN_VERSION"
+
+      - name: Verify component counts
+        run: |
+          COMMANDS=$(find plugins/beads-compound/commands -name "*.md" | wc -l)
+          AGENTS=$(find plugins/beads-compound/agents -name "*.md" | wc -l)
+          SKILLS=$(find plugins/beads-compound/skills -name "SKILL.md" | wc -l)
+
+          echo "Commands: $COMMANDS (expected 25+)"
+          echo "Agents: $AGENTS (expected 28+)"
+          echo "Skills: $SKILLS (expected 15+)"
+
+          [[ "$COMMANDS" -ge 25 ]] || exit 1
+          [[ "$AGENTS" -ge 28 ]] || exit 1
+          [[ "$SKILLS" -ge 15 ]] || exit 1
+
+          echo "✅ Component counts verified"
+
+      - name: Verify conversion outputs exist
+        run: |
+          [[ -d "plugins/beads-compound/opencode" ]] || { echo "❌ OpenCode outputs missing"; exit 1; }
+          [[ -d "plugins/beads-compound/gemini" ]] || { echo "❌ Gemini outputs missing"; exit 1; }
+
+          [[ -f "plugins/beads-compound/opencode/plugin.ts" ]] || { echo "❌ OpenCode plugin.ts missing"; exit 1; }
+
+          GEMINI_TOML=$(find plugins/beads-compound/gemini/commands -name "*.toml" | wc -l)
+          [[ "$GEMINI_TOML" -ge 25 ]] || { echo "❌ Gemini .toml commands missing"; exit 1; }
+
+          echo "✅ All conversion outputs verified"
