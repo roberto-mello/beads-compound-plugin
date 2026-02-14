@@ -180,7 +180,7 @@ for skill_dir in "$PLUGIN_DIR/opencode/skills"/*; do
   fi
 done
 
-echo "  ✓ Installed $(find "$PLUGIN_DIR/opencode/skills" -type d -depth 1 | wc -l | tr -d ' ') skills"
+echo "  ✓ Installed $(find "$PLUGIN_DIR/opencode/skills" -depth 1 -type d | wc -l | tr -d ' ') skills"
 echo ""
 
 # Step 5: Provision memory

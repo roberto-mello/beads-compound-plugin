@@ -155,7 +155,7 @@ for skill_dir in "$PLUGIN_DIR/gemini/skills"/*; do
   fi
 done
 
-echo "  ✓ Installed $(find "$PLUGIN_DIR/gemini/skills" -type d -depth 1 | wc -l | tr -d ' ') skills"
+echo "  ✓ Installed $(find "$PLUGIN_DIR/gemini/skills" -depth 1 -type d | wc -l | tr -d ' ') skills"
 echo ""
 
 # Step 4: Provision memory
