@@ -48,8 +48,14 @@ else
 fi
 
 # Resolve to absolute path
-mkdir -p "$TARGET"
-TARGET="$(cd "$TARGET" && pwd)"
+mkdir -p "$TARGET" || {
+  echo "[!] Error: Could not create target directory: $TARGET"
+  exit 1
+}
+TARGET="$(cd "$TARGET" && pwd)" || {
+  echo "[!] Error: Could not access target directory: $TARGET"
+  exit 1
+}
 
 echo "📦 beads-compound OpenCode Installer"
 echo ""
@@ -101,7 +107,27 @@ echo ""
 echo "🔧 Step 2/5: Installing TypeScript plugin..."
 
 PLUGINS_DIR="$TARGET/plugins/beads-compound"
-mkdir -p "$PLUGINS_DIR"
+
+# Handle symlinked directories (e.g., dotfiles repos)
+if [[ -L "$TARGET/plugins" ]]; then
+  REAL_PLUGINS=$(readlink "$TARGET/plugins")
+  echo "  [!] Note: plugins directory is a symlink to: $REAL_PLUGINS"
+
+  # Create the symlink target if it doesn't exist
+  if [[ ! -d "$REAL_PLUGINS" ]]; then
+    mkdir -p "$REAL_PLUGINS" || {
+      echo "[!] Error: Could not create symlink target: $REAL_PLUGINS"
+      echo "    Please create this directory manually or adjust your symlink setup"
+      exit 1
+    }
+    echo "  ✓ Created symlink target directory"
+  fi
+fi
+
+mkdir -p "$PLUGINS_DIR" || {
+  echo "[!] Error: Could not create plugins directory: $PLUGINS_DIR"
+  exit 1
+}
 
 cp "$PLUGIN_DIR/opencode/plugin.ts" "$PLUGINS_DIR/"
 cp "$PLUGIN_DIR/opencode/package.json" "$PLUGINS_DIR/"

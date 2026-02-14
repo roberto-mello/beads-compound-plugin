@@ -48,8 +48,14 @@ else
 fi
 
 # Resolve to absolute path
-mkdir -p "$TARGET"
-TARGET="$(cd "$TARGET" && pwd)"
+mkdir -p "$TARGET" || {
+  echo "[!] Error: Could not create target directory: $TARGET"
+  exit 1
+}
+TARGET="$(cd "$TARGET" && pwd)" || {
+  echo "[!] Error: Could not access target directory: $TARGET"
+  exit 1
+}
 
 echo "📦 beads-compound Gemini CLI Installer"
 echo ""
