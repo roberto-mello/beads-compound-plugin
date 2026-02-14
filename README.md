@@ -63,17 +63,53 @@ cd beads-compound-plugin
 
 **Tip:** Use `--yes` or `-y` to skip confirmation prompts (e.g. `./install.sh --yes`).
 
-### OpenCode/Codex Installation
+### Multi-Platform Support
 
-For OpenCode or Codex users, use the official converter:
+beads-compound supports multiple AI coding tools beyond Claude Code:
 
+#### OpenCode
+
+OpenCode support includes the core memory system (auto-recall and knowledge capture). Commands, agents, and skills are Claude Code-specific and don't translate.
+
+**Manual setup:**
 ```bash
-# For OpenCode
-bunx @every-env/compound-plugin install ./plugins/beads-compound --to opencode
+# Copy plugin files to OpenCode plugins directory
+mkdir -p .opencode/plugins/beads-compound
+cp plugins/beads-compound/opencode/plugin.ts .opencode/plugins/beads-compound/
+cp plugins/beads-compound/opencode/package.json .opencode/plugins/beads-compound/
+cp -r plugins/beads-compound/hooks .opencode/plugins/beads-compound/
 
-# For Codex
-bunx @every-env/compound-plugin install ./plugins/beads-compound --to codex
+# Install Bun dependencies
+cd .opencode/plugins/beads-compound
+bun install
 ```
+
+**What works:**
+- Auto-recall: injects relevant knowledge at session start
+- Memory capture: extracts knowledge from `bd comments add`
+- Subagent wrapup: warns when subagents complete without logging knowledge
+
+**AGENTS.md:** OpenCode reads `AGENTS.md` (not `CLAUDE.md`). For dual-tool projects, create a symlink: `ln -s CLAUDE.md AGENTS.md`
+
+#### Gemini CLI
+
+Gemini CLI uses the same stdin/stdout JSON protocol as Claude Code, so shell scripts work without modification.
+
+**Install via extension:**
+```bash
+gemini extensions install https://github.com/roberto-mello/beads-compound-plugin
+```
+
+**What works:**
+- SessionStart → auto-recall.sh
+- AfterTool (bash) → memory-capture.sh
+- AfterAgent → subagent-wrapup.sh
+
+**Note:** Gemini CLI reads `GEMINI.md` by default (configurable via `context.fileName` setting).
+
+#### Codex CLI / Antigravity
+
+**Not yet supported.** Codex CLI hook system is planned but not shipped (PR #11067 closed). Antigravity has no lifecycle event system.
 
 ## What's Included
 

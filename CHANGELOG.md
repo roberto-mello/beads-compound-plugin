@@ -2,6 +2,29 @@
 
 All notable changes to the beads-compound plugin are documented here.
 
+## [0.6.0] - 2026-02-13
+
+### Added
+- **OpenCode support** via native TypeScript plugin (`plugins/beads-compound/opencode/plugin.ts`)
+  - Auto-recall: inject relevant knowledge at session start
+  - Memory capture: extract knowledge from `bd comments add`
+  - Subagent wrapup: warn when subagents complete without logging knowledge
+  - Uses Bun.spawn() for security (prevents shell injection)
+  - Pre-fork filtering for performance (avoids subprocess overhead on non-matching bash commands)
+- **Gemini CLI support** via extension manifest (`gemini-extension.json`)
+  - SessionStart → auto-recall.sh
+  - AfterTool (bash) → memory-capture.sh
+  - AfterAgent → subagent-wrapup.sh
+  - Uses same stdin/stdout JSON protocol as Claude Code
+  - Install: `gemini extensions install https://github.com/roberto-mello/beads-compound-plugin`
+- **AGENTS.md references** in 10 files (6 commands, 4 agents) where it aids user discovery
+  - AGENTS.md is the emerging cross-tool standard (OpenCode, etc.)
+  - Recommended: symlink CLAUDE.md → AGENTS.md for dual-tool projects
+
+### Changed
+- README Multi-Platform Support section with OpenCode, Gemini CLI, and Codex CLI status
+- CLAUDE.md updated with multi-platform support summary and repository structure
+
 ## [0.5.0] - 2026-02-10
 
 ### Added
