@@ -26,7 +26,7 @@ This plugin achieves this through:
 
 Prerequisites: [beads CLI](https://github.com/steveyegge/beads) (`bd`), `jq`
 
-### Native Plugin System (not deployed yet)
+### Native Plugin System (not yet live)
 
 ```bash
 # Add the marketplace
