@@ -1,0 +1,195 @@
+#!/bin/bash
+#
+# Install beads-compound plugin for Gemini CLI
+#
+# What this installs:
+#   - Extension manifest (gemini-extension.json)
+#   - Memory capture and auto-recall hooks
+#   - Knowledge store (.beads/memory/knowledge.jsonl)
+#   - Converted commands (.toml format), agents, and skills
+#   - MCP server configuration documentation
+#
+# Usage:
+#   Called by install.sh -gemini [target]
+#
+
+set -euo pipefail
+
+# Security: Set restrictive umask
+umask 077
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_DIR="$SCRIPT_DIR/../plugins/beads-compound"
+
+# Parse --yes/-y flag (skip confirmation prompts)
+AUTO_YES=false
+POSITIONAL_ARGS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --yes|-y) AUTO_YES=true ;;
+    *) POSITIONAL_ARGS+=("$arg") ;;
+  esac
+done
+
+# Default to ~/.config/gemini if no positional argument provided
+if [ ${#POSITIONAL_ARGS[@]} -eq 0 ]; then
+  TARGET="$HOME/.config/gemini"
+  GLOBAL_INSTALL=true
+else
+  TARGET="${POSITIONAL_ARGS[0]}"
+  GLOBAL_INSTALL=false
+fi
+
+# Resolve to absolute path
+mkdir -p "$TARGET"
+TARGET="$(cd "$TARGET" && pwd)"
+
+echo "📦 beads-compound Gemini CLI Installer"
+echo ""
+echo "Target: $TARGET"
+if [ "$GLOBAL_INSTALL" = true ]; then
+  echo "Type: Global installation"
+else
+  echo "Type: Project-specific installation"
+fi
+echo ""
+
+# Security: Verify target is not a symlink
+if [[ -L "$TARGET" ]]; then
+  echo "[!] Error: Target directory is a symlink: $TARGET"
+  echo "    This is a security risk. Please use a real directory."
+  exit 1
+fi
+
+# Security: Verify ownership
+TARGET_OWNER=$(stat -f%Su "$TARGET" 2>/dev/null || stat -c%U "$TARGET" 2>/dev/null)
+if [[ "$TARGET_OWNER" != "$USER" ]]; then
+  echo "[!] Error: Target directory is owned by a different user"
+  echo "    Owner: $TARGET_OWNER"
+  echo "    Current user: $USER"
+  exit 1
+fi
+
+# Step 1: Run conversion scripts
+echo "🔄 Step 1/4: Converting files to Gemini CLI format..."
+echo ""
+
+# Check if Bun is available
+if ! command -v bun &>/dev/null; then
+  echo "[!] Error: Bun is required for Gemini CLI installation"
+  echo "    Install Bun: curl -fsSL https://bun.sh/install | bash"
+  exit 1
+fi
+
+# Run conversion
+cd "$SCRIPT_DIR/../scripts"
+if ! bun run convert-gemini.ts; then
+  echo "[!] Error: Conversion failed"
+  exit 1
+fi
+
+echo ""
+
+# Step 2: Copy hooks
+echo "📂 Step 2/4: Installing hooks..."
+
+HOOKS_DIR="$TARGET/hooks"
+mkdir -p "$HOOKS_DIR"
+
+for hook in auto-recall.sh memory-capture.sh subagent-wrapup.sh; do
+  cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/"
+  chmod 755 "$HOOKS_DIR/$hook"
+  echo "  ✓ $hook"
+done
+
+echo ""
+
+# Step 3: Copy converted files
+echo "📋 Step 3/4: Installing commands, agents, and skills..."
+
+# Commands (.toml format)
+COMMANDS_DIR="$TARGET/commands"
+mkdir -p "$COMMANDS_DIR"
+
+find "$PLUGIN_DIR/gemini/commands" -name "*.toml" -exec cp {} "$COMMANDS_DIR/" \;
+find "$COMMANDS_DIR" -type f -exec chmod 644 {} \;
+
+echo "  ✓ Installed $(find "$PLUGIN_DIR/gemini/commands" -name "*.toml" | wc -l | tr -d ' ') commands (.toml)"
+
+# Agents
+AGENTS_DIR="$TARGET/agents"
+mkdir -p "$AGENTS_DIR"
+
+for category in review research design workflow docs; do
+  mkdir -p "$AGENTS_DIR/$category"
+  if [ -d "$PLUGIN_DIR/gemini/agents/$category" ]; then
+    find "$PLUGIN_DIR/gemini/agents/$category" -name "*.md" -exec cp {} "$AGENTS_DIR/$category/" \;
+  fi
+done
+
+find "$AGENTS_DIR" -type f -exec chmod 644 {} \;
+
+echo "  ✓ Installed $(find "$PLUGIN_DIR/gemini/agents" -name "*.md" | wc -l | tr -d ' ') agents"
+
+# Skills
+SKILLS_DIR="$TARGET/skills"
+mkdir -p "$SKILLS_DIR"
+
+for skill_dir in "$PLUGIN_DIR/gemini/skills"/*; do
+  if [ -d "$skill_dir" ]; then
+    skill_name=$(basename "$skill_dir")
+    mkdir -p "$SKILLS_DIR/$skill_name"
+    cp "$skill_dir/SKILL.md" "$SKILLS_DIR/$skill_name/" 2>/dev/null || true
+    chmod 444 "$SKILLS_DIR/$skill_name/SKILL.md" 2>/dev/null || true
+  fi
+done
+
+echo "  ✓ Installed $(find "$PLUGIN_DIR/gemini/skills" -type d -depth 1 | wc -l | tr -d ' ') skills"
+echo ""
+
+# Step 4: Provision memory
+echo "💾 Step 4/4: Provisioning memory system..."
+
+BEADS_MEMORY_DIR="$TARGET/.beads/memory"
+mkdir -p "$BEADS_MEMORY_DIR"
+
+# Copy recall scripts
+cp "$PLUGIN_DIR/hooks/recall.sh" "$BEADS_MEMORY_DIR/"
+cp "$PLUGIN_DIR/hooks/knowledge-db.sh" "$BEADS_MEMORY_DIR/"
+
+chmod 755 "$BEADS_MEMORY_DIR/recall.sh"
+chmod 755 "$BEADS_MEMORY_DIR/knowledge-db.sh"
+
+# Create knowledge.jsonl if it doesn't exist
+if [ ! -f "$BEADS_MEMORY_DIR/knowledge.jsonl" ]; then
+  touch "$BEADS_MEMORY_DIR/knowledge.jsonl"
+  chmod 644 "$BEADS_MEMORY_DIR/knowledge.jsonl"
+fi
+
+echo "  ✓ Memory system ready"
+echo ""
+
+# Installation complete
+echo "✅ Installation complete!"
+echo ""
+echo "📚 Next steps:"
+echo ""
+echo "1. Configure hooks in settings.json:"
+echo "   See: $PLUGIN_DIR/gemini/settings.json for hook configuration"
+echo ""
+echo "2. Configure MCP servers (optional):"
+echo "   See: $PLUGIN_DIR/gemini/docs/MCP_SETUP.md"
+echo ""
+echo "3. Commands are available as slash commands:"
+echo "   - /beads-plan, /beads-work, /beads-review, etc."
+echo ""
+echo "4. Test the installation:"
+echo "   gemini --version"
+echo ""
+
+if [ "$GLOBAL_INSTALL" = true ]; then
+  echo "Global installation complete. All Gemini CLI projects will have access to the plugin."
+else
+  echo "Project-specific installation complete for: $TARGET"
+fi

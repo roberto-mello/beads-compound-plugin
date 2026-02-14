@@ -1,0 +1,27 @@
+{
+  "name": "beads-compound-converters",
+  "version": "0.3.0",
+  "description": "Conversion scripts for beads-compound multi-platform support",
+  "type": "module",
+  "scripts": {
+    "convert:opencode": "bun run convert-opencode.ts",
+    "convert:gemini": "bun run convert-gemini.ts",
+    "convert:all": "bun run convert-opencode.ts && bun run convert-gemini.ts",
+    "test:security": "bun run test-security.ts",
+    "test:compatibility": "bun run test-compatibility.ts",
+    "test:all": "bun run test-security.ts && bun run test-compatibility.ts"
+  },
+  "dependencies": {
+    "js-yaml": "4.1.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/js-yaml": "4.0.9"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "overrides": {
+    "js-yaml": "4.1.0"
+  }
+}
