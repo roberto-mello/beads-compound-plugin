@@ -46,11 +46,12 @@ jobs:
         if: steps.check-beads.outputs.available == 'true'
         run: |
           curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
-          echo "$HOME/.beads/bin" >> $GITHUB_PATH
 
       - name: Run installation tests
         if: steps.check-beads.outputs.available == 'true'
-        run: bash scripts/test-installation.sh
+        run: |
+          export PATH="/usr/local/bin:$PATH"
+          bash scripts/test-installation.sh
 
       - name: Skip installation tests
         if: steps.check-beads.outputs.available == 'false'
