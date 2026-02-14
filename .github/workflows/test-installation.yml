@@ -36,7 +36,7 @@ jobs:
       - name: Check if beads installer is available
         id: check-beads
         run: |
-          if curl -fsSL --head https://raw.githubusercontent.com/steveyegge/beads/main/install.sh 2>/dev/null | grep -q "200 OK"; then
+          if curl -fsSL --head https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh 2>/dev/null | grep -q "200 OK"; then
             echo "available=true" >> $GITHUB_OUTPUT
           else
             echo "available=false" >> $GITHUB_OUTPUT
@@ -45,7 +45,7 @@ jobs:
       - name: Install beads CLI
         if: steps.check-beads.outputs.available == 'true'
         run: |
-          curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/install.sh | bash
+          curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
           echo "$HOME/.beads/bin" >> $GITHUB_PATH
 
       - name: Run installation tests
