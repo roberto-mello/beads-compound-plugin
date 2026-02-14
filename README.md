@@ -490,24 +490,27 @@ bash .beads/memory/recall.sh
 #### OpenCode
 
 ```bash
-# Check if hooks are installed (project-specific)
-ls -la .opencode/hooks/
+# Check if TypeScript plugin is installed (project-specific)
+ls -la .opencode/plugins/beads-compound/plugin.ts
 
 # Or global install
-ls -la ~/.config/opencode/plugins/beads-compound/hooks/
+ls -la ~/.config/opencode/plugins/beads-compound/plugin.ts
 
-# Check hook configuration
-cat .opencode/settings.json | jq '.hooks'
+# Check if plugin is loading (look for console.log messages in OpenCode output)
+# Expected: "[beads-compound] Plugin loaded successfully"
 
 # Check memory directory
 ls -la .beads/memory/
+
+# Check if hook scripts exist
+ls -la .opencode/plugins/beads-compound/hooks/
 
 # Test knowledge capture manually
 bd comments add <BEAD_ID> "LEARNED: Testing memory capture"
 tail -1 .beads/memory/knowledge.jsonl
 
-# Test memory-capture hook directly
-echo '{"tool_name":"Bash","tool_input":{"command":"bd comments add test-123 \"LEARNED: Test entry\""}}' | bash .opencode/hooks/memory-capture.sh
+# Check plugin dependencies are installed
+ls -la .opencode/plugins/beads-compound/node_modules/
 ```
 
 #### Gemini CLI
