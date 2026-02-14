@@ -1,7 +1,7 @@
 ---
-name: triage
+name: beads-triage
 description: Triage and categorize beads for prioritization
-argument-hint: [epic bead ID or list of bead IDs]
+argument-hint: "[bead ID or empty]"
 disable-model-invocation: true
 ---
 
@@ -20,16 +20,43 @@ This command is for:
 
 <bead_input> #$ARGUMENTS </bead_input>
 
-**If input is an epic bead ID:**
-```bash
-bd list --parent {EPIC_ID} --json
-```
+**First, determine if the argument is a bead ID or empty:**
 
-**If input is empty:**
-```bash
-# Show all open beads
-bd list --status=open --json
-```
+Check if the argument matches a bead ID pattern:
+- Pattern: lowercase alphanumeric segments separated by hyphens (e.g., `bikiniup-xhr`, `beads-123`, `fix-auth-bug2`)
+- Regex: `^[a-z0-9]+-[a-z0-9]+(-[a-z0-9]+)*$`
+
+**If the argument matches a bead ID pattern:**
+
+1. Try to load the bead using the Bash tool:
+   ```bash
+   bd show "#$ARGUMENTS" --json
+   ```
+
+2. If the bead exists:
+   - Extract the `title` and `type` fields from the JSON array (first element)
+   - Example: `bd show "#$ARGUMENTS" --json | jq -r '.[0].type'`
+   - Announce: "Triaging bead #$ARGUMENTS: {title}"
+
+   **If the bead is an epic:**
+   - List all child beads:
+     ```bash
+     bd list --parent "#$ARGUMENTS" --json
+     ```
+   - Triage the epic's child beads
+
+   **If the bead is not an epic:**
+   - Triage just that single bead
+
+3. If the bead doesn't exist (command fails):
+   - Report: "Bead ID '#$ARGUMENTS' not found. Please check the ID or provide a valid bead ID."
+   - Stop execution
+
+**If the argument does NOT match a bead ID pattern (or is empty):**
+- Triage all open beads (original behavior):
+  ```bash
+  bd list --status=open --json
+  ```
 
 Read each bead's full details:
 ```bash

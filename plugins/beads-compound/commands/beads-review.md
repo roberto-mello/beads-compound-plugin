@@ -279,7 +279,7 @@ After creating all beads, present comprehensive summary:
 
 1. **Address P1 Findings**: CRITICAL - must be fixed before closing
    - /beads-work {P1_BEAD_ID} for each critical finding
-2. **Triage remaining**: /triage {BEAD_ID}
+2. **Triage remaining**: /beads-triage {BEAD_ID}
 3. **Resolve in parallel**: /beads-parallel {BEAD_ID}
 4. **View all findings**: bd list --tags "review,{BEAD_ID}"
 ```

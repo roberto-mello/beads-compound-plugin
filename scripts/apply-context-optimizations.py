@@ -60,7 +60,7 @@ DISABLE_COMMANDS = [
     "deploy-docs",
     "release-docs",
     "changelog",
-    "triage",
+    "beads-triage",
     "test-browser",
     "xcode-test",
     "report-bug",

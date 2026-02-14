@@ -163,4 +163,4 @@ This creates a compounding knowledge system:
 
 - `/beads-plan` - Planning workflow (references documented knowledge)
 - `/beads-checkpoint` - Quick knowledge capture during work
-- `/deepen-plan` - Enhance plans with parallel research
+- `/beads-deepen` - Enhance plans with parallel research

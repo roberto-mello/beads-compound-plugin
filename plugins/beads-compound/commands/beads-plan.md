@@ -303,19 +303,19 @@ After creating the epic and child beads, use the **AskUserQuestion tool** to pre
 **Question:** "Plan ready as epic `{EPIC_ID}`: {title}. What would you like to do next?"
 
 **Options:**
-1. **Run `/deepen-plan`** - Enhance each child bead with parallel research agents
-2. **Run `/plan-review`** - Get feedback from reviewers on the plan
+1. **Run `/beads-deepen`** - Enhance each child bead with parallel research agents
+2. **Run `/beads-plan-review`** - Get feedback from reviewers on the plan
 3. **Start `/beads-work`** - Begin implementing the first child bead
 4. **Simplify** - Reduce detail level
 
 Based on selection:
-- **`/deepen-plan`** -> Call the /deepen-plan command with the epic bead ID
-- **`/plan-review`** -> Call the /plan-review command with the epic bead ID
+- **`/beads-deepen`** -> Call the /beads-deepen command with the epic bead ID
+- **`/beads-plan-review`** -> Call the /beads-plan-review command with the epic bead ID
 - **`/beads-work`** -> Call the /beads-work command with the first ready child bead ID
 - **Simplify** -> Ask "What should I simplify?" then regenerate simpler descriptions
 - **Other** (automatically provided) -> Accept free text for rework or specific changes
 
-Loop back to options after Simplify or Other changes until user selects `/beads-work` or `/plan-review`.
+Loop back to options after Simplify or Other changes until user selects `/beads-work` or `/beads-plan-review`.
 
 ## Quality Requirements
 

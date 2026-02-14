@@ -8,7 +8,7 @@ disable-model-invocation: true
 Run these slash commands in order. Do not do anything else.
 
 1. `/beads-plan $ARGUMENTS`
-2. `/deepen-plan`
+2. `/beads-deepen`
 3. `/beads-work`
 4. `/beads-review`
 5. `/resolve-todo-parallel`

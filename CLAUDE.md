@@ -214,9 +214,9 @@ Commands are in `plugins/beads-compound/commands/`:
 
 | Command | File | Description |
 |---------|------|-------------|
-| `/deepen-plan` | deepen-plan.md | Enhance plan with parallel research |
-| `/plan-review` | plan-review.md | Multi-agent plan review |
-| `/triage` | triage.md | Prioritize and categorize beads |
+| `/beads-deepen` | beads-deepen.md | Enhance plan with parallel research |
+| `/beads-plan-review` | beads-plan-review.md | Multi-agent plan review |
+| `/beads-triage` | beads-triage.md | Prioritize and categorize beads |
 
 **Utility (15):**
 
