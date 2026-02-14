@@ -161,7 +161,7 @@ This command takes a bead (or specification) and executes it systematically. The
    - The bead description should reference similar code - read those files first
    - Match naming conventions exactly
    - Reuse existing components where possible
-   - Follow project coding standards (see CLAUDE.md)
+   - Follow project coding standards (see CLAUDE.md or AGENTS.md)
    - When in doubt, grep for similar implementations
 
 5. **Track Progress**
@@ -178,7 +178,7 @@ This command takes a bead (or specification) and executes it systematically. The
 
    ```bash
    # Run full test suite (use project's test command)
-   # Run linting (per CLAUDE.md)
+   # Run linting (per CLAUDE.md or AGENTS.md)
    ```
 
 2. **Consider Reviewer Agents** (Optional)

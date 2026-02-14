@@ -98,7 +98,7 @@ Provide a summary:
 - plugin.json - Updated counts and component lists
 - marketplace.json - Updated description
 - README.md - Updated component lists
-- CLAUDE.md - Updated counts and tables
+- CLAUDE.md or AGENTS.md - Updated counts and tables
 
 ### New Components Added
 - [List any new agents/commands/skills]
