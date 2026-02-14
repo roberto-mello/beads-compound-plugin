@@ -1,6 +1,6 @@
-# Beads Compound Claude Code Plugin
+# Beads Compound Engineering Plugin
 
-A Claude Code plugin providing beads-based persistent memory with multi-agent workflows.
+A Claude Code / OpenCode / Gemini plugin providing beads-based persistent memory with multi-agent workflows.
 
 Built on [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by the team at [Every](https://every.to) -- Kieran Klaassen, Dan Shipper, Julik Tarkhanov, and contributors. Their plugin pioneered the idea that each unit of engineering work should make subsequent units easier, not harder. This project extends that philosophy with beads-based persistent memory and several performance optimizations.
 
@@ -71,27 +71,27 @@ beads-compound supports multiple AI coding tools beyond Claude Code:
 
 **Install:**
 ```bash
-# From beads-compound-plugin directory
-./install.sh --opencode /path/to/your-project
+# Global install (to ~/.config/opencode)
+./install.sh --opencode
 
-# Or if already in your project directory
-bash /path/to/beads-compound-plugin/install.sh --opencode
+# Or project-specific install
+./install.sh --opencode /path/to/your-project
 ```
 
-The installer copies the TypeScript plugin to `.opencode/plugins/beads-compound/` and installs dependencies with Bun.
+The installer copies the TypeScript plugin to `~/.config/opencode/plugins/beads-compound/` (global) or `.opencode/plugins/beads-compound/` (project-specific) and installs dependencies with Bun.
 
 #### Gemini CLI
 
 **Install:**
 ```bash
-# From beads-compound-plugin directory
-./install.sh --gemini /path/to/your-project
+# Global install (to ~/.config/gemini)
+./install.sh --gemini
 
-# Or if already in your project directory
-bash /path/to/beads-compound-plugin/install.sh --gemini
+# Or project-specific install
+./install.sh --gemini /path/to/your-project
 ```
 
-The installer copies hooks to `.gemini/hooks/` and configures `gemini-extension.json`.
+The installer copies hooks to `~/.config/gemini/hooks/` (global) or `.gemini/hooks/` (project-specific).
 
 #### Codex CLI / Antigravity
 
