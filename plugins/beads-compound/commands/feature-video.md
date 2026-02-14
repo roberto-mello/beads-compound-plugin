@@ -1,7 +1,7 @@
 ---
 name: feature-video
 description: Record a video walkthrough of a feature and add it to the PR description
-argument-hint: [PR number or 'current'] [optional: base URL, default localhost:3000]
+argument-hint: "[PR number or 'current'] [optional: base URL, default localhost:3000]"
 disable-model-invocation: true
 ---
 
