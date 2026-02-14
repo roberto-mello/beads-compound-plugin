@@ -129,7 +129,13 @@ echo ""
 # Step 3: Copy hooks
 echo "📂 Step 3/5: Installing hooks..."
 
-HOOKS_DIR="$TARGET/.opencode/hooks"
+# Determine base directory: global uses $TARGET directly, project uses $TARGET/.opencode
+if [ "$GLOBAL_INSTALL" = true ]; then
+  HOOKS_DIR="$TARGET/hooks"
+else
+  HOOKS_DIR="$TARGET/.opencode/hooks"
+fi
+
 create_dir_with_symlink_handling "$HOOKS_DIR"
 
 for hook in auto-recall.sh memory-capture.sh subagent-wrapup.sh; do
@@ -143,9 +149,16 @@ echo ""
 # Step 4: Copy converted files
 echo "📋 Step 4/5: Installing commands, agents, and skills..."
 
+# Determine base directory: global uses $TARGET directly, project uses $TARGET/.opencode
+if [ "$GLOBAL_INSTALL" = true ]; then
+  BASE_DIR="$TARGET"
+else
+  BASE_DIR="$TARGET/.opencode"
+fi
+
 # Commands
-COMMANDS_DIR="$TARGET/.opencode/commands"
-mkdir -p "$COMMANDS_DIR"
+COMMANDS_DIR="$BASE_DIR/commands"
+create_dir_with_symlink_handling "$COMMANDS_DIR"
 
 find "$PLUGIN_DIR/opencode/commands" -name "*.md" -exec cp {} "$COMMANDS_DIR/" \;
 find "$COMMANDS_DIR" -type f -exec chmod 644 {} \;
@@ -153,8 +166,8 @@ find "$COMMANDS_DIR" -type f -exec chmod 644 {} \;
 echo "  ✓ Installed $(find "$PLUGIN_DIR/opencode/commands" -name "*.md" | wc -l | tr -d ' ') commands"
 
 # Agents
-AGENTS_DIR="$TARGET/.opencode/agents"
-mkdir -p "$AGENTS_DIR"
+AGENTS_DIR="$BASE_DIR/agents"
+create_dir_with_symlink_handling "$AGENTS_DIR"
 
 for category in review research design workflow docs; do
   mkdir -p "$AGENTS_DIR/$category"
@@ -168,8 +181,8 @@ find "$AGENTS_DIR" -type f -exec chmod 644 {} \;
 echo "  ✓ Installed $(find "$PLUGIN_DIR/opencode/agents" -name "*.md" | wc -l | tr -d ' ') agents"
 
 # Skills
-SKILLS_DIR="$TARGET/.opencode/skills"
-mkdir -p "$SKILLS_DIR"
+SKILLS_DIR="$BASE_DIR/skills"
+create_dir_with_symlink_handling "$SKILLS_DIR"
 
 for skill_dir in "$PLUGIN_DIR/opencode/skills"/*; do
   if [ -d "$skill_dir" ]; then
