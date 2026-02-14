@@ -8,9 +8,13 @@
 import type { Plugin } from "@opencode-ai/plugin";
 import { resolve } from "node:path";
 
+console.log("[beads-compound] Plugin loaded successfully");
+
 export default {
   // Set CLAUDE_PROJECT_DIR globally for all bd commands
   "shell.env": async ({ directory }) => {
+    console.log("[beads-compound] shell.env hook triggered");
+
     // Validate that directory is an absolute path (security)
     if (!directory || !resolve(directory).startsWith("/")) {
       return {};
@@ -23,6 +27,7 @@ export default {
 
   // Auto-recall: inject relevant knowledge at session start
   "session.created": async ({ directory }) => {
+    console.log("[beads-compound] session.created hook triggered");
     // Validate absolute path (security)
     if (!directory || !resolve(directory).startsWith("/")) {
       return;
