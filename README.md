@@ -73,15 +73,24 @@ OpenCode has **full compatibility** for memory system, commands, agents, and ski
 
 **Manual setup:**
 ```bash
-# Copy plugin files to OpenCode plugins directory
+# 1. Copy TypeScript plugin (for memory system hooks)
 mkdir -p .opencode/plugins/beads-compound
 cp plugins/beads-compound/opencode/plugin.ts .opencode/plugins/beads-compound/
 cp plugins/beads-compound/opencode/package.json .opencode/plugins/beads-compound/
 cp -r plugins/beads-compound/hooks .opencode/plugins/beads-compound/
+cd .opencode/plugins/beads-compound && bun install && cd ../..
 
-# Install Bun dependencies
-cd .opencode/plugins/beads-compound
-bun install
+# 2. Copy commands (optional, once ported - see bdcompound-xr3)
+# mkdir -p .opencode/commands
+# cp -r plugins/beads-compound/opencode/commands/* .opencode/commands/
+
+# 3. Copy skills (optional, once ported - see bdcompound-xr3)
+# mkdir -p .opencode/skills
+# cp -r plugins/beads-compound/opencode/skills/* .opencode/skills/
+
+# 4. Copy agents (optional, once ported - see bdcompound-xr3)
+# mkdir -p .opencode/agents
+# cp -r plugins/beads-compound/opencode/agents/* .opencode/agents/
 ```
 
 **What's compatible:**
