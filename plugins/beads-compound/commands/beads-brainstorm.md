@@ -1,7 +1,7 @@
 ---
 name: beads-brainstorm
 description: Explore requirements and approaches through collaborative dialogue before planning
-argument-hint: "[feature idea or problem to explore]"
+argument-hint: "[bead ID or feature idea]"
 ---
 
 # Brainstorm a Feature or Improvement
@@ -14,11 +14,40 @@ Brainstorming helps answer **WHAT** to build through collaborative dialogue. It 
 
 ## Feature Description
 
-<feature_description> #$ARGUMENTS </feature_description>
+<raw_argument> #$ARGUMENTS </raw_argument>
 
-**If the feature description above is empty, ask the user:** "What would you like to explore? Please describe the feature, problem, or improvement you're thinking about."
+**First, determine if the argument is a bead ID or a feature description:**
 
-Do not proceed until you have a feature description from the user.
+Check if the argument matches a bead ID pattern:
+- Pattern: lowercase alphanumeric segments separated by hyphens (e.g., `bikiniup-xhr`, `beads-123`, `explore-auth2`)
+- Regex: `^[a-z0-9]+-[a-z0-9]+(-[a-z0-9]+)*$`
+
+**If the argument matches a bead ID pattern:**
+
+1. Try to load the bead using the Bash tool:
+   ```bash
+   bd show "#$ARGUMENTS" --json
+   ```
+
+2. If the bead exists:
+   - Extract the `title` and `description` fields from the JSON array (first element)
+   - Example: `bd show "#$ARGUMENTS" --json | jq -r '.[0].title'` and `jq -r '.[0].description'`
+   - Use the bead's title and description as context for brainstorming
+   - Announce: "Brainstorming bead #$ARGUMENTS: {title}"
+   - Continue brainstorming to explore the idea more deeply
+
+3. If the bead doesn't exist (command fails):
+   - Report: "Bead ID '#$ARGUMENTS' not found. Please check the ID or provide a feature description instead."
+   - Stop execution
+
+**If the argument does NOT match a bead ID pattern:**
+- Treat it as a feature description: `<feature_description>#$ARGUMENTS</feature_description>`
+- Continue with the workflow
+
+**If the argument is empty:**
+- Ask: "What would you like to explore? Please provide either a bead ID (e.g., 'bikiniup-xhr') or describe the feature, problem, or improvement you're thinking about."
+
+Do not proceed until you have a clear feature description from the user.
 
 ## Execution Flow
 
