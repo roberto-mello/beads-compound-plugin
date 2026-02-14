@@ -401,3 +401,4 @@ bd sync               # Sync with git
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 - NEVER add Co-Authored-By lines to commit messages
+- Never use emoji in print messages unless explicitly requested
