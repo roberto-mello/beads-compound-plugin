@@ -104,7 +104,13 @@ echo ""
 # Step 2: Install TypeScript plugin
 echo "🔧 Step 2/5: Installing TypeScript plugin..."
 
-PLUGINS_DIR="$TARGET/plugins/beads-compound"
+# Determine plugin directory: global uses $TARGET/plugins, project uses $TARGET/.opencode/plugins
+if [ "$GLOBAL_INSTALL" = true ]; then
+  PLUGINS_DIR="$TARGET/plugins/beads-compound"
+else
+  PLUGINS_DIR="$TARGET/.opencode/plugins/beads-compound"
+fi
+
 create_dir_with_symlink_handling "$PLUGINS_DIR"
 
 cp "$PLUGIN_DIR/opencode/plugin.ts" "$PLUGINS_DIR/"

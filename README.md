@@ -492,7 +492,7 @@ bash .beads/memory/recall.sh
 ```bash
 # Check if plugin is installed
 # Project-specific:
-ls -la plugins/beads-compound/plugin.ts
+ls -la .opencode/plugins/beads-compound/plugin.ts
 
 # Global:
 ls -la ~/.config/opencode/plugins/beads-compound/plugin.ts
@@ -515,7 +515,7 @@ bd comments add <BEAD_ID> "LEARNED: Testing memory capture"
 tail -1 .beads/memory/knowledge.jsonl
 
 # Check plugin dependencies are installed
-ls -la plugins/beads-compound/node_modules/
+ls -la .opencode/plugins/beads-compound/node_modules/
 # Or for global: ls -la ~/.config/opencode/plugins/beads-compound/node_modules/
 ```
 
