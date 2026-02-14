@@ -113,8 +113,8 @@ fi
 
 create_dir_with_symlink_handling "$PLUGINS_DIR"
 
-cp "$PLUGIN_DIR/opencode/plugin.ts" "$PLUGINS_DIR/"
-cp "$PLUGIN_DIR/opencode/package.json" "$PLUGINS_DIR/"
+cp "$PLUGIN_DIR/opencode-src/plugin.ts" "$PLUGINS_DIR/"
+cp "$PLUGIN_DIR/opencode-src/package.json" "$PLUGINS_DIR/"
 
 # Set permissions
 chmod 644 "$PLUGINS_DIR/plugin.ts"
