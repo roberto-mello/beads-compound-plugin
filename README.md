@@ -69,7 +69,7 @@ beads-compound supports multiple AI coding tools beyond Claude Code:
 
 #### OpenCode
 
-OpenCode support includes the core memory system (auto-recall and knowledge capture). Commands, agents, and skills are Claude Code-specific and don't translate.
+OpenCode support includes memory system, commands, and MCP integration. Agents cannot be ported (OpenCode has 4 predefined agent types only).
 
 **Manual setup:**
 ```bash
@@ -85,11 +85,16 @@ bun install
 ```
 
 **What works:**
-- Auto-recall: injects relevant knowledge at session start
-- Memory capture: extracts knowledge from `bd comments add`
-- Subagent wrapup: warns when subagents complete without logging knowledge
+- **Memory system**: Auto-recall, knowledge capture, subagent wrapup (via TypeScript plugin)
+- **Commands**: Can be ported to `~/.config/opencode/commands/*.md` (accessed via `Ctrl+K`)
+- **MCP servers**: Context7 can be configured in `mcpServers` section
+- **AGENTS.md**: OpenCode reads `AGENTS.md` - symlink recommended for dual-tool projects
 
-**AGENTS.md:** OpenCode reads `AGENTS.md` (not `CLAUDE.md`). For dual-tool projects, create a symlink: `ln -s CLAUDE.md AGENTS.md`
+**What doesn't work:**
+- **Agents**: OpenCode has 4 predefined agent types (`AgentCoder`, `AgentTask`, `AgentSummarizer`, `AgentTitle`). Cannot register custom agent types.
+- **Skills**: Not an open standard in OpenCode. Use custom commands or MCP tools instead.
+
+**Status**: Memory system shipped. Commands pending port (see bdcompound-xr3).
 
 #### Gemini CLI
 
