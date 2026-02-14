@@ -181,11 +181,11 @@ async function testFilePermissions() {
     fail("Agent permissions", "Could not check permissions");
   }
 
-  // Check skills (should be 444)
+  // Check skills (should be 644 - writable to allow conversion script re-runs)
   try {
-    const result = await $`find ${opencodeDir}/skills -type f -name "SKILL.md" -not -perm 444`.quiet().text();
+    const result = await $`find ${opencodeDir}/skills -type f -name "SKILL.md" -not -perm 644`.quiet().text();
     if (result.trim() === "") {
-      pass("Skills have correct permissions (444 read-only)");
+      pass("Skills have correct permissions (644)");
     } else {
       fail("Skill permissions", `Found files with wrong permissions:\n${result}`);
     }
