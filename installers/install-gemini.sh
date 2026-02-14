@@ -194,9 +194,6 @@ echo ""
 echo "3. Commands are available as slash commands:"
 echo "   - /beads-plan, /beads-work, /beads-review, etc."
 echo ""
-echo "4. Test the installation:"
-echo "   gemini --version"
-echo ""
 
 if [ "$GLOBAL_INSTALL" = true ]; then
   echo "Global installation complete. All Gemini CLI projects will have access to the plugin."
