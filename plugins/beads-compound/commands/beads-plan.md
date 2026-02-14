@@ -1,7 +1,7 @@
 ---
 name: beads-plan
 description: Transform feature descriptions into well-structured beads with parallel research and multi-phase planning
-argument-hint: "[feature description, bug report, or improvement idea]"
+argument-hint: "[bead ID or feature description]"
 ---
 
 # Create a plan for a new feature or bug fix
@@ -14,9 +14,38 @@ Transform feature descriptions, bug reports, or improvement ideas into well-stru
 
 ## Feature Description
 
-<feature_description> #$ARGUMENTS </feature_description>
+<raw_argument> #$ARGUMENTS </raw_argument>
 
-**If the feature description above is empty, ask the user:** "What would you like to plan? Please describe the feature, bug fix, or improvement you have in mind."
+**First, determine if the argument is a bead ID or a feature description:**
+
+Check if the argument matches a bead ID pattern:
+- Pattern: lowercase alphanumeric segments separated by hyphens (e.g., `bikiniup-xhr`, `beads-123`, `fix-auth-bug2`)
+- Regex: `^[a-z0-9]+-[a-z0-9]+(-[a-z0-9]+)*$`
+
+**If the argument matches a bead ID pattern:**
+
+1. Try to load the bead using the Bash tool:
+   ```bash
+   bd show "#$ARGUMENTS" --json
+   ```
+
+2. If the bead exists:
+   - Extract the `title` and `description` fields from the JSON array (first element)
+   - Example: `bd show "#$ARGUMENTS" --json | jq -r '.[0].description'`
+   - Use the bead's description as the `<feature_description>` for the rest of this workflow
+   - Announce: "Planning epic bead #$ARGUMENTS: {title}"
+   - If the bead already has child beads, list them and ask: "This bead already has child beads. Should I continue planning (will add more children) or was this a mistake?"
+
+3. If the bead doesn't exist (command fails):
+   - Report: "Bead ID '#$ARGUMENTS' not found. Please check the ID or provide a feature description instead."
+   - Stop execution
+
+**If the argument does NOT match a bead ID pattern:**
+- Treat it as a feature description: `<feature_description>#$ARGUMENTS</feature_description>`
+- Continue with the workflow
+
+**If the argument is empty:**
+- Ask: "What would you like to plan? Please provide either a bead ID (e.g., 'bikiniup-xhr') or describe the feature, bug fix, or improvement you have in mind."
 
 Do not proceed until you have a clear feature description from the user.
 
