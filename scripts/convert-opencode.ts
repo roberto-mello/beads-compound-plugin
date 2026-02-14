@@ -290,11 +290,15 @@ async function main() {
 
     console.log("✅ Conversion complete!");
     console.log(`\nGenerated files in: ${OUTPUT_DIR}`);
-    console.log("\nNext steps:");
-    console.log("1. Review the generated files");
-    console.log("2. Copy to your OpenCode project:");
-    console.log(`   cp -r ${OUTPUT_DIR}/* <project>/.opencode/`);
-    console.log("3. Configure MCP servers (see opencode/docs/MCP_SETUP.md)");
+
+    // Only show manual copy instructions if running standalone (not during install)
+    if (!process.env.BEADS_INSTALLING) {
+      console.log("\nNext steps:");
+      console.log("1. Review the generated files");
+      console.log("2. Copy to your OpenCode project:");
+      console.log(`   cp -r ${OUTPUT_DIR}/* <project>/.opencode/`);
+      console.log("3. Configure MCP servers (see opencode/docs/MCP_SETUP.md)");
+    }
   } catch (err: any) {
     console.error("❌ Conversion failed:", err.message);
     process.exit(1);

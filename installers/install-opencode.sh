@@ -92,9 +92,9 @@ if ! command -v bun &>/dev/null; then
   exit 1
 fi
 
-# Run conversion
+# Run conversion (with flag to suppress standalone instructions)
 cd "$SCRIPT_DIR/scripts"
-if ! bun run convert-opencode.ts; then
+if ! BEADS_INSTALLING=1 bun run convert-opencode.ts; then
   echo "[!] Error: Conversion failed"
   exit 1
 fi
