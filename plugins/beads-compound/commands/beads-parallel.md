@@ -168,7 +168,7 @@ After each wave completes:
 1. **Review agent outputs** for any reported issues or conflicts
 2. **Run tests** to verify nothing is broken:
    ```bash
-   # Use project's test command from CLAUDE.md
+   # Use project's test command from CLAUDE.md or AGENTS.md
    ```
 3. **Run linting** if applicable
 4. **Resolve conflicts** if multiple agents touched the same files

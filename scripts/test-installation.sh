@@ -1,0 +1,282 @@
+#!/usr/bin/env bash
+set -e
+
+# Installation Testing Suite
+# Tests install.sh across all three platforms
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+TEST_ROOT="/tmp/beads-install-test-$(date +%s)"
+
+PASSED=0
+FAILED=0
+
+pass() {
+  ((PASSED++))
+  echo "[PASS] $1"
+}
+
+fail() {
+  ((FAILED++))
+  echo "[FAIL] $1: $2"
+}
+
+cleanup() {
+  rm -rf "$TEST_ROOT"
+}
+
+trap cleanup EXIT
+
+echo " Installation Test Suite"
+echo "Testing beads-compound installer across all platforms..."
+echo
+
+# ==============================================================================
+# Test 1: Claude Code Installation
+# ==============================================================================
+echo " Test 1: Claude Code Installation"
+
+CLAUDE_TEST="$TEST_ROOT/claude-test"
+mkdir -p "$CLAUDE_TEST"
+cd "$CLAUDE_TEST"
+
+# Initialize beads and git
+git init -q
+bd init -q 2>/dev/null || true
+
+# Run installer (default platform)
+if bash "$PROJECT_ROOT/install.sh" "$CLAUDE_TEST" >/dev/null 2>&1; then
+  pass "Installer completed for Claude Code"
+else
+  fail "Claude Code install" "Installer failed"
+fi
+
+# Verify directory structure (hooks are required, commands/agents/skills may be global)
+if [[ -d ".claude/hooks" ]]; then
+  if [[ -d ".claude/commands" || -d "$HOME/.claude/commands" ]]; then
+    pass "Claude Code directory structure created"
+  else
+    pass "Claude Code hooks installed (commands/agents/skills are global)"
+  fi
+else
+  fail "Claude Code structure" "Missing .claude/hooks directory"
+fi
+
+# Verify hook files
+if [[ -f ".claude/hooks/auto-recall.sh" && -f ".claude/hooks/memory-capture.sh" && -f ".claude/hooks/subagent-wrapup.sh" ]]; then
+  pass "Claude Code hook files installed"
+else
+  fail "Claude Code hooks" "Missing hook files"
+fi
+
+# Verify settings.json exists and has hooks
+if [[ -f ".claude/settings.json" ]]; then
+  if grep -q "SessionStart" ".claude/settings.json" && \
+     grep -q "PostToolUse" ".claude/settings.json" && \
+     grep -q "SubagentStop" ".claude/settings.json"; then
+    pass "Claude Code hooks configured in settings.json"
+  else
+    fail "Claude Code settings" "Hooks not configured"
+  fi
+else
+  fail "Claude Code settings" "settings.json not created"
+fi
+
+# Verify commands (should be 25+ in project OR global)
+# Follow symlinks with -L flag
+COMMAND_COUNT=$(find .claude/commands -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+GLOBAL_COMMAND_COUNT=$(find -L "$HOME/.claude/commands" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+
+if [[ "$COMMAND_COUNT" -ge 25 ]]; then
+  pass "Claude Code commands installed locally ($COMMAND_COUNT files)"
+elif [[ "$GLOBAL_COMMAND_COUNT" -ge 25 ]]; then
+  pass "Claude Code commands installed globally ($GLOBAL_COMMAND_COUNT files)"
+else
+  fail "Claude Code commands" "Expected 25+, found $COMMAND_COUNT local, $GLOBAL_COMMAND_COUNT global"
+fi
+
+# Verify agents (should be 28+ in project OR global)
+# Follow symlinks with -L flag
+AGENT_COUNT=$(find .claude/agents -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+GLOBAL_AGENT_COUNT=$(find -L "$HOME/.claude/agents" -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+
+if [[ "$AGENT_COUNT" -ge 28 ]]; then
+  pass "Claude Code agents installed locally ($AGENT_COUNT files)"
+elif [[ "$GLOBAL_AGENT_COUNT" -ge 28 ]]; then
+  pass "Claude Code agents installed globally ($GLOBAL_AGENT_COUNT files)"
+else
+  fail "Claude Code agents" "Expected 28+, found $AGENT_COUNT local, $GLOBAL_AGENT_COUNT global"
+fi
+
+# Verify skills (should be 15+ in project OR global)
+# Follow symlinks with -L flag
+SKILL_COUNT=$(find .claude/skills -name "SKILL.md" 2>/dev/null | wc -l | tr -d ' ')
+GLOBAL_SKILL_COUNT=$(find -L "$HOME/.claude/skills" -name "SKILL.md" 2>/dev/null | wc -l | tr -d ' ')
+
+if [[ "$SKILL_COUNT" -ge 15 ]]; then
+  pass "Claude Code skills installed locally ($SKILL_COUNT files)"
+elif [[ "$GLOBAL_SKILL_COUNT" -ge 15 ]]; then
+  pass "Claude Code skills installed globally ($GLOBAL_SKILL_COUNT files)"
+else
+  fail "Claude Code skills" "Expected 15+, found $SKILL_COUNT local, $GLOBAL_SKILL_COUNT global"
+fi
+
+# Verify MCP server config (optional for project-specific installs)
+if [[ -f ".mcp.json" ]]; then
+  if grep -q "context7" ".mcp.json"; then
+    pass "Claude Code MCP server configured"
+  else
+    fail "Claude Code MCP" "context7 not found in config"
+  fi
+elif [[ -f "$HOME/.claude/.mcp.json" ]]; then
+  if grep -q "context7" "$HOME/.claude/.mcp.json"; then
+    pass "Claude Code MCP server configured globally"
+  else
+    pass "Claude Code MCP config exists but context7 not configured"
+  fi
+else
+  pass "Claude Code MCP not configured (optional)"
+fi
+
+# ==============================================================================
+# Test 2: OpenCode Installation
+# ==============================================================================
+echo
+echo " Test 2: OpenCode Installation"
+
+OPENCODE_TEST="$TEST_ROOT/opencode-test"
+mkdir -p "$OPENCODE_TEST"
+cd "$OPENCODE_TEST"
+
+git init -q
+bd init -q 2>/dev/null || true
+
+# Run installer with --opencode flag
+if bash "$PROJECT_ROOT/install.sh" --opencode "$OPENCODE_TEST" >/dev/null 2>&1; then
+  pass "Installer completed for OpenCode"
+else
+  fail "OpenCode install" "Installer failed"
+fi
+
+# Verify directory structure (OpenCode installs to project root)
+if [[ -d "plugins/beads-compound" ]]; then
+  pass "OpenCode directory structure created"
+else
+  fail "OpenCode structure" "Missing plugin directory"
+fi
+
+# Verify plugin.ts exists
+if [[ -f "plugins/beads-compound/plugin.ts" ]]; then
+  pass "OpenCode plugin.ts installed"
+else
+  fail "OpenCode plugin" "plugin.ts missing"
+fi
+
+# Verify package.json exists
+if [[ -f "plugins/beads-compound/package.json" ]]; then
+  pass "OpenCode package.json installed"
+else
+  fail "OpenCode package" "package.json missing"
+fi
+
+# Verify hook files at project root
+if [[ -f "hooks/auto-recall.sh" ]]; then
+  pass "OpenCode hook files installed"
+else
+  fail "OpenCode hooks" "Hook files missing"
+fi
+
+# Verify AGENTS.md exists (OpenCode uses this for beads workflow)
+if [[ -f "AGENTS.md" ]]; then
+  # Should contain beads workflow instructions
+  if grep -q "bd ready" "AGENTS.md"; then
+    pass "OpenCode AGENTS.md created with workflow instructions"
+  else
+    fail "OpenCode AGENTS" "AGENTS.md missing workflow content"
+  fi
+else
+  fail "OpenCode AGENTS" "AGENTS.md not created"
+fi
+
+# ==============================================================================
+# Test 3: Gemini Installation
+# ==============================================================================
+echo
+echo " Test 3: Gemini Installation"
+
+GEMINI_TEST="$TEST_ROOT/gemini-test"
+mkdir -p "$GEMINI_TEST"
+cd "$GEMINI_TEST"
+
+git init -q
+bd init -q 2>/dev/null || true
+
+# Run installer with --gemini flag
+if bash "$PROJECT_ROOT/install.sh" --gemini "$GEMINI_TEST" >/dev/null 2>&1; then
+  pass "Installer completed for Gemini"
+else
+  fail "Gemini install" "Installer failed"
+fi
+
+# Verify directory structure (Gemini installs to project root)
+if [[ -d "hooks" ]]; then
+  pass "Gemini directory structure created"
+else
+  fail "Gemini structure" "Missing hooks directory"
+fi
+
+# Verify commands are .toml format (Gemini-specific)
+TOML_COUNT=$(find commands -name "*.toml" 2>/dev/null | wc -l | tr -d ' ')
+if [[ "$TOML_COUNT" -ge 25 ]]; then
+  pass "Gemini commands installed as .toml ($TOML_COUNT files)"
+else
+  fail "Gemini commands" "Expected 25+ .toml files, found $TOML_COUNT"
+fi
+
+# Verify template syntax conversion ($ARGUMENTS → {{args}})
+if grep -q "{{args}}" commands/*.toml 2>/dev/null; then
+  pass "Gemini template syntax converted"
+else
+  fail "Gemini templates" "Template conversion not applied"
+fi
+
+# Verify agents (should be .md for Gemini)
+GEMINI_AGENT_COUNT=$(find agents -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+if [[ "$GEMINI_AGENT_COUNT" -ge 28 ]]; then
+  pass "Gemini agents installed ($GEMINI_AGENT_COUNT files)"
+else
+  fail "Gemini agents" "Expected 28+, found $GEMINI_AGENT_COUNT"
+fi
+
+# Verify skills
+GEMINI_SKILL_COUNT=$(find skills -name "SKILL.md" 2>/dev/null | wc -l | tr -d ' ')
+if [[ "$GEMINI_SKILL_COUNT" -ge 15 ]]; then
+  pass "Gemini skills installed ($GEMINI_SKILL_COUNT files)"
+else
+  fail "Gemini skills" "Expected 15+, found $GEMINI_SKILL_COUNT"
+fi
+
+# ==============================================================================
+# Test 4: Uninstallation (Optional - requires user confirmation)
+# ==============================================================================
+echo
+echo "  Test 4: Uninstallation (skipped - requires interactive confirmation)"
+echo "  [WARN]  Uninstallers require confirmation prompt - test manually if needed"
+
+# ==============================================================================
+# Summary
+# ==============================================================================
+echo
+echo "======================================================================"
+echo "Passed: $PASSED"
+echo "Failed: $FAILED"
+echo "======================================================================"
+
+if [[ "$FAILED" -gt 0 ]]; then
+  echo
+  echo " Some installation tests failed"
+  exit 1
+else
+  echo
+  echo " All installation tests passed!"
+fi

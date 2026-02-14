@@ -15,6 +15,16 @@ The plugin provides:
 - Automatic knowledge capture from beads comments (LEARNED/DECISION/FACT/PATTERN/INVESTIGATION)
 - Automatic knowledge recall at session start based on current beads
 
+## Multi-Platform Support
+
+beads-compound supports OpenCode and Gemini CLI in addition to Claude Code:
+
+**OpenCode:** Core memory system (auto-recall, knowledge capture, subagent wrapup) via native TypeScript plugin at `plugins/beads-compound/opencode/plugin.ts`. Commands/agents/skills are Claude Code-specific. OpenCode reads `AGENTS.md`.
+
+**Gemini CLI:** Full hook compatibility via `gemini-extension.json` manifest. Uses same stdin/stdout JSON protocol as Claude Code. Install: `gemini extensions install https://github.com/roberto-mello/beads-compound-plugin`
+
+See README.md for detailed setup instructions.
+
 ## Repository Structure
 
 ```
@@ -39,6 +49,12 @@ beads-compound-plugin/              # Marketplace root
 │       │   ├── memory-capture.sh
 │       │   ├── subagent-wrapup.sh
 │       │   └── recall.sh
+│       ├── opencode/
+│       │   ├── plugin.ts           # OpenCode TypeScript plugin
+│       │   └── package.json
+│       ├── gemini/
+│       │   └── settings.json       # Gemini CLI hook configuration
+│       ├── gemini-extension.json   # Gemini extension manifest
 │       ├── scripts/
 │       │   └── import-plan.sh
 │       └── .mcp.json               # Context7 MCP server

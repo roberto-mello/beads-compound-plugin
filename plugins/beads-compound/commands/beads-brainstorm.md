@@ -43,7 +43,7 @@ Run a quick repo scan to understand existing patterns:
 
 - Task repo-research-analyst("Understand existing patterns related to: <feature_description>")
 
-Focus on: similar features, established patterns, CLAUDE.md guidance.
+Focus on: similar features, established patterns, CLAUDE.md or AGENTS.md guidance.
 
 #### 1.2 Check Existing Knowledge
 

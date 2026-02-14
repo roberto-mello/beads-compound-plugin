@@ -83,7 +83,7 @@ Run these agents **in parallel** to gather local context:
 - Task learnings-researcher(feature_description)
 
 **What to look for:**
-- **Repo research:** existing patterns, CLAUDE.md guidance, technology familiarity, pattern consistency
+- **Repo research:** existing patterns, CLAUDE.md or AGENTS.md guidance, technology familiarity, pattern consistency
 - **Learnings:** knowledge.jsonl entries that might apply (gotchas, patterns, lessons learned)
 
 These findings inform the next step.
@@ -94,7 +94,7 @@ Based on signals from Step 0 and findings from Step 1, decide on external resear
 
 **High-risk topics -> always research.** Security, payments, external APIs, data privacy. The cost of missing something is too high. This takes precedence over speed signals.
 
-**Strong local context -> skip external research.** Codebase has good patterns, CLAUDE.md has guidance, user knows what they want. External research adds little value.
+**Strong local context -> skip external research.** Codebase has good patterns, CLAUDE.md or AGENTS.md has guidance, user knows what they want. External research adds little value.
 
 **Uncertainty or unfamiliar territory -> research.** User is exploring, codebase has no examples, new technology. External perspective is valuable.
 
@@ -121,7 +121,7 @@ After all research steps complete, consolidate findings:
 - **Include relevant institutional learnings** from knowledge.jsonl (key insights, gotchas to avoid)
 - Note external documentation URLs and best practices (if external research was done)
 - List related issues or PRs discovered
-- Capture CLAUDE.md conventions
+- Capture CLAUDE.md or AGENTS.md conventions
 
 **Optional validation:** Briefly summarize findings and ask if anything looks off or missing before proceeding to planning.
 
