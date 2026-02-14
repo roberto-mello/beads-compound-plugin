@@ -1,6 +1,6 @@
 {
   "name": "beads-compound",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Persistent memory and compound knowledge tracking for Gemini CLI. Auto-recalls relevant knowledge at session start and captures learnings from beads comments.",
   "author": "Roberto Mello",
   "repository": "https://github.com/roberto-mello/beads-compound-plugin",

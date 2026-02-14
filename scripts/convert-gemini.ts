@@ -30,7 +30,7 @@ import {
 } from "./shared/yaml-parser";
 import { mapToGemini } from "./shared/model-mapping";
 
-const PLUGIN_VERSION = "0.3.0";
+const PLUGIN_VERSION = "0.6.0";
 const SOURCE_DIR = join(import.meta.dir, "../plugins/beads-compound");
 const OUTPUT_DIR = join(import.meta.dir, "../plugins/beads-compound/gemini");
 

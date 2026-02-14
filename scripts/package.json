@@ -1,6 +1,6 @@
 {
   "name": "beads-compound-converters",
-  "version": "0.3.0",
+  "version": "0.6.0",
   "description": "Conversion scripts for beads-compound multi-platform support",
   "type": "module",
   "scripts": {
