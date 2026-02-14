@@ -259,10 +259,10 @@ async function convertSkills() {
 
 ${content}`;
 
-        await writeFileSafe(outputSkillMd, withHeader, 0o444); // Read-only
+        await writeFileSafe(outputSkillMd, withHeader, 0o644); // Standard permissions
         console.log(`  ✓ ${skill}/SKILL.md`);
       } catch (err) {
-        console.warn(`  ⚠️  Skipping ${skill} (no SKILL.md found)`);
+        console.warn(`  ⚠️  Skipping ${skill} (no SKILL.md found): ${err}`);
       }
     })
   );
