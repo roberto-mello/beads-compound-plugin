@@ -65,7 +65,46 @@ export default {
   },
 
   // Memory capture: extract knowledge from bd comments add commands
-  "tool.execute.after": async ({ tool, input, directory }) => {
+  // Subagent wrapup: warn when subagents complete without logging knowledge
+  "tool.execute.after": async ({ tool, input, output, metadata, directory }) => {
+    // Handle subagent completion (tool=task)
+    if (tool === "task") {
+      // Check if BEAD_ID is referenced in the subagent output or title
+      const beadIdPattern = /\b(BD-[A-Za-z0-9._-]+|bdcompound-[A-Za-z0-9._-]+)\b/i;
+      const hasBeadId =
+        beadIdPattern.test(input?.title || "") ||
+        beadIdPattern.test(output || "") ||
+        beadIdPattern.test(metadata?.summary || "");
+
+      if (!hasBeadId) {
+        // No BEAD_ID found, no action needed
+        return;
+      }
+
+      // Check if subagent logged any knowledge comments
+      const hasKnowledgeComment =
+        (metadata?.summary || "").includes("bd comments add") ||
+        (metadata?.summary || "").includes("bd comment add");
+
+      if (hasKnowledgeComment) {
+        // Knowledge was captured, all good
+        return;
+      }
+
+      // BEAD_ID found but no knowledge logged - inject reminder
+      return {
+        systemMessage: `⚠️ **Subagent completed without logging knowledge**
+
+The subagent referenced a bead but didn't capture any learnings. Consider running:
+
+\`\`\`bash
+bd comments add <BEAD_ID> "LEARNED: <key insight from subagent work>"
+\`\`\`
+
+Use one of: LEARNED, DECISION, FACT, PATTERN, INVESTIGATION`,
+      };
+    }
+
     // Pre-filter: only process bash commands (performance optimization)
     if (tool !== "bash") {
       return;
