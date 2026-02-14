@@ -183,27 +183,33 @@ done
 echo "  ✓ Installed $(find "$PLUGIN_DIR/opencode/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ') skills"
 echo ""
 
-# Step 5: Provision memory
-echo "💾 Step 5/5: Provisioning memory system..."
+# Step 5: Provision memory (only for project-specific installs)
+if [ "$GLOBAL_INSTALL" = true ]; then
+  echo "💾 Step 5/5: Skipping memory system (global install)"
+  echo "  Memory system will be provisioned per-project when using OpenCode"
+  echo ""
+else
+  echo "💾 Step 5/5: Provisioning memory system..."
 
-BEADS_MEMORY_DIR="$TARGET/.beads/memory"
-mkdir -p "$BEADS_MEMORY_DIR"
+  BEADS_MEMORY_DIR="$TARGET/.beads/memory"
+  mkdir -p "$BEADS_MEMORY_DIR"
 
-# Copy recall scripts
-cp "$PLUGIN_DIR/hooks/recall.sh" "$BEADS_MEMORY_DIR/"
-cp "$PLUGIN_DIR/hooks/knowledge-db.sh" "$BEADS_MEMORY_DIR/"
+  # Copy recall scripts
+  cp "$PLUGIN_DIR/hooks/recall.sh" "$BEADS_MEMORY_DIR/"
+  cp "$PLUGIN_DIR/hooks/knowledge-db.sh" "$BEADS_MEMORY_DIR/"
 
-chmod 755 "$BEADS_MEMORY_DIR/recall.sh"
-chmod 755 "$BEADS_MEMORY_DIR/knowledge-db.sh"
+  chmod 755 "$BEADS_MEMORY_DIR/recall.sh"
+  chmod 755 "$BEADS_MEMORY_DIR/knowledge-db.sh"
 
-# Create knowledge.jsonl if it doesn't exist
-if [ ! -f "$BEADS_MEMORY_DIR/knowledge.jsonl" ]; then
-  touch "$BEADS_MEMORY_DIR/knowledge.jsonl"
-  chmod 644 "$BEADS_MEMORY_DIR/knowledge.jsonl"
+  # Create knowledge.jsonl if it doesn't exist
+  if [ ! -f "$BEADS_MEMORY_DIR/knowledge.jsonl" ]; then
+    touch "$BEADS_MEMORY_DIR/knowledge.jsonl"
+    chmod 644 "$BEADS_MEMORY_DIR/knowledge.jsonl"
+  fi
+
+  echo "  ✓ Memory system ready"
+  echo ""
 fi
-
-echo "  ✓ Memory system ready"
-echo ""
 
 # Installation complete
 echo "✅ Installation complete!"

@@ -44,7 +44,9 @@ echo "  - All hooks (.opencode/hooks/)"
 echo "  - All commands (.opencode/commands/)"
 echo "  - All agents (.opencode/agents/)"
 echo "  - All skills (.opencode/skills/)"
-echo "  - Memory system (.beads/memory/)"
+echo "  - Memory scripts (recall.sh, knowledge-db.sh)"
+echo ""
+echo "Note: Your knowledge.jsonl database will be preserved"
 echo ""
 
 read -p "Continue? (y/N) " -n 1 -r
@@ -111,17 +113,21 @@ if [ -d "$TARGET/.opencode/skills" ]; then
   done
 fi
 
-# Remove memory system (with confirmation)
+# Remove memory scripts (keep knowledge.jsonl - that's user data)
 if [ -d "$TARGET/.beads/memory" ]; then
-  echo ""
-  echo "⚠️  Found memory system with knowledge database."
-  read -p "Remove memory system? This will delete all captured knowledge. (y/N) " -n 1 -r
-  echo
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    rm -rf "$TARGET/.beads/memory"
-    echo "  ✓ Removed memory system"
-  else
-    echo "  ⊘ Kept memory system"
+  # Remove plugin scripts only
+  if [ -f "$TARGET/.beads/memory/recall.sh" ]; then
+    rm "$TARGET/.beads/memory/recall.sh"
+    echo "  ✓ Removed recall.sh"
+  fi
+  if [ -f "$TARGET/.beads/memory/knowledge-db.sh" ]; then
+    rm "$TARGET/.beads/memory/knowledge-db.sh"
+    echo "  ✓ Removed knowledge-db.sh"
+  fi
+
+  # Note: knowledge.jsonl and knowledge.archive.jsonl are preserved (user data)
+  if [ -f "$TARGET/.beads/memory/knowledge.jsonl" ]; then
+    echo "  ⊘ Kept knowledge.jsonl (user data preserved)"
   fi
 fi
 
