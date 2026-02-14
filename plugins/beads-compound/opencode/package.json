@@ -1,0 +1,13 @@
+{
+  "name": "beads-compound-opencode",
+  "version": "0.5.0",
+  "description": "beads-compound plugin for OpenCode - persistent memory and knowledge tracking",
+  "type": "module",
+  "main": "plugin.ts",
+  "dependencies": {
+    "@opencode-ai/plugin": "0.1.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}
