@@ -195,17 +195,19 @@ async function testFilePermissions() {
 
   // Check for executables in data directories (should be none)
   try {
-    const commands = await $`find ${opencodeDir}/commands -type f -perm +111`.quiet().text();
-    const agents = await $`find ${opencodeDir}/agents -type f -perm +111`.quiet().text();
-    const skills = await $`find ${opencodeDir}/skills -type f -perm +111`.quiet().text();
+    // Use -perm /111 for POSIX compliance (checks if any execute bit is set)
+    const commands = await $`find ${opencodeDir}/commands -type f -perm /111 2>/dev/null || true`.text();
+    const agents = await $`find ${opencodeDir}/agents -type f -perm /111 2>/dev/null || true`.text();
+    const skills = await $`find ${opencodeDir}/skills -type f -perm /111 2>/dev/null || true`.text();
 
     if (commands.trim() === "" && agents.trim() === "" && skills.trim() === "") {
       pass("No unexpected executables in data directories");
     } else {
       fail("Executable check", "Found executable files in data directories");
     }
-  } catch {
-    fail("Executable check", "Could not check for executables");
+  } catch (err: any) {
+    // If find command itself fails, that's an error
+    fail("Executable check", `Could not check for executables: ${err.message}`);
   }
 }
 
