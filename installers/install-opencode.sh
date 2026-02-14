@@ -218,9 +218,6 @@ echo ""
 echo "3. Commands are available via Ctrl+K:"
 echo "   - beads-plan, beads-work, beads-review, etc."
 echo ""
-echo "4. Test the installation:"
-echo "   opencode --version"
-echo ""
 
 if [ "$GLOBAL_INSTALL" = true ]; then
   echo "Global installation complete. All OpenCode projects will have access to the plugin."
