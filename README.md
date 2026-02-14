@@ -20,7 +20,7 @@ This plugin achieves this through:
 
 | Plugin | Version | Description |
 |--------|---------|-------------|
-| **beads-compound** | 0.5.0 | 28 agents, 25 commands, 15 skills, persistent memory |
+| **beads-compound** | 0.6.0 | 28 agents, 25 commands, 15 skills, persistent memory |
 
 ## Quick Install
 
@@ -69,63 +69,29 @@ beads-compound supports multiple AI coding tools beyond Claude Code:
 
 #### OpenCode
 
-OpenCode has **full compatibility** for memory system, commands, agents, and skills.
-
-**Manual setup:**
+**Install:**
 ```bash
-# 1. Copy TypeScript plugin (for memory system hooks)
-mkdir -p .opencode/plugins/beads-compound
-cp plugins/beads-compound/opencode/plugin.ts .opencode/plugins/beads-compound/
-cp plugins/beads-compound/opencode/package.json .opencode/plugins/beads-compound/
-cp -r plugins/beads-compound/hooks .opencode/plugins/beads-compound/
-cd .opencode/plugins/beads-compound && bun install && cd ../..
+# From beads-compound-plugin directory
+./install.sh --opencode /path/to/your-project
 
-# 2. Copy commands (optional, once ported - see bdcompound-xr3)
-# mkdir -p .opencode/commands
-# cp -r plugins/beads-compound/opencode/commands/* .opencode/commands/
-
-# 3. Copy skills (optional, once ported - see bdcompound-xr3)
-# mkdir -p .opencode/skills
-# cp -r plugins/beads-compound/opencode/skills/* .opencode/skills/
-
-# 4. Copy agents (optional, once ported - see bdcompound-xr3)
-# mkdir -p .opencode/agents
-# cp -r plugins/beads-compound/opencode/agents/* .opencode/agents/
+# Or if already in your project directory
+bash /path/to/beads-compound-plugin/install.sh --opencode
 ```
 
-**What's compatible:**
-- **Memory system**: Auto-recall, knowledge capture, subagent wrapup ✅ (shipped via TypeScript plugin)
-- **Commands**: `.opencode/commands/*.md` with YAML frontmatter, `$ARGUMENTS`, `!command!`, `@file` support (accessed via `/` prefix or `Ctrl+K`)
-- **Skills**: `.opencode/skills/*/SKILL.md` with YAML frontmatter - **open standard** compatible with `.claude/skills/` and `.agents/skills/` (loaded on-demand via native `skill` tool)
-- **Agents**: `.opencode/agents/*.md` or JSON in `opencode.json` - custom agents with mode, model, prompt, tools, permissions (Primary agents via Tab, Subagents via `@mention`)
-- **MCP servers**: Context7 can be configured in `mcpServers` section
-- **AGENTS.md**: OpenCode reads `AGENTS.md` - symlink recommended for dual-tool projects
-
-**Status**: Memory system shipped (v0.6.0). Commands, agents, and skills pending port (see bdcompound-xr3).
+The installer copies the TypeScript plugin to `.opencode/plugins/beads-compound/` and installs dependencies with Bun.
 
 #### Gemini CLI
 
-Gemini CLI has **full compatibility** for memory system, commands, and skills. Uses same stdin/stdout JSON protocol as Claude Code.
-
-**Install via extension:**
+**Install:**
 ```bash
-gemini extensions install https://github.com/roberto-mello/beads-compound-plugin
+# From beads-compound-plugin directory
+./install.sh --gemini /path/to/your-project
+
+# Or if already in your project directory
+bash /path/to/beads-compound-plugin/install.sh --gemini
 ```
 
-**What's compatible:**
-- **Memory system**: Auto-recall, knowledge capture, subagent wrapup ✅ (shipped via extension hooks)
-- **Skills**: `.gemini/skills/*/SKILL.md` - **compatible with Claude Code skills** (Anthropic's open standard format)
-- **Commands**: `.gemini/commands/*.toml` with `{{args}}` template syntax (different format than OpenCode's `.md` files)
-- **MCP Prompts**: MCP prompts automatically become slash commands
-- **GEMINI.md**: Gemini CLI reads `GEMINI.md` by default (configurable via `context.fileName` setting)
-
-**Status**: Memory system shipped (v0.6.0). Skills can be copied as-is. Commands need .toml conversion (see bdcompound-xr3).
-
-**Note:** Commands use `.toml` format, not `.md`. Example:
-```toml
-prompt = "Your command prompt here with {{args}}"
-description = "Command description"
-```
+The installer copies hooks to `.gemini/hooks/` and configures `gemini-extension.json`.
 
 #### Codex CLI / Antigravity
 
