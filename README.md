@@ -456,6 +456,109 @@ This plugin is a fork of [compound-engineering-plugin](https://github.com/EveryI
 - Renamed `compound-docs` skill to `beads-knowledge`
 - Added `beads-` prefix to all commands to avoid conflicts
 
+## Troubleshooting
+
+### Memory Features Not Working
+
+If automatic knowledge capture or recall isn't working, check your setup:
+
+#### Claude Code
+
+```bash
+# Check if hooks are installed
+ls -la .claude/hooks/
+
+# Check hook configuration
+cat .claude/settings.json | jq '.hooks'
+
+# Check memory directory
+ls -la .beads/memory/
+
+# Test knowledge capture manually
+bd comments add <BEAD_ID> "LEARNED: Testing memory capture"
+tail -1 .beads/memory/knowledge.jsonl
+
+# Test recall manually
+bash .beads/memory/recall.sh
+```
+
+**Expected hooks in settings.json:**
+- `SessionStart`: `auto-recall.sh`
+- `PostToolUse` (Bash matcher): `memory-capture.sh`
+- `SubagentStop`: `subagent-wrapup.sh`
+
+#### OpenCode
+
+```bash
+# Check if hooks are installed (project-specific)
+ls -la .opencode/hooks/
+
+# Or global install
+ls -la ~/.config/opencode/plugins/beads-compound/hooks/
+
+# Check hook configuration
+cat .opencode/settings.json | jq '.hooks'
+
+# Check memory directory
+ls -la .beads/memory/
+
+# Test knowledge capture manually
+bd comments add <BEAD_ID> "LEARNED: Testing memory capture"
+tail -1 .beads/memory/knowledge.jsonl
+
+# Test memory-capture hook directly
+echo '{"tool_name":"Bash","tool_input":{"command":"bd comments add test-123 \"LEARNED: Test entry\""}}' | bash .opencode/hooks/memory-capture.sh
+```
+
+#### Gemini CLI
+
+```bash
+# Check if hooks are installed (project-specific)
+ls -la .gemini/hooks/
+
+# Or global install
+ls -la ~/.config/gemini/hooks/
+
+# Check hook configuration in gemini-extension.json
+cat gemini-extension.json | jq '.hooks'
+
+# Check memory directory
+ls -la .beads/memory/
+
+# Test knowledge capture manually
+bd comments add <BEAD_ID> "LEARNED: Testing memory capture"
+tail -1 .beads/memory/knowledge.jsonl
+```
+
+### Common Issues
+
+**No knowledge entries being saved:**
+- Ensure you're using `bd comments add <BEAD_ID> "LEARNED: ..."` format (not `bd comment`)
+- Check that the hook is configured in settings.json with correct matcher (e.g., `"Bash"` for PostToolUse)
+- Verify `.beads/memory/` directory exists
+- Test the hook manually using the platform-specific commands above
+
+**Knowledge recall not showing context:**
+- Check that `auto-recall.sh` is in SessionStart hooks
+- Verify you have open or in_progress beads: `bd list --status=open`
+- Run manual recall to test: `bash .beads/memory/recall.sh`
+- Check if `knowledge.jsonl` has entries: `wc -l .beads/memory/knowledge.jsonl`
+
+**SQLite search not working:**
+- Verify `sqlite3` is installed: `which sqlite3`
+- Check database exists: `ls -la .beads/memory/knowledge.db`
+- System automatically falls back to grep if SQLite unavailable
+
+**Duplicate entries in knowledge.jsonl:**
+- This was fixed in v0.6.0+. Update to latest version.
+- To clean up existing duplicates:
+  ```bash
+  cd .beads/memory
+  cp knowledge.jsonl knowledge.jsonl.backup
+  jq -s 'group_by(.key) | map(max_by(.ts)) | .[] | @json' knowledge.jsonl > knowledge.jsonl.tmp
+  mv knowledge.jsonl.tmp knowledge.jsonl
+  ```
+
 ## Importing Existing Plans
 
 ```bash
