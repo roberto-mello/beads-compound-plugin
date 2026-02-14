@@ -101,6 +101,11 @@ if command -v sqlite3 &>/dev/null; then
   fi
 fi
 
+# Check for duplicate key before appending to JSONL
+if [[ -f "$KNOWLEDGE_FILE" ]] && grep -qF "\"key\":\"$KEY\"" "$KNOWLEDGE_FILE"; then
+  exit 0  # Skip duplicate
+fi
+
 echo "$ENTRY" >> "$KNOWLEDGE_FILE"
 
 # Rotation: archive oldest 2500 when file exceeds 5000 lines
