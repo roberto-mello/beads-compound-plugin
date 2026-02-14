@@ -129,7 +129,7 @@ echo ""
 # Step 3: Copy hooks
 echo "📂 Step 3/5: Installing hooks..."
 
-HOOKS_DIR="$TARGET/hooks"
+HOOKS_DIR="$TARGET/.opencode/hooks"
 create_dir_with_symlink_handling "$HOOKS_DIR"
 
 for hook in auto-recall.sh memory-capture.sh subagent-wrapup.sh; do
@@ -144,7 +144,7 @@ echo ""
 echo "📋 Step 4/5: Installing commands, agents, and skills..."
 
 # Commands
-COMMANDS_DIR="$TARGET/commands"
+COMMANDS_DIR="$TARGET/.opencode/commands"
 mkdir -p "$COMMANDS_DIR"
 
 find "$PLUGIN_DIR/opencode/commands" -name "*.md" -exec cp {} "$COMMANDS_DIR/" \;
@@ -153,7 +153,7 @@ find "$COMMANDS_DIR" -type f -exec chmod 644 {} \;
 echo "  ✓ Installed $(find "$PLUGIN_DIR/opencode/commands" -name "*.md" | wc -l | tr -d ' ') commands"
 
 # Agents
-AGENTS_DIR="$TARGET/agents"
+AGENTS_DIR="$TARGET/.opencode/agents"
 mkdir -p "$AGENTS_DIR"
 
 for category in review research design workflow docs; do
@@ -168,7 +168,7 @@ find "$AGENTS_DIR" -type f -exec chmod 644 {} \;
 echo "  ✓ Installed $(find "$PLUGIN_DIR/opencode/agents" -name "*.md" | wc -l | tr -d ' ') agents"
 
 # Skills
-SKILLS_DIR="$TARGET/skills"
+SKILLS_DIR="$TARGET/.opencode/skills"
 mkdir -p "$SKILLS_DIR"
 
 for skill_dir in "$PLUGIN_DIR/opencode/skills"/*; do
