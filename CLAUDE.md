@@ -288,6 +288,48 @@ The `subagent-wrapup.sh` hook will:
 
 ## Key Implementation Details
 
+### Platform-Specific Conversion Scripts
+
+OpenCode and Gemini CLI require conversion from Claude Code format:
+
+**Conversion process:**
+- `scripts/convert-opencode.ts` - Converts to OpenCode format
+- `scripts/convert-gemini.ts` - Converts to Gemini CLI format
+- Run automatically during platform-specific installation
+- Requires Bun runtime (`bun run convert-opencode.ts`)
+
+**Generated file permissions:**
+- Skills use `0o644` (writable) not `0o444` (read-only)
+- Allows conversion script to overwrite on subsequent runs
+- Prevents `EACCES` errors when re-running conversion
+
+**Common gotchas:**
+- First run creates files successfully
+- Read-only permissions would cause subsequent runs to fail
+- Error caught by try/catch, producing misleading "no SKILL.md found" warnings
+- Solution: Use standard writable permissions for generated files
+
+### Cross-Platform Shell Commands
+
+**find command compatibility:**
+```bash
+# WRONG - fails on GNU find (Linux)
+find path -depth 1 -type d
+
+# CORRECT - works on BSD (macOS) and GNU (Linux)
+find path -mindepth 1 -maxdepth 1 -type d
+```
+
+- `-depth` is a flag (no argument) for depth-first traversal on GNU find
+- `-depth 1` on GNU find interprets `1` as path argument → error
+- `-maxdepth 1` limits directory descent to 1 level
+- `-mindepth 1` excludes parent directory from results
+- Both BSD find (macOS) and GNU find (Linux) support `-mindepth`/`-maxdepth`
+
+**Used in:**
+- `installers/install-opencode.sh` (skill counting)
+- `installers/install-gemini.sh` (skill counting)
+
 ### Memory Capture Detection
 
 The `memory-capture.sh` hook detects this pattern in Bash commands:
