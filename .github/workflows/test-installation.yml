@@ -23,6 +23,12 @@ jobs:
       - name: Install dependencies
         run: cd scripts && bun install
 
+      - name: Generate conversion outputs
+        run: |
+          cd scripts
+          bun run convert-opencode.ts
+          bun run convert-gemini.ts
+
       - name: Run compatibility tests
         run: cd scripts && bun run test-compatibility.ts
 
@@ -82,6 +88,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Generate conversion outputs for verification
+        run: |
+          cd scripts
+          bun install
+          bun run convert-opencode.ts
+          bun run convert-gemini.ts
+
       - name: Verify version consistency
         run: |
           PLUGIN_VERSION=$(jq -r '.version' plugins/beads-compound/.claude-plugin/plugin.json)
@@ -110,14 +128,21 @@ jobs:
 
           echo "✅ Component counts verified"
 
-      - name: Verify conversion outputs exist
+      - name: Verify source files and conversion outputs
         run: |
-          [[ -d "plugins/beads-compound/opencode" ]] || { echo "❌ OpenCode outputs missing"; exit 1; }
-          [[ -d "plugins/beads-compound/gemini" ]] || { echo "❌ Gemini outputs missing"; exit 1; }
+          # Verify source files exist
+          [[ -f "plugins/beads-compound/opencode-src/plugin.ts" ]] || { echo "❌ OpenCode plugin.ts source missing"; exit 1; }
+          [[ -f "plugins/beads-compound/opencode-src/package.json" ]] || { echo "❌ OpenCode package.json source missing"; exit 1; }
+          [[ -f "plugins/beads-compound/gemini-src/settings.json" ]] || { echo "❌ Gemini settings.json source missing"; exit 1; }
 
-          [[ -f "plugins/beads-compound/opencode/plugin.ts" ]] || { echo "❌ OpenCode plugin.ts missing"; exit 1; }
+          # Verify generated outputs exist (from previous step)
+          [[ -d "plugins/beads-compound/opencode" ]] || { echo "❌ OpenCode conversion outputs missing"; exit 1; }
+          [[ -d "plugins/beads-compound/gemini" ]] || { echo "❌ Gemini conversion outputs missing"; exit 1; }
 
-          GEMINI_TOML=$(find plugins/beads-compound/gemini/commands -name "*.toml" | wc -l)
+          OPENCODE_COMMANDS=$(find plugins/beads-compound/opencode/commands -name "*.md" 2>/dev/null | wc -l)
+          [[ "$OPENCODE_COMMANDS" -ge 25 ]] || { echo "❌ OpenCode .md commands missing"; exit 1; }
+
+          GEMINI_TOML=$(find plugins/beads-compound/gemini/commands -name "*.toml" 2>/dev/null | wc -l)
           [[ "$GEMINI_TOML" -ge 25 ]] || { echo "❌ Gemini .toml commands missing"; exit 1; }
 
-          echo "✅ All conversion outputs verified"
+          echo "✅ All source files and conversion outputs verified"
