@@ -109,25 +109,46 @@ The installer copies hooks to `~/.config/gemini/hooks/` (global) or `.gemini/hoo
 
 ### Commands (25)
 
-#### Beads Workflow Commands (7)
+Commands are organized by use case to help you choose the right tool for the job.
 
-| Command | Description |
-|---------|-------------|
-| `/beads-brainstorm` | Explore ideas collaboratively before planning |
-| `/beads-plan` | Research and plan using multiple agents, create epic + child beads |
-| `/beads-work` | Work on a single bead with full lifecycle |
-| `/beads-parallel` | Work on multiple beads in parallel via subagents |
-| `/beads-review` | Multi-agent code review before closing bead |
-| `/beads-checkpoint` | Save progress, creates/updates beads, capture knowledge, commit |
-| `/beads-compound` | Deep problem documentation doing a deep-dive with parallel subagents and saves knowledge (think post-mortem) |
+#### Planning & Discovery (4 commands)
 
-#### Planning & Triage Commands (3)
+Explore ideas and create structured plans before writing code.
 
-| Command | Description |
-|---------|-------------|
-| `/beads-deepen` | Enhance plan with parallel research agents (recommened for more intricate features, often finding things /beads-plan missed). |
-| `/beads-plan-review` | Multi-agent review of epic plan |
-| `/beads-triage` | Prioritize and categorize beads |
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| `/beads-brainstorm` | Explore ideas collaboratively | When requirements are unclear or you need to explore approaches |
+| `/beads-plan` | Research and create epic with child beads | Start every feature - creates structured plan with research |
+| `/beads-deepen` | Enhance plan with parallel research agents | For complex features - adds depth and best practices |
+| `/beads-plan-review` | Multi-agent review of epic plan | Before implementation - catch issues early |
+
+#### Executing Work (3 commands)
+
+Implement features and fix bugs using beads for tracking.
+
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| `/beads-work` | Work on a single bead with full lifecycle | Standard workflow - one bead at a time |
+| `/beads-parallel` | Work on multiple beads in parallel via subagents | Speed up delivery - multiple independent beads |
+| `/beads-triage` | Prioritize and categorize beads | After planning or review - organize work queue |
+
+#### Reviewing & Quality (2 commands)
+
+Ensure code quality and capture knowledge before shipping.
+
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| `/beads-review` | Multi-agent code review | Before closing beads - comprehensive quality check |
+| `/beads-import` | Import markdown plans into beads | When you have external plans to convert |
+
+#### Saving Progress (2 commands)
+
+Capture knowledge and save session state.
+
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| `/beads-checkpoint` | Save progress, create/update beads, commit | Mid-session - checkpoint your work |
+| `/beads-compound` | Deep problem documentation with parallel analysis | After solving hard problems - share learnings |
 
 #### Utility Commands (15)
 
@@ -198,46 +219,95 @@ The most frequently invoked agents (learnings-researcher, repo-research-analyst)
 | check-memory.sh | SessionStart (global) | Auto-detect beads projects missing memory setup |
 | knowledge-db.sh | (library) | Shared SQLite FTS5 functions sourced by other hooks |
 
-## Recommended Workflow
+## Workflow Examples
+
+Choose a workflow based on your needs. Each workflow shows a complete path from idea to shipped code.
+
+### Quick Start Workflow
+
+Fast iteration for simple features or bugs.
 
 ```
-/beads-brainstorm "idea"        Explore what to build
-        |
-/beads-plan "feature"           Research + create epic with child beads
-        |
-/beads-deepen BD-001            Enhance plan with research
-        |
-/beads-plan-review BD-001       Get multi-agent feedback on plan
-        |
-/beads-triage BD-001            Prioritize child beads
-        |
-/beads-work BD-001.1            Implement a child bead
-        |
-/beads-checkpoint               Save progress, capture knowledge
-        |
-/beads-review BD-001.1          Multi-agent code review
-        |
-/beads-compound BD-001.1        Document what you learned
+/beads-brainstorm "add user notifications"
+        ↓
+/beads-plan "add user notifications"       # Creates BD-001 with child beads
+        ↓
+/beads-work BD-001.1                       # Implement first child bead
+        ↓
+/beads-review BD-001.1                     # Multi-agent code review
+        ↓
+/beads-checkpoint                          # Commit and capture knowledge
 ```
 
-Or go fast:
+**Use when:** Feature is straightforward, requirements are clear, low complexity.
+
+### Deep Planning Workflow
+
+Thorough planning for complex features with research and review.
+
+```
+/beads-brainstorm "oauth authentication"
+        ↓
+/beads-plan "oauth authentication"         # Creates BD-002 with initial plan
+        ↓
+/beads-deepen BD-002                       # Enhances with best practices research
+        ↓
+/beads-plan-review BD-002                  # Multi-agent plan review
+        ↓
+/beads-triage BD-002                       # Prioritize child beads
+        ↓
+/beads-work BD-002.1                       # Start implementation
+        ↓
+/beads-checkpoint                          # Save progress
+        ↓
+/beads-review BD-002.1                     # Review implementation
+        ↓
+/beads-compound BD-002.1                   # Document learnings
+```
+
+**Use when:** Complex features, security-critical, architectural changes, unfamiliar territory.
+
+### Parallel Work Workflow
+
+Maximum speed by working on multiple beads simultaneously.
+
+```
+/beads-plan "api refactor"                 # Creates BD-003 with child beads
+        ↓
+/beads-parallel BD-003                     # Work on all child beads in parallel
+        ↓
+/beads-review BD-003                       # Review all changes
+        ↓
+/beads-checkpoint                          # Ship it
+```
+
+**Use when:** Multiple independent tasks, tight deadlines, clear requirements.
+
+### Import & Refine Workflow
+
+Starting from existing markdown plans or external documentation.
+
+```
+/beads-import plan.md                      # Creates BD-004 from markdown
+        ↓
+/beads-deepen BD-004                       # Add research and best practices
+        ↓
+/beads-work BD-004.1                       # Start implementation
+        ↓
+/beads-checkpoint                          # Save progress
+```
+
+**Use when:** You have external plans, migrating from other tools, inheriting documentation.
+
+### Full Autonomous Workflow
+
+Let the agent handle everything end-to-end.
 
 ```bash
-/beads-plan "Add OAuth"                     # Plan it
-/beads-parallel BD-001                      # Implement all child beads in parallel
-/beads-review BD-001                        # Review everything
-/beads-checkpoint                           # Ship it
+/lfg "Add OAuth authentication"            # Full autonomous workflow
 ```
 
-Or go full auto:
-
-```bash
-/lfg "Add OAuth"                            # Full autonomous workflow
-```
-
-For ad-hoc sessions where you might have been working on something without a beads issue,
-you can `/beads-checkpoint` to capture memories about the current context, and then
-continue working.
+**Use when:** You trust the agent fully, clear requirements, well-understood problem domain.
 
 ### Lightweight Usage (No Commands Needed)
 
