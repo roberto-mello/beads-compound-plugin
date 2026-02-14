@@ -69,7 +69,7 @@ beads-compound supports multiple AI coding tools beyond Claude Code:
 
 #### OpenCode
 
-OpenCode support includes memory system, commands, and MCP integration. Agents cannot be ported (OpenCode has 4 predefined agent types only).
+OpenCode has **full compatibility** for memory system, commands, agents, and skills.
 
 **Manual setup:**
 ```bash
@@ -84,17 +84,15 @@ cd .opencode/plugins/beads-compound
 bun install
 ```
 
-**What works:**
-- **Memory system**: Auto-recall, knowledge capture, subagent wrapup (via TypeScript plugin)
-- **Commands**: Can be ported to `~/.config/opencode/commands/*.md` (accessed via `Ctrl+K`)
+**What's compatible:**
+- **Memory system**: Auto-recall, knowledge capture, subagent wrapup ✅ (shipped via TypeScript plugin)
+- **Commands**: `.opencode/commands/*.md` with YAML frontmatter, `$ARGUMENTS`, `!command!`, `@file` support (accessed via `/` prefix or `Ctrl+K`)
+- **Skills**: `.opencode/skills/*/SKILL.md` with YAML frontmatter - **open standard** compatible with `.claude/skills/` and `.agents/skills/` (loaded on-demand via native `skill` tool)
+- **Agents**: `.opencode/agents/*.md` or JSON in `opencode.json` - custom agents with mode, model, prompt, tools, permissions (Primary agents via Tab, Subagents via `@mention`)
 - **MCP servers**: Context7 can be configured in `mcpServers` section
 - **AGENTS.md**: OpenCode reads `AGENTS.md` - symlink recommended for dual-tool projects
 
-**What doesn't work:**
-- **Agents**: OpenCode has 4 predefined agent types (`AgentCoder`, `AgentTask`, `AgentSummarizer`, `AgentTitle`). Cannot register custom agent types.
-- **Skills**: Not an open standard in OpenCode. Use custom commands or MCP tools instead.
-
-**Status**: Memory system shipped. Commands pending port (see bdcompound-xr3).
+**Status**: Memory system shipped (v0.6.0). Commands, agents, and skills pending port (see bdcompound-xr3).
 
 #### Gemini CLI
 
