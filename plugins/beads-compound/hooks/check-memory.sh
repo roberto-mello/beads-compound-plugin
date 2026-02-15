@@ -16,38 +16,54 @@ if [ -f ".claude/hooks/memory-capture.sh" ]; then
   exit 0
 fi
 
-# Find where the plugin source lives
-SOURCE_FILE="$HOME/.claude/.beads-compound-source"
+# Find where the hook scripts are installed
+# Try multiple locations in order:
+# 1. Global hooks directory (manual install)
+# 2. Same directory as this script (marketplace/plugin install)
+# 3. Plugin source path (legacy)
 
-if [ ! -f "$SOURCE_FILE" ]; then
-  cat <<'NOFIND'
-{
-  "systemMessage": "[beads-compound] This project uses beads but is missing memory hooks. Could not find plugin source to auto-install."
-}
-NOFIND
-  exit 0
+HOOKS_SOURCE_DIR=""
+
+# Option 1: Global hooks directory
+if [ -f "$HOME/.claude/hooks/memory-capture.sh" ]; then
+  HOOKS_SOURCE_DIR="$HOME/.claude/hooks"
 fi
 
-PLUGIN_SOURCE=$(cat "$SOURCE_FILE")
-PLUGIN_DIR="$PLUGIN_SOURCE/plugins/beads-compound"
+# Option 2: Same directory as this script (for marketplace installs)
+if [ -z "$HOOKS_SOURCE_DIR" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  if [ -f "$SCRIPT_DIR/memory-capture.sh" ]; then
+    HOOKS_SOURCE_DIR="$SCRIPT_DIR"
+  fi
+fi
 
-if [ ! -d "$PLUGIN_DIR/hooks" ]; then
-  cat <<MISSING
+# Option 3: Legacy plugin source path (backward compatibility)
+if [ -z "$HOOKS_SOURCE_DIR" ] && [ -f "$HOME/.claude/.beads-compound-source" ]; then
+  PLUGIN_SOURCE=$(cat "$HOME/.claude/.beads-compound-source")
+  PLUGIN_DIR="$PLUGIN_SOURCE/plugins/beads-compound"
+  if [ -f "$PLUGIN_DIR/hooks/memory-capture.sh" ]; then
+    HOOKS_SOURCE_DIR="$PLUGIN_DIR/hooks"
+  fi
+fi
+
+# Verify we found the hooks
+if [ -z "$HOOKS_SOURCE_DIR" ] || [ ! -f "$HOOKS_SOURCE_DIR/memory-capture.sh" ]; then
+  cat <<'NOFIND'
 {
-  "systemMessage": "[beads-compound] Plugin source at $PLUGIN_SOURCE is missing hooks directory."
+  "systemMessage": "[beads-compound] Memory hook scripts not found. Install via: /plugin install beads-compound"
 }
-MISSING
+NOFIND
   exit 0
 fi
 
 # --- Auto-install memory features ---
 
 # 1. Set up memory directory
-PROVISION_SCRIPT="$PLUGIN_DIR/hooks/provision-memory.sh"
+PROVISION_SCRIPT="$HOOKS_SOURCE_DIR/provision-memory.sh"
 
 if [ -f "$PROVISION_SCRIPT" ]; then
   source "$PROVISION_SCRIPT"
-  provision_memory_dir "." "$PLUGIN_DIR/hooks"
+  provision_memory_dir "." "$HOOKS_SOURCE_DIR"
 else
   # Fallback: minimal setup if provision script missing
   MEMORY_DIR=".beads/memory"
@@ -55,13 +71,13 @@ else
   [ ! -f "$MEMORY_DIR/knowledge.jsonl" ] && touch "$MEMORY_DIR/knowledge.jsonl"
 fi
 
-# 2. Install hook scripts
+# 2. Install hook scripts from source directory
 HOOKS_DIR=".claude/hooks"
 mkdir -p "$HOOKS_DIR"
 
-for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh; do
-  if [ -f "$PLUGIN_DIR/hooks/$hook" ]; then
-    cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/$hook"
+for hook in memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh recall.sh; do
+  if [ -f "$HOOKS_SOURCE_DIR/$hook" ]; then
+    cp "$HOOKS_SOURCE_DIR/$hook" "$HOOKS_DIR/$hook"
     chmod +x "$HOOKS_DIR/$hook"
   fi
 done

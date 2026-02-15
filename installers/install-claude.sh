@@ -338,15 +338,17 @@ fi
 if [ "$GLOBAL_INSTALL" = true ]; then
   echo "[9/9] Configuring global settings..."
 
-  # Install check-memory hook for auto-detection in beads projects
+  # Install all hook scripts for auto-installation in beads projects
   mkdir -p "$TARGET/hooks"
-  cp "$PLUGIN_DIR/hooks/check-memory.sh" "$TARGET/hooks/check-memory.sh"
-  chmod +x "$TARGET/hooks/check-memory.sh"
-  echo "  - Installed check-memory.sh hook"
 
-  # Save plugin source path for check-memory.sh to reference
-  echo "$SCRIPT_DIR" > "$TARGET/.beads-compound-source"
-  echo "  - Saved plugin source path"
+  for hook in check-memory.sh auto-recall.sh memory-capture.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh recall.sh; do
+    if [ -f "$PLUGIN_DIR/hooks/$hook" ]; then
+      cp "$PLUGIN_DIR/hooks/$hook" "$TARGET/hooks/$hook"
+      chmod +x "$TARGET/hooks/$hook"
+    fi
+  done
+
+  echo "  - Installed hook scripts (check-memory + memory hooks for auto-install)"
 
   # Add SessionStart hook for check-memory to global settings.json
   SETTINGS="$TARGET/settings.json"
