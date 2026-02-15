@@ -355,7 +355,7 @@ if [ "$GLOBAL_INSTALL" = true ]; then
     if command -v jq &>/dev/null; then
       EXISTING=$(cat "$SETTINGS")
 
-      UPDATED=$(echo "$EXISTING" | jq --arg cmd "bash $TARGET/hooks/check-memory.sh" '
+      UPDATED=$(echo "$EXISTING" | jq --arg cmd "bash ~/.claude/hooks/check-memory.sh" '
         .hooks.SessionStart = (
           [(.hooks.SessionStart // [])[] | select(.hooks[]?.command | contains("check-memory") | not)] +
           [{"matcher":"","hooks":[{"type":"command","command":$cmd}]}]
@@ -371,7 +371,7 @@ if [ "$GLOBAL_INSTALL" = true ]; then
 {
   "hooks": {
     "SessionStart": [
-      {"matcher": "", "hooks": [{"type": "command", "command": "bash $TARGET/hooks/check-memory.sh"}]}
+      {"matcher": "", "hooks": [{"type": "command", "command": "bash ~/.claude/hooks/check-memory.sh"}]}
     ]
   }
 }
