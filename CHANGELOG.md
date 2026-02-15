@@ -2,6 +2,26 @@
 
 All notable changes to the beads-compound plugin are documented here.
 
+## [0.6.1] - 2026-02-15
+
+### Fixed
+- **Duplicate knowledge entries** - memory-capture.sh now checks for duplicate keys before appending to JSONL, preventing JSONL/SQLite desync
+- **Global installation portability** - Global installer now bundles all 7 hook scripts to ~/.claude/hooks/, eliminating dependency on plugin source repo
+- **check-memory.sh hook discovery** - Updated to search 3 locations (global hooks, marketplace install, legacy source) for maximum compatibility
+- **OpenCode plugin paths** - Fixed project installation to use correct .opencode/plugins/ directory per OpenCode documentation
+- **Build artifact separation** - Created opencode-src/ and gemini-src/ source directories, moved plugin.ts and package.json to prevent installer failures
+- **GitHub Actions CI** - Added conversion steps before tests to generate OpenCode/Gemini outputs, updated test expectations for 644 permissions
+- **Installer path portability** - Changed hardcoded absolute paths to tilde expansion (~/.claude/hooks/) for dotfiles compatibility
+- **Cross-platform shell compatibility** - Fixed find command to use -maxdepth/-mindepth instead of -depth for GNU/BSD compatibility
+- **Template syntax test** - Updated to allow $ARGUMENTS in code blocks while verifying {{args}} conversion
+- **Skill file permissions** - Changed from 0o444 (read-only) to 0o644 (writable) to allow conversion script re-runs without EACCES errors
+
+### Changed
+- OpenCode installer now copies from opencode-src/ instead of gitignored opencode/ directory
+- Gemini installer now copies from gemini-src/ instead of gitignored gemini/ directory
+- Global installation is now fully self-contained and portable across machines without plugin source
+- README updated with comprehensive Troubleshooting section for Claude Code, OpenCode, and Gemini CLI
+
 ## [0.6.0] - 2026-02-13
 
 ### Added
@@ -115,6 +135,8 @@ Initial public release. Fork of [compound-engineering-plugin](https://github.com
 - Adapted `code-simplicity-reviewer` to protect `.beads/memory/` files
 - Renamed `compound-docs` skill to `beads-knowledge`
 
+[0.6.1]: https://github.com/roberto-mello/beads-compound-plugin/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/roberto-mello/beads-compound-plugin/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/roberto-mello/beads-compound-plugin/compare/v0.4.2...v0.5.0
 [0.4.2]: https://github.com/roberto-mello/beads-compound-plugin/compare/v0.4.0...v0.4.2
 [0.4.1]: https://github.com/roberto-mello/beads-compound-plugin/compare/v0.4.0...v0.4.2
