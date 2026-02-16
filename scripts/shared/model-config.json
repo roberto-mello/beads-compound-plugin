@@ -1,0 +1,12 @@
+{
+  "opencode": {
+    "haiku": "anthropic/claude-haiku-4-5-20251001",
+    "sonnet": "anthropic/claude-sonnet-4-5-20250929",
+    "opus": "anthropic/claude-opus-4-6"
+  },
+  "gemini": {
+    "haiku": "gemini-2.5-flash",
+    "sonnet": "gemini-2.5-pro",
+    "opus": "gemini-2.5-pro"
+  }
+}

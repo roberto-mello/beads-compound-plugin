@@ -3,6 +3,30 @@
  * Preserves cost/quality tiers (haiku/sonnet/opus) while using platform-native models
  */
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+// Load model configuration from file
+let modelConfig: any;
+try {
+  const configPath = join(import.meta.dir, "model-config.json");
+  modelConfig = JSON.parse(readFileSync(configPath, "utf-8"));
+} catch {
+  // Fallback to defaults if config file doesn't exist
+  modelConfig = {
+    opencode: {
+      haiku: "anthropic/claude-haiku-4-5-20251001",
+      sonnet: "anthropic/claude-sonnet-4-5-20250929",
+      opus: "anthropic/claude-opus-4-6",
+    },
+    gemini: {
+      haiku: "gemini-2.5-flash",
+      sonnet: "gemini-2.5-pro",
+      opus: "gemini-2.5-pro",
+    },
+  };
+}
+
 export const MODEL_TIERS = {
   claude: {
     haiku: "haiku",
@@ -11,15 +35,15 @@ export const MODEL_TIERS = {
     inherit: "inherit",
   },
   opencode: {
-    haiku: "anthropic/claude-haiku-4-5-20251001",
-    sonnet: "anthropic/claude-sonnet-4-5-20250929",
-    opus: "anthropic/claude-opus-4-6",
+    haiku: modelConfig.opencode.haiku,
+    sonnet: modelConfig.opencode.sonnet,
+    opus: modelConfig.opencode.opus,
     inherit: "inherit",
   },
   gemini: {
-    haiku: "gemini-2.5-flash",
-    sonnet: "gemini-2.5-pro",
-    opus: "gemini-2.5-pro", // Gemini has no equivalent to Opus, use Pro
+    haiku: modelConfig.gemini.haiku,
+    sonnet: modelConfig.gemini.sonnet,
+    opus: modelConfig.gemini.opus, // Gemini has no equivalent to Opus, use Pro
     inherit: "inherit",
   },
 } as const;

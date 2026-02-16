@@ -81,8 +81,28 @@ if [[ "$TARGET_OWNER" != "$USER" ]]; then
   exit 1
 fi
 
-# Step 1: Run conversion scripts
-echo "🔄 Step 1/5: Converting files to OpenCode format..."
+# Step 1: Model selection (interactive unless --yes)
+if [ "$AUTO_YES" = false ] && command -v opencode &>/dev/null; then
+  echo "🎯 Step 1/6: Model selection..."
+  echo ""
+  echo "Would you like to customize model selections for each tier?"
+  echo "(haiku/sonnet/opus)"
+  echo ""
+  read -p "Customize models? (y/N): " customize
+
+  if [[ "$customize" =~ ^[Yy]$ ]]; then
+    if ! "$SCRIPT_DIR/scripts/select-opencode-models.sh"; then
+      echo "[!] Warning: Model selection failed, using defaults"
+    fi
+    echo ""
+  fi
+else
+  echo "🎯 Step 1/6: Using default model configuration..."
+  echo ""
+fi
+
+# Step 2: Run conversion scripts
+echo "🔄 Step 2/6: Converting files to OpenCode format..."
 echo ""
 
 # Check if Bun is available
@@ -101,8 +121,8 @@ fi
 
 echo ""
 
-# Step 2: Install TypeScript plugin
-echo "🔧 Step 2/5: Installing TypeScript plugin..."
+# Step 3: Install TypeScript plugin
+echo "🔧 Step 3/6: Installing TypeScript plugin..."
 
 # Determine plugin directory: global uses $TARGET/plugins, project uses $TARGET/.opencode/plugins
 if [ "$GLOBAL_INSTALL" = true ]; then
@@ -132,8 +152,8 @@ fi
 echo "  ✓ Installed plugin dependencies"
 echo ""
 
-# Step 3: Copy hooks
-echo "📂 Step 3/5: Installing hooks..."
+# Step 4: Copy hooks
+echo "📂 Step 4/6: Installing hooks..."
 
 # Determine base directory: global uses $TARGET directly, project uses $TARGET/.opencode
 if [ "$GLOBAL_INSTALL" = true ]; then
@@ -152,8 +172,8 @@ done
 
 echo ""
 
-# Step 4: Copy converted files
-echo "📋 Step 4/5: Installing commands, agents, and skills..."
+# Step 5: Copy converted files
+echo "📋 Step 5/6: Installing commands, agents, and skills..."
 
 # Determine base directory: global uses $TARGET directly, project uses $TARGET/.opencode
 if [ "$GLOBAL_INSTALL" = true ]; then
@@ -202,13 +222,13 @@ done
 echo "  ✓ Installed $(find "$PLUGIN_DIR/opencode/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ') skills"
 echo ""
 
-# Step 5: Provision memory (only for project-specific installs)
+# Step 6: Provision memory (only for project-specific installs)
 if [ "$GLOBAL_INSTALL" = true ]; then
-  echo "💾 Step 5/5: Skipping memory system (global install)"
+  echo "💾 Step 6/6: Skipping memory system (global install)"
   echo "  Memory system will be provisioned per-project when using OpenCode"
   echo ""
 else
-  echo "💾 Step 5/5: Provisioning memory system..."
+  echo "💾 Step 6/6: Provisioning memory system..."
 
   BEADS_MEMORY_DIR="$TARGET/.beads/memory"
   mkdir -p "$BEADS_MEMORY_DIR"

@@ -171,6 +171,10 @@ beads-compound supports AI coding agents beyond Claude Code:
 # Global install (to ~/.config/opencode)
 ./install.sh --opencode
 
+# Interactive model selection during install
+# You'll be prompted to choose Claude models for each tier (haiku/sonnet/opus)
+# Or use --yes to skip prompts and use defaults
+
 # Or project-specific install
 ./install.sh --opencode /path/to/your-project
 ```
@@ -189,6 +193,13 @@ The installer copies the TypeScript plugin to `~/.config/opencode/plugins/beads-
 ```
 
 The installer copies hooks to `~/.config/gemini/hooks/` (global) or `.gemini/hooks/` (project-specific).
+
+**Model Configuration:**
+
+For OpenCode, you can customize which Claude models to use for each performance tier. See [docs/MODEL_SELECTION.md](docs/MODEL_SELECTION.md) for details on:
+- Interactive model selection during installation
+- Manual model configuration via `scripts/select-opencode-models.sh`
+- Editing `scripts/shared/model-config.json` directly
 
 #### Codex CLI / Antigravity
 

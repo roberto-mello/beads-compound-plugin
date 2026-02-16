@@ -300,14 +300,22 @@ OpenCode and Gemini CLI require conversion from Claude Code format:
 - Requires Bun runtime (`bun run convert-opencode.ts`)
 
 **Model tier mapping (scripts/shared/model-mapping.ts):**
-Claude Code tiers map to platform-specific model IDs:
+Claude Code tiers map to platform-specific model IDs via `scripts/shared/model-config.json`:
 
-| Claude Tier | OpenCode Model | Gemini Model |
-|-------------|----------------|--------------|
+| Claude Tier | OpenCode Model (default) | Gemini Model (default) |
+|-------------|--------------------------|------------------------|
 | haiku | anthropic/claude-haiku-4-5-20251001 | gemini-2.5-flash |
 | sonnet | anthropic/claude-sonnet-4-5-20250929 | gemini-2.5-pro |
 | opus | anthropic/claude-opus-4-6 | gemini-2.5-pro |
 | inherit | inherit | inherit |
+
+**Interactive model selection:**
+- OpenCode installer prompts to customize models (unless `--yes` flag used)
+- Runs `opencode models` to query available models
+- User selects preferred model for each tier
+- Selections saved to `scripts/shared/model-config.json`
+- Manual selection: `./scripts/select-opencode-models.sh`
+- See `docs/MODEL_SELECTION.md` for details
 
 **Generated file permissions:**
 - Skills use `0o644` (writable) not `0o444` (read-only)
