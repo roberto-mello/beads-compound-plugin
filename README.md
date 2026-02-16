@@ -9,7 +9,7 @@ This plugin gives agents persistent memory and a set of commands and agents to h
 The included [workflow commands](#commands-26) will also create beads issues with very clear descriptions, context, dependencies, testing and validation criteria. No more disconnected markdown files scattered around the repository.
 
 <div align="center">
-  <img src="images/beads-compound.jpeg" alt="Beads Compound Engineering" />
+  <img src="images/beads-compound.jpg" alt="Beads Compound Engineering Infographic" />
 </div>
 
 ## What This Does
@@ -37,18 +37,18 @@ Agent: *automatically recalls: "OAuth redirect_uri must match exactly..."*
 Agent: *implements correctly without asking*
 ```
 
-The plugin captures knowledge as agents work, stores it in git, and recalls it automatically when relevant.
+The plugin captures knowledge as agents work, stores it in the filesystem, and recalls it automatically when relevant.
 
 ## Quick Wins You'll See Immediately
 
 1. **Day 1:** Agent stops asking you "what error handling pattern should I use?"
-2. **Week 1:** Team members benefit from each other's solved problems (knowledge is in git)
+2. **Week 1:** Team members benefit from each other's solved problems
 3. **Month 1:** Agent recalls architectural decisions from 3 weeks ago without prompting
 4. **Year 1:** New team members have instant access to institutional knowledge
 
 ## How It Compares
 
-| Without Plugin | With Plugin |
+| Without Plugin | With Beads Compound |
 |----------------|-------------|
 | Context lost between sessions | Knowledge persists across all sessions |
 | 5-10 min re-explaining context each session | Agent has context in <1 second |
@@ -56,7 +56,7 @@ The plugin captures knowledge as agents work, stores it in git, and recalls it a
 | Scattered markdown plans | Dependency-aware task graph (beads) |
 | Agent forgets decisions | Decisions automatically recalled |
 | Generic code review | 28 specialized review agents |
-| Manual docs that go stale | Auto-captured, git-tracked, always current |
+| Manual docs that go stale | Auto-captured, git-tracked, talways current |
 | Repeat explanations | Agent learns your patterns |
 
 ## What's Included
@@ -73,7 +73,6 @@ The plugin captures knowledge as agents work, stores it in git, and recalls it a
 
 - You work on throwaway prototypes (no need for persistent memory)
 - You prefer total agent autonomy without structured workflows (we encourage planning)
-- Your projects don't use git
 
 ## This is Perfect For You If...
 
@@ -120,7 +119,7 @@ Agent:
 - Uses that context to implement correctly the first time
 ```
 
-The knowledge persists in `.beads/memory/knowledge.jsonl`, committed to git so your whole team benefits. It is also inserted into a local-only sqlite database for FTS5 full text searching with BM25 ranking.
+The knowledge persists in `.beads/memory/knowledge.jsonl` and also inserted into a local-only sqlite database for FTS5 full text searching with BM25 ranking (ignored in git). The jsonl can be committed to git so your whole team benefits.
 ## Quick Install
 
 **Prerequisites:** [beads CLI](https://github.com/steveyegge/beads) (`bd`), `jq`, `sqlite`
@@ -471,7 +470,7 @@ Both are written to simultaneously. If `sqlite3` is unavailable, only JSONL is w
 
 - **FTS5 Search**: Uses porter stemming and BM25 ranking -- "webhook authentication" finds entries about HMAC signature verification even when those exact words don't appear together
 - **Auto-tagging**: Keywords detected and added as tags
-- **Git-tracked**: Knowledge files are committed to git for team sharing and portability
+- **Git-tracked**: Knowledge files can be committed to git for team sharing and portability
 - **Conflict-free collaboration**: Multiple users can capture knowledge simultaneously without merge conflicts
 - **Auto-sync**: First session after `git pull` automatically imports new knowledge into local search index
 - **Rotation**: After 5000 entries, oldest 2500 archived (JSONL only)
