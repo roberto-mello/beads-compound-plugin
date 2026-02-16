@@ -12,7 +12,7 @@ export const MODEL_TIERS = {
   },
   opencode: {
     haiku: "anthropic/claude-haiku-4-5-20251001",
-    sonnet: "anthropic/claude-sonnet-4-20250514",
+    sonnet: "anthropic/claude-sonnet-4-5-20250929",
     opus: "anthropic/claude-opus-4-6",
     inherit: "inherit",
   },
