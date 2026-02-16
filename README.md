@@ -1,71 +1,164 @@
 # Beads Compound Engineering Plugin
 
-A Claude Code / OpenCode / Gemini plugin providing beads-based persistent memory with multi-agent workflows.
+**AI agents that actually learn from their work.**
 
-Built on [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by the team at [Every](https://every.to) -- Kieran Klaassen, Dan Shipper, Julik Tarkhanov, and contributors. Their plugin pioneered the idea that each unit of engineering work should make subsequent units easier, not harder. This project extends that philosophy with beads-based persistent memory and several performance optimizations.
+AI agents forget everything between sessions. You fix the same OAuth bug twice. You re-explain your architecture patterns every day. You scatter knowledge across dozens of markdown files that agents never find.
 
-## Philosophy
+This plugin gives agents persistent memory and a set of commands and agents to help with comprehensive analysys, research and quality checks. They capture lessons during work, recall them automatically in future sessions, and compound knowledge over time, more like human developers do.
 
-**Each unit of engineering work should make subsequent units easier, not harder.**
+The included [workflow commands](#commands-26) will also create beads issues with very clear descriptions, context, dependencies, testing and validation criteria. No more disconnected markdown files scattered around the repository.
 
-This plugin achieves this through:
+## What This Does
 
-- **Task Tracking**: Uses Steve Yegge's [Beads](https://github.com/steveyegge/beads) for persistent, structured memory for agents, replacing messy markdown plans with a dependency-aware graph, allowing agents to handle long-horizon tasks without losing context.
-- **Persistent Memory**: Uses Beads comments as basis to automatically capture and recall knowledge, allowing agents to learn with each iteration.
-- **Multi-Agent Workflows**: 28 specialized agents for research, review, design, and planning
-- **Lightweight by Default**: Most work runs normally with automatic knowledge capture
-- **Opt-In Orchestration**: Heavy workflows only when you need them
+**Without plugin:**
+```bash
+# Monday - you fix OAuth redirect bug
+Agent: "How should I handle OAuth redirects?"
+You: "They must match exactly, including trailing slash"
+Agent: *implements fix*
 
-## Available Plugins
+# Wednesday - similar GitHub OAuth feature
+Agent: "How should I handle OAuth redirects?"
+You: *explains the same thing again* 😤
+```
 
-| Plugin | Version | Description |
-|--------|---------|-------------|
-| **beads-compound** | 0.6.0 | 28 agents, 25 commands, 15 skills, persistent memory |
+**With plugin:**
+```bash
+# Monday
+Agent: *implements OAuth fix*
+Agent: `LEARNED: OAuth redirect_uri must match exactly, including trailing slash`
 
+# Wednesday
+Agent: *automatically recalls: "OAuth redirect_uri must match exactly..."*
+Agent: *implements correctly without asking*
+```
+
+The plugin captures knowledge as agents work, stores it in git, and recalls it automatically when relevant.
+
+## Quick Wins You'll See Immediately
+
+1. **Day 1:** Agent stops asking you "what error handling pattern should I use?"
+2. **Week 1:** Team members benefit from each other's solved problems (knowledge is in git)
+3. **Month 1:** Agent recalls architectural decisions from 3 weeks ago without prompting
+4. **Year 1:** New team members have instant access to institutional knowledge
+
+## How It Compares
+
+| Without Plugin | With Plugin |
+|----------------|-------------|
+| Context lost between sessions | Knowledge persists across all sessions |
+| 5-10 min re-explaining context each session | Agent has context in <1 second |
+| Same bugs recur across features | Patterns learned once, applied everywhere |
+| Scattered markdown plans | Dependency-aware task graph (beads) |
+| Agent forgets decisions | Decisions automatically recalled |
+| Generic code review | 28 specialized review agents |
+| Manual docs that go stale | Auto-captured, git-tracked, always current |
+| Repeat explanations | Agent learns your patterns |
+
+## What's Included
+
+**beads-compound** works with **Claude Code, OpenCode, and Gemini CLI**:
+
+- **Automatic Memory** - Capture knowledge from comments, recall based on current work
+- **28 Specialized Agents** - Research, security, performance, architecture analysis
+- **26 Commands** - Plan features, execute work, review code, capture knowledge, recall mid-session
+- **15 Skills** - Git worktrees, Rails style, DSPy integration, browser automation
+- **3 Platform Support** - Claude Code, OpenCode, Gemini CLI
+
+## This Might Not Be For You If...
+
+- You work on throwaway prototypes (no need for persistent memory)
+- You prefer total agent autonomy without structured workflows (we encourage planning)
+- Your projects don't use git
+
+## This is Perfect For You If...
+
+- You maintain long-lived codebases
+- Multiple people (or agents) work on the same project
+- You're tired of wasting time and tokens re-explaining the same patterns
+- You want agents that get smarter over time
+
+## Example workflow
+
+**Session 1 - Solving a problem:**
+```
+/beads-plan Fix OAuth login redirect (or /beads-plan <bead id>)
+
+Agent:
+- Recalls knoweldge about the topic
+- Brainstorms with the user
+- Does local research
+- Determines if external research is needed
+- Prepares well described tasks with validation criteria
+- Files epic with dependent tasks if needed
+- Presents options to user
+
+Human:
+(optional: /clear or /new for new session to clear context)
+
+/beads-work <bead epic id> (or /beads-parallel <beads epic id>)
+
+Agent(s):
+- Loads well described tasks with dependencies
+- Recalls knowledge relevant to each task
+- Resolves the issues
+- Saves knowledge relevant to what they learned about each task
+- Closes the issue
+``` 
+
+**Session 2 - Building on that knowledge:**
+
+```
+/beads-plan Add GitHub OAuth provider
+
+Agent:
+- Automatically recalls "OAuth redirect_uri must match exactly..."
+- Uses that context to implement correctly the first time
+```
+
+The knowledge persists in `.beads/memory/knowledge.jsonl`, committed to git so your whole team benefits. It is also inserted into a local-only sqlite database for FTS5 full text searching with BM25 ranking.
 ## Quick Install
 
-Prerequisites: [beads CLI](https://github.com/steveyegge/beads) (`bd`), `jq`
+**Prerequisites:** [beads CLI](https://github.com/steveyegge/beads) (`bd`), `jq`, `sqlite`
 
-### Native Plugin System (not yet live)
+### Option 1: Global Install (Recommended)
 
-```bash
-# Add the marketplace
-/plugin marketplace add https://github.com/roberto-mello/beads-compound-plugin
-
-# Install the plugin
-/plugin install beads-compound
-
-# Restart Claude Code
-```
-
-Memory auto-bootstraps on first session in any beads-enabled project -- no extra setup needed.
-
-### Manual Install
+Get commands and agents everywhere, memory features auto-activate in beads projects:
 
 ```bash
-# Clone and review the source
 git clone https://github.com/roberto-mello/beads-compound-plugin.git
 cd beads-compound-plugin
-
-# Global install (commands, agents, skills available everywhere)
-./install.sh
-
-# Per-project install for memory features (repeat per project)
-./install.sh /path/to/your-project
-
-# Restart Claude Code after each install
+./install.sh               # Installs to ~/.claude
+OR ./install.sh --opencode # Installs to ~/.config/opencode/
+OR ./install.sh --gemini   # Installs to ~/.config/gemini/
+# Restart agent
 ```
 
-**What each install does:**
-- **Global**: Commands, agents, skills -> `~/.claude` + auto-detection hook for beads projects
-- **Per-Project**: Memory hooks, knowledge storage, auto-recall -> `.claude/hooks` and `.beads/memory/`
-- **Smart duplication prevention**: Per-project install skips components already installed globally
+Memory hooks auto-activate when you start youro coding agent into any project with a `.beads/` directory.
 
-**Tip:** Use `--yes` or `-y` to skip confirmation prompts (e.g. `./install.sh --yes`).
+### Option 2: Per-Project Install
+
+Install plugin for a specific project only:
+
+```bash
+./install.sh /path/to/your-project
+# Restart your AI agent
+```
+
+**Tip:** Use `--yes` or `-y` to skip confirmation prompts.
+
+### Native Plugin System (Coming Soon)
+
+```bash
+/plugin marketplace add https://github.com/roberto-mello/beads-compound-plugin
+/plugin install beads-compound
+```
+
+Memory will auto-bootstrap on first session in any beads-enabled project.
 
 ### Multi-Platform Support
 
-beads-compound supports multiple AI coding tools beyond Claude Code:
+beads-compound supports AI coding agents beyond Claude Code:
 
 #### OpenCode
 
@@ -97,17 +190,117 @@ The installer copies hooks to `~/.config/gemini/hooks/` (global) or `.gemini/hoo
 
 **Not yet supported.** Codex CLI hook system is planned but not shipped (PR #11067 closed). Antigravity has no lifecycle event system.
 
+## Workflow Examples
+
+Choose a workflow based on your needs. Each workflow shows a complete path from idea to shipped code.
+
+### Quick Start Workflow
+
+Fast iteration for simple features or bugs.
+
+```
+/beads-plan "add user notifications"       # Creates BD-001 with child beads
+        ↓
+/beads-work BD-001                         # Implement epic bead
+        ↓
+/beads-review BD-001.                      # Multi-agent code review
+        ↓
+/beads-checkpoint                          # Commit and capture knowledge
+```
+
+**Use when:** Feature is straightforward, requirements are clear, low complexity.
+
+### Deep Planning Workflow
+
+Thorough planning for complex features with research and review.
+
+```
+/beads-brainstorm "oauth authentication"
+        ↓
+/beads-plan "oauth authentication"         # Creates BD-002 with initial plan
+        ↓
+/beads-deepen BD-002                       # Enhances with best practices research
+        ↓
+/beads-plan-review BD-002                  # Multi-agent plan review
+        ↓
+/clear                                     # Clear context
+        ↓
+/beads-triage BD-002                       # Prioritize child beads
+        ↓
+/beads-work BD-002                         # Start implementation with parallel subagents
+        ↓
+/beads-review BD-002                       # Review implementation
+        ↓
+/beads-compound BD-002.1                   # Document learnings
+```
+
+**Use when:** Complex features, security-critical, architectural changes, unfamiliar territory.
+
+### Parallel Work Workflow
+
+Maximum speed by working on multiple beads simultaneously.
+
+```
+/beads-plan "api refactor"                 # Creates BD-003 with child beads
+        ↓
+/beads-parallel BD-003                     # Work on all child beads in parallel
+        ↓
+/beads-review BD-003                       # Review all changes
+```
+
+**Use when:** Multiple independent tasks, tight deadlines, clear requirements.
+
+### Import & Refine Workflow
+
+Starting from existing markdown plans or external documentation.
+
+```
+/beads-import plan.md                      # Creates BD-004 from markdown
+        ↓
+/beads-deepen BD-004                       # Add research and best practices
+        ↓
+/beads-work BD-004                         # Start implementation
+        ↓
+/beads-checkpoint                          # Save progress
+```
+
+**Use when:** You have external plans, migrating from other tools, inheriting documentation.
+
+### Ad-Hoc Sessions
+
+Let's say you've been discussing a change or feature in several exchanges with the agent. You didn't plan it, just started doing things. This plugin allows for memory recalling into the existing context as well as "closing the loop" on changes made by creating beads issues to things already done, with automatic memory gathering and saving based on context and recent changes.
+
+```
+<done some work with the agent>
+
+/beads-recall oauth and authentication
+
+# Database is queried for topics related to the query, and memory is injected into context
+
+<do some more work>
+
+# When you're done with your changes
+
+/beads-checkpoint
+
+# Agent will:
+#   - go through context and recent changes
+#   - create beads issues for what was done
+#   - save memories, lessons learned to the issues
+#   - close issues
+```
+
 ## What's Included
 
 ### Always-On Features
 
-1. **Automatic Knowledge Capture** -- Any `bd comments add` with LEARNED/DECISION/FACT/PATTERN/INVESTIGATION gets extracted and stored in both SQLite FTS5 (`knowledge.db`) and JSONL (`knowledge.jsonl`)
+1. **Automatic Knowledge Capture** -- Any `bd comments add` with LEARNED/DECISION/FACT/PATTERN/INVESTIGATION gets extracted and stored in both SQLite FTS5 (`knowledge.db`) and JSONL (`knowledge.jsonl`). When you use the [workflow commands](#commands-26) with descriptions or beads issues, knowledge is automatically captured. Manually at any time you can use `/beads-checkpoint` or `/beads-compound`.
 
-2. **Automatic Knowledge Recall** -- Session start hook injects relevant knowledge based on your current beads, using FTS5 full-text search with BM25 ranking for significantly better results on conceptual and multi-word queries
+2. **Automatic Knowledge Recall** -- Session start hook injects relevant knowledge based on your current beads, using FTS5 full-text search with BM25 ranking for significantly better results on conceptual and multi-word queries. Using the [workflow commands](#commands-26) with descriptions or beads issues, knowledge is automatically recalled by agents and subagents. Manually at any time you can use `/beads-recall` to search the database and inject memories into context.
 
 3. **Subagent Knowledge Enforcement** -- Subagents are prompted to log learnings before completing
 
-### Commands (25)
+### Commands (26)
 
 Commands are organized by use case to help you choose the right tool for the job.
 
@@ -141,12 +334,13 @@ Ensure code quality and capture knowledge before shipping.
 | `/beads-review` | Multi-agent code review | Before closing beads - comprehensive quality check |
 | `/beads-import` | Import markdown plans into beads | When you have external plans to convert |
 
-#### Saving Progress (2 commands)
+#### Ad-hoc sessions: Recalling Knowledge and Saving Progress (3 commands)
 
 Capture knowledge and save session state.
 
 | Command | Description | When to Use |
 |---------|-------------|-------------|
+| `/beads-recall` | Search knowledge base and inject context | When you need past learnings mid-session without restarting |
 | `/beads-checkpoint` | Save progress, create/update beads, commit | Mid-session - checkpoint your work |
 | `/beads-compound` | Deep problem documentation with parallel analysis | After solving hard problems - share learnings |
 
@@ -219,106 +413,6 @@ The most frequently invoked agents (learnings-researcher, repo-research-analyst)
 | check-memory.sh | SessionStart (global) | Auto-detect beads projects missing memory setup |
 | knowledge-db.sh | (library) | Shared SQLite FTS5 functions sourced by other hooks |
 
-## Workflow Examples
-
-Choose a workflow based on your needs. Each workflow shows a complete path from idea to shipped code.
-
-### Quick Start Workflow
-
-Fast iteration for simple features or bugs.
-
-```
-/beads-brainstorm "add user notifications"
-        ↓
-/beads-plan "add user notifications"       # Creates BD-001 with child beads
-        ↓
-/beads-work BD-001.1                       # Implement first child bead
-        ↓
-/beads-review BD-001.1                     # Multi-agent code review
-        ↓
-/beads-checkpoint                          # Commit and capture knowledge
-```
-
-**Use when:** Feature is straightforward, requirements are clear, low complexity.
-
-### Deep Planning Workflow
-
-Thorough planning for complex features with research and review.
-
-```
-/beads-brainstorm "oauth authentication"
-        ↓
-/beads-plan "oauth authentication"         # Creates BD-002 with initial plan
-        ↓
-/beads-deepen BD-002                       # Enhances with best practices research
-        ↓
-/beads-plan-review BD-002                  # Multi-agent plan review
-        ↓
-/beads-triage BD-002                       # Prioritize child beads
-        ↓
-/beads-work BD-002.1                       # Start implementation
-        ↓
-/beads-checkpoint                          # Save progress
-        ↓
-/beads-review BD-002.1                     # Review implementation
-        ↓
-/beads-compound BD-002.1                   # Document learnings
-```
-
-**Use when:** Complex features, security-critical, architectural changes, unfamiliar territory.
-
-### Parallel Work Workflow
-
-Maximum speed by working on multiple beads simultaneously.
-
-```
-/beads-plan "api refactor"                 # Creates BD-003 with child beads
-        ↓
-/beads-parallel BD-003                     # Work on all child beads in parallel
-        ↓
-/beads-review BD-003                       # Review all changes
-        ↓
-/beads-checkpoint                          # Ship it
-```
-
-**Use when:** Multiple independent tasks, tight deadlines, clear requirements.
-
-### Import & Refine Workflow
-
-Starting from existing markdown plans or external documentation.
-
-```
-/beads-import plan.md                      # Creates BD-004 from markdown
-        ↓
-/beads-deepen BD-004                       # Add research and best practices
-        ↓
-/beads-work BD-004.1                       # Start implementation
-        ↓
-/beads-checkpoint                          # Save progress
-```
-
-**Use when:** You have external plans, migrating from other tools, inheriting documentation.
-
-### Full Autonomous Workflow
-
-Let the agent handle everything end-to-end.
-
-```bash
-/lfg "Add OAuth authentication"            # Full autonomous workflow
-```
-
-**Use when:** You trust the agent fully, clear requirements, well-understood problem domain.
-
-### Lightweight Usage (No Commands Needed)
-
-```bash
-bd create "Fix login bug" -d "Users can't log in with OAuth"
-# Work normally...
-bd comments add BD-001 "LEARNED: OAuth redirect URI must match exactly"
-bd close BD-001
-# Knowledge captured automatically, recalled next session
-```
-
 ## Cost Optimization
 
 The plugin's 28 agents are assigned to three model tiers based on reasoning complexity:
@@ -384,7 +478,7 @@ beads-compound-plugin/              # Marketplace root
 │       │   ├── design/             # 3 design agents
 │       │   ├── workflow/           # 5 workflow agents
 │       │   └── docs/               # 1 docs agent
-│       ├── commands/               # 25 commands
+│       ├── commands/               # 26 commands
 │       ├── skills/                 # 15 skills
 │       ├── hooks/                  # 4 hooks + shared library + hooks.json
 │       ├── scripts/
@@ -581,6 +675,8 @@ Creates an epic bead with child beads for each implementation step.
 [Every](https://every.to)'s [writing on compound engineering](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents) is well worth reading.
 
 Task tracking is powered by Steve Yegge's [Beads](https://github.com/steveyegge/beads).
+
+Built by Roberto Mello based on [compound-engineering](https://github.com/EveryInc/compound-engineering-plugin) by the team at [Every](https://every.to), extending their philosophy with persistent memory and performance optimizations.
 
 ## License
 
