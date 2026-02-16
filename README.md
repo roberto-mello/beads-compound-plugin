@@ -8,6 +8,10 @@ This plugin gives agents persistent memory and a set of commands and agents to h
 
 The included [workflow commands](#commands-26) will also create beads issues with very clear descriptions, context, dependencies, testing and validation criteria. No more disconnected markdown files scattered around the repository.
 
+<div align="center">
+  <img src="images/beads-compound.jpeg" alt="Beads Compound Engineering" />
+</div>
+
 ## What This Does
 
 **Without plugin:**
