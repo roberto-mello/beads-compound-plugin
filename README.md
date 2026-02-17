@@ -322,6 +322,8 @@ Uses Claude Code's experimental agent teams feature. Instead of fire-and-forget 
 
 **Requires** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` to be enabled.
 
+**Display mode** is configured at the Claude Code level, not by this command. Set `teammateMode` in `settings.json` (`"in-process"` or `"tmux"`) or pass `--teammate-mode` when launching `claude`. Default is `"auto"` (split panes if already in tmux/iTerm2, otherwise in-process).
+
 **Key differences from `--ralph`:**
 
 | | `--ralph` (subagents) | `--teams` (agent teams) |

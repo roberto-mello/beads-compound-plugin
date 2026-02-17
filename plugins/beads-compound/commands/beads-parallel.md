@@ -450,6 +450,8 @@ workers = min(number_of_wave_1_beads, max_workers)
 ```
 Where `max_workers` defaults to 4, overridden by `--workers N`.
 
+**Display mode:** Configured at the Claude Code level, not by this command. Users set `teammateMode` in `settings.json` (`"in-process"` or `"tmux"`) or pass `--teammate-mode` when launching `claude`. Default is `"auto"` (split panes if already in tmux, otherwise in-process).
+
 **Create team and spawn workers:**
 ```
 Create agent team "epic-{EPIC_ID}" (or "parallel-{first-bead-id}" for non-epic input).
