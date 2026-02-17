@@ -6,7 +6,7 @@ argument-hint: "[epic bead ID, list of bead IDs, or empty for all ready beads] [
 
 Work on multiple beads in parallel, giving each subagent the full beads-work treatment.
 
-**--ralph mode**: Enables autonomous iterative parallel execution. Subagents self-loop (attempt -> test -> fix -> retry) until tests pass or retries are exhausted. Single approval at start, then autonomous execution with inter-wave knowledge transfer.
+**--ralph mode**: Enables autonomous iterative parallel execution. Subagents self-loop (implement -> verify -> fix -> retry) until completion criteria are met or retries are exhausted. Single approval at start, then autonomous execution with inter-wave knowledge transfer.
 
 ## Input
 
