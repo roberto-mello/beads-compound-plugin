@@ -57,13 +57,19 @@ This command takes a bead (or specification) and executes it systematically. The
 
    Present any relevant LEARNED/DECISION/FACT/PATTERN entries.
 
-3. **Check Dependencies**
+3. **Check Dependencies & Related Beads**
 
    ```bash
    bd dep list {BEAD_ID} --json
    ```
 
    If there are unresolved blockers, list them and ask if the user wants to work on those first.
+
+   Check for `relates_to` links in the dependency list. For each related bead, fetch its title and description:
+   ```bash
+   bd show {RELATED_BEAD_ID}
+   ```
+   Present related bead context to inform the work -- these beads share domain knowledge but don't block each other.
 
 4. **Setup Environment**
 
