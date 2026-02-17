@@ -444,11 +444,6 @@ Task(general-purpose, "...prompt for BD-003...")
 
 Instead of wave-by-wave subagent spawning, spawn persistent worker teammates that self-organize.
 
-**Record pre-execution SHA:**
-```bash
-PRE_BRANCH_SHA=$(git rev-parse HEAD)
-```
-
 **Worker count:**
 ```
 workers = min(number_of_wave_1_beads, max_workers)
@@ -725,7 +720,7 @@ Include these results in the next wave's agent prompts under the "## Relevant Kn
 
 Before pushing (all modes), show the diff summary and require confirmation.
 
-**Diff base:** Use `PRE_BRANCH_SHA` (recorded in section 4 or 9T) as the diff base, not `origin/main`:
+**Diff base:** Use `PRE_BRANCH_SHA` (recorded in section 4) as the diff base, not `origin/main`:
 ```bash
 git diff --stat {PRE_BRANCH_SHA}..HEAD
 ```
