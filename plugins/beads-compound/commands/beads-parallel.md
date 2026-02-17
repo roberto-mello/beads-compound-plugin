@@ -253,14 +253,14 @@ Present the plan including any conflict-forced orderings and get user approval b
 
 ## 8. Recall Knowledge
 
-Search memory once for all beads to prime context:
+Search memory once for all beads to prime context. This is separate from the SessionStart hook (`auto-recall.sh`), which primes the lead's context. Section 8 targets the specific beads being worked on so results can be injected into agent/worker prompts -- subagents and teammates don't receive the session-start recall.
 
 ```bash
 # Extract keywords from all bead titles
 .beads/memory/recall.sh "{combined keywords}"
 ```
 
-Include relevant knowledge in each subagent prompt.
+Include relevant knowledge in each subagent prompt. For teams mode, this populates the worker spawn prompt; workers also run per-bead recall in their work loop (step 1).
 
 ## 9. Execute
 
