@@ -277,19 +277,20 @@ Work on multiple beads simultaneously using subagents -- one per bead, organized
 
 #### `--ralph` mode: Autonomous Iterative Execution
 
-Named after the [ralph-wiggum](https://github.com/anthropics/claude-code/tree/main/plugins/ralph-wiggum) plugin pattern. Regular `/beads-parallel` gives each subagent one shot. `--ralph` mode makes them self-correcting: each agent loops (implement -> verify -> fix -> retry) until its completion criteria are met or retries are exhausted.
+Named after the ralph-wiggum pattern pioneered by Geoffrey Huntley. Regular `/beads-parallel` gives each subagent one shot. `--ralph` mode makes them self-correcting: each agent loops (implement -> verify -> fix -> retry) until its completion criteria are met or retries are exhausted.
 
 ```
-/beads-parallel BD-003 --ralph             # Autonomous with defaults
-/beads-parallel BD-003 --ralph --retries 3 # Max 3 retries per bead
-/beads-parallel BD-003 --ralph --yes       # Skip plan approval (NOT pre-push review)
+/beads-parallel BD-003 --ralph                # Autonomous with defaults
+/beads-parallel BD-003 --ralph --retries 3    # Max 3 retries per subagent (default 5)
+/beads-parallel BD-003 --ralph --max-turns 20 # max turns per subagent (default 50, range 10-200)
+/beads-parallel BD-003 --ralph --yes          # Skip plan approval (but NOT pre-push review)
 ```
 
 **Key differences from regular mode:**
 
 | | Regular | `--ralph` |
 |---|---|---|
-| Retries | None -- one shot per agent | Self-looping, up to N retries (default 5) |
+| Retries | None -- one shot per agent | Self-looping, up to N retries |
 | Approval | Per-wave confirmation | Single approval at start, then autonomous |
 | Completion signal | Agent reports results | Agent must output `<promise>DONE</promise>` |
 | Completion criteria | Implicit (implement and report) | Derived from bead's Validation/Testing sections |
@@ -326,7 +327,7 @@ Starting from existing markdown plans or external documentation.
 
 ### Ad-Hoc Sessions
 
-Let's say you've been discussing a change or feature in several exchanges with the agent. You didn't plan it, just started doing things. This plugin allows for memory recalling into the existing context as well as "closing the loop" on changes made by creating beads issues to things already done, with automatic memory gathering and saving based on context and recent changes.
+Let's say you've been discussing a change or feature in several exchanges with the agent. You didn't plan it, just started doing things. This plugin allows for memory recalling into the existing context as well as "closing the loop" on changes made by creating beads issues on things already done, with automatic memory gathering and saving based on context and recent changes. For example:
 
 ```
 <done some work with the agent>
@@ -354,9 +355,9 @@ Let's say you've been discussing a change or feature in several exchanges with t
 
 1. **Automatic Knowledge Capture** -- Any `bd comments add` with LEARNED/DECISION/FACT/PATTERN/INVESTIGATION gets extracted and stored in both SQLite FTS5 (`knowledge.db`) and JSONL (`knowledge.jsonl`). When you use the [workflow commands](#commands-26) with descriptions or beads issues, knowledge is automatically captured. Manually at any time you can use `/beads-checkpoint` or `/beads-compound`.
 
-2. **Automatic Knowledge Recall** -- Session start hook injects relevant knowledge based on your current beads, using FTS5 full-text search with BM25 ranking for significantly better results on conceptual and multi-word queries. Using the [workflow commands](#commands-26) with descriptions or beads issues, knowledge is automatically recalled by agents and subagents. Manually at any time you can use `/beads-recall` to search the database and inject memories into context.
+2. **Automatic Knowledge Recall** -- Session start hook injects relevant knowledge based on your current beads, using FTS5 full-text search with BM25 ranking for much better results on conceptual and multi-word queries. Using the [workflow commands](#commands-26) with descriptions or beads issues, knowledge is automatically recalled by agents and subagents. Manually at any time you can use `/beads-recall` to search the database and inject memories into context.
 
-3. **Subagent Knowledge Enforcement** -- Subagents are prompted to log learnings before completing
+3. **Subagent Knowledge Enforcement** -- The `subagent-wrapup.sh` hook (SubagentStop) blocks subagent completion until at least one knowledge comment is logged. If a BEAD_ID is found in the transcript and no LEARNED/DECISION/FACT/PATTERN/INVESTIGATION comment was captured, the subagent is re-prompted to log its findings before exiting.
 
 ### Commands (26)
 
