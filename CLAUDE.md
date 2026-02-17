@@ -66,7 +66,7 @@ beads-compound-plugin/              # Marketplace root
 
 ## Plugin Installation
 
-### Native Plugin System (Recommended)
+### Native Plugin System (not done yet)
 
 ```bash
 # In Claude Code
@@ -104,10 +104,10 @@ The installer copies from `plugins/beads-compound/` into the target's `.claude/`
 
 ## Development Commands
 
-**Test the installer:**
+**Test the installer:** (from plugin root)
 ```bash
 mkdir -p /tmp/test-project && cd /tmp/test-project
-git init && bd init
+git init && bd init --no-daemon
 bash ~/Documents/projects/beads-compound-plugin/install.sh
 
 # Verify
@@ -150,7 +150,7 @@ Knowledge is stored in `.beads/memory/knowledge.jsonl` with this structure:
 ```
 
 - **Auto-tagging**: Keywords detected in content (auth, database, react, etc.) are added as tags
-- **Rotation**: After 1000 entries, oldest 500 are archived to `knowledge.archive.jsonl`
+- **Rotation**: After 5000 entries, oldest 2500 are archived to `knowledge.archive.jsonl`
 - **Search**: Use `.beads/memory/recall.sh` for manual search
 
 ### Hooks System
