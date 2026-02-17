@@ -336,7 +336,7 @@ Implement features and fix bugs using beads for tracking.
 | Command | Description | When to Use |
 |---------|-------------|-------------|
 | `/beads-work` | Work on a single bead with full lifecycle | Standard workflow - one bead at a time |
-| `/beads-parallel` | Work on multiple beads in parallel via subagents | Speed up delivery - multiple independent beads |
+| `/beads-parallel` | Work on multiple beads in parallel (`--ralph` for autonomous retry) | Speed up delivery - multiple independent beads |
 | `/beads-triage` | Prioritize and categorize beads | After planning or review - organize work queue |
 
 #### Reviewing & Quality (2 commands)

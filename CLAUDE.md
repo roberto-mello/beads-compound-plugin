@@ -205,7 +205,7 @@ Commands are in `plugins/beads-compound/commands/`:
 | `/beads-brainstorm` | beads-brainstorm.md | Explore ideas collaboratively |
 | `/beads-plan` | beads-plan.md | Research and plan with multiple agents |
 | `/beads-work` | beads-work.md | Work on a single bead with full lifecycle |
-| `/beads-parallel` | beads-parallel.md | Work on multiple beads in parallel via subagents |
+| `/beads-parallel` | beads-parallel.md | Work on multiple beads in parallel (`--ralph` for autonomous retry mode) |
 | `/beads-review` | beads-review.md | Multi-agent code review |
 | `/beads-checkpoint` | beads-checkpoint.md | Save progress and capture knowledge |
 | `/beads-compound` | beads-compound.md | Document solved problems |
