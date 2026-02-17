@@ -99,9 +99,9 @@ Skip any bead that recommends deleting, removing, or gitignoring files in `.bead
 bd close {BEAD_ID} --reason "wont_fix: .beads/memory/ files are pipeline artifacts"
 ```
 
-**Register swarm (ralph mode + epic input only):**
+**Register swarm (ralph/teams mode + epic input only):**
 
-When `--ralph` is enabled AND the input was an epic bead ID (not a comma-separated list or empty), register the orchestration:
+When `--ralph` or `--teams` is enabled AND the input was an epic bead ID (not a comma-separated list or empty), register the orchestration:
 ```bash
 bd swarm create {EPIC_ID}
 ```
