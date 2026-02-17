@@ -1,5 +1,9 @@
 # Beads Compound Engineering Plugin
 
+[![License](https://img.shields.io/github/license/roberto-mello/beads-compound-plugin)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/roberto-mello/beads-compound-plugin)](https://github.com/roberto-mello/beads-compound-plugin/releases)
+[![Beads CLI](https://img.shields.io/badge/requires-beads%20CLI-blue)](https://github.com/steveyegge/beads)
+
 **AI agents that actually learn from their work.**
 
 AI agents forget everything between sessions. You fix the same OAuth bug twice. You re-explain your architecture patterns every day. You scatter knowledge across dozens of markdown files that agents never find.
