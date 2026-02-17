@@ -309,6 +309,38 @@ Named after the ralph-wiggum pattern pioneered by Geoffrey Huntley. Regular `/be
 - Knowledge entries wrapped in data-context blocks to prevent prompt injection
 - Bead IDs validated with strict regex
 
+#### `--teams` mode: Persistent Worker Teammates
+
+Uses Claude Code's experimental agent teams feature. Instead of fire-and-forget subagents (one per bead, then dies), `--teams` spawns persistent worker teammates that self-organize through multiple beads, accumulating context and communicating via inbox messages.
+
+```
+/beads-parallel BD-003 --teams                 # Persistent workers with defaults
+/beads-parallel BD-003 --teams --workers 2     # Max 2 workers (default 4, max 4)
+/beads-parallel BD-003 --teams --retries 3     # Max 3 retries per bead (default 5)
+/beads-parallel BD-003 --teams --max-turns 20  # Max turns per bead (default 30)
+```
+
+**Requires** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` to be enabled.
+
+**Key differences from `--ralph`:**
+
+| | `--ralph` (subagents) | `--teams` (agent teams) |
+|---|---|---|
+| Worker lifetime | One bead, then dies | Persists across multiple beads |
+| Work assignment | Orchestrator assigns per wave | Workers self-claim via `bd ready` |
+| Communication | Indirect (knowledge.jsonl recall) | Direct (inbox messages) |
+| Context accumulation | Lost between beads | Retained across beads |
+| Wave boundaries | Explicit (orchestrator waits) | Implicit (bd dep blocks naturally) |
+| Orchestrator role | Active (spawns, waits, verifies) | Supervisory (monitors, intervenes) |
+| Knowledge enforcement | SubagentStop blocking hook | COMPLETED->ACCEPTED protocol |
+
+**Teams-specific features:**
+- **Context rotation**: Workers rotate after 5 beads or 150 cumulative turns to prevent context saturation
+- **Claim verification**: Workers verify `bd update` succeeded before starting work (guards against double-claim race)
+- **Event-driven lead**: Lead processes inbox messages reactively with 5-minute silence timeout for hung worker detection
+- **Lead-managed reverts**: Failed bead reverts use `git diff --name-only` ground truth, not worker self-report
+- **Session recovery**: Detects stale `in_progress` beads from crashed runs and offers to reset them
+
 ### Import & Refine Workflow
 
 Starting from existing markdown plans or external documentation.
@@ -357,7 +389,7 @@ Let's say you've been discussing a change or feature in several exchanges with t
 
 2. **Automatic Knowledge Recall** -- Session start hook injects relevant knowledge based on your current beads, using FTS5 full-text search with BM25 ranking for much better results on conceptual and multi-word queries. Using the [workflow commands](#commands-26) with descriptions or beads issues, knowledge is automatically recalled by agents and subagents. Manually at any time you can use `/beads-recall` to search the database and inject memories into context.
 
-3. **Subagent Knowledge Enforcement** -- The `subagent-wrapup.sh` hook (SubagentStop) blocks subagent completion until at least one knowledge comment is logged. If a BEAD_ID is found in the transcript and no LEARNED/DECISION/FACT/PATTERN/INVESTIGATION comment was captured, the subagent is re-prompted to log its findings before exiting.
+3. **Subagent Knowledge Enforcement** -- The `subagent-wrapup.sh` hook (SubagentStop) blocks subagent completion until at least one knowledge comment is logged. If a BEAD_ID is found in the transcript and no LEARNED/DECISION/FACT/PATTERN/INVESTIGATION comment was captured, the subagent is re-prompted to log its findings before exiting. For `--teams` mode (where SubagentStop does not fire for teammates), knowledge enforcement uses the COMPLETED->ACCEPTED protocol instead: workers must send COMPLETED and wait for the lead to verify knowledge before closing a bead.
 
 ### Commands (26)
 
@@ -381,7 +413,7 @@ Implement features and fix bugs using beads for tracking.
 | Command | Description | When to Use |
 |---------|-------------|-------------|
 | `/beads-work` | Work on a single bead with full lifecycle | Standard workflow - one bead at a time |
-| `/beads-parallel` | Work on multiple beads in parallel (`--ralph` for autonomous retry) | Speed up delivery - multiple independent beads |
+| `/beads-parallel` | Work on multiple beads in parallel (`--ralph` for autonomous retry, `--teams` for persistent workers) | Speed up delivery - multiple independent beads |
 | `/beads-triage` | Prioritize and categorize beads | After planning or review - organize work queue |
 
 #### Reviewing & Quality (2 commands)
@@ -462,13 +494,14 @@ The most frequently invoked agents (learnings-researcher, repo-research-analyst)
 
 - **Context7** -- Framework documentation lookup
 
-### Hooks (4 + shared library)
+### Hooks (5 + shared library)
 
 | Hook | Trigger | Purpose |
 |------|---------|---------|
 | auto-recall.sh | SessionStart | Inject relevant knowledge at session start (FTS5-first, grep fallback) |
 | memory-capture.sh | PostToolUse (Bash) | Extract knowledge from bd comments (dual-write to SQLite + JSONL) |
-| subagent-wrapup.sh | SubagentStop | Ensure subagents log learnings |
+| subagent-wrapup.sh | SubagentStop | Ensure subagents log learnings (does not fire for teammates) |
+| teammate-idle-check.sh | TeammateIdle | Prevent `--teams` workers from idling while ready beads remain |
 | check-memory.sh | SessionStart (global) | Auto-detect beads projects missing memory setup |
 | knowledge-db.sh | (library) | Shared SQLite FTS5 functions sourced by other hooks |
 
@@ -639,6 +672,7 @@ bash .beads/memory/recall.sh
 - `SessionStart`: `auto-recall.sh`
 - `PostToolUse` (Bash matcher): `memory-capture.sh`
 - `SubagentStop`: `subagent-wrapup.sh`
+- `TeammateIdle`: `teammate-idle-check.sh`
 
 #### OpenCode
 
