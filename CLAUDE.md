@@ -155,7 +155,7 @@ Knowledge is stored in `.beads/memory/knowledge.jsonl` with this structure:
 
 ### Hooks System
 
-Three hooks implement the memory and subagent features:
+Four hooks implement the memory, subagent, and teams features:
 
 1. **SessionStart**: `auto-recall.sh`
    - Runs at session start
@@ -174,6 +174,13 @@ Three hooks implement the memory and subagent features:
    - Checks transcript for BEAD_ID
    - Blocks completion until subagent logs at least one knowledge comment
    - Ensures subagent discoveries are captured
+   - Note: Does NOT fire for teammates. Knowledge enforcement for `--teams` mode uses the COMPLETED->ACCEPTED protocol instead.
+
+4. **TeammateIdle**: `teammate-idle-check.sh`
+   - Runs when a teammate tries to go idle
+   - Checks `bd ready` for remaining beads
+   - Blocks idle if ready beads exist (JSON `decision:block` pattern)
+   - Allows idle when no ready beads remain (blocked beads are not forced)
 
 ### Hook Matcher Format
 
@@ -205,7 +212,7 @@ Commands are in `plugins/beads-compound/commands/`:
 | `/beads-brainstorm` | beads-brainstorm.md | Explore ideas collaboratively |
 | `/beads-plan` | beads-plan.md | Research and plan with multiple agents |
 | `/beads-work` | beads-work.md | Work on a single bead with full lifecycle |
-| `/beads-parallel` | beads-parallel.md | Work on multiple beads in parallel (`--ralph` for autonomous retry mode) |
+| `/beads-parallel` | beads-parallel.md | Work on multiple beads in parallel (`--ralph` for autonomous retry, `--teams` for persistent worker teammates) |
 | `/beads-review` | beads-review.md | Multi-agent code review |
 | `/beads-checkpoint` | beads-checkpoint.md | Save progress and capture knowledge |
 | `/beads-compound` | beads-compound.md | Document solved problems |
