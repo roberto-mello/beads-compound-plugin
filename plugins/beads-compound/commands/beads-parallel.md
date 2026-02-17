@@ -349,26 +349,27 @@ Task(general-purpose, "...prompt for BD-003...")
 After each wave completes:
 
 1. **Review agent outputs** for any reported issues or conflicts
-2. **Check file ownership violations** -- diff the changed files against each agent's ownership list. If an agent modified files outside its ownership, revert those changes and flag them for the next wave or manual resolution
-3. **Run tests** to verify nothing is broken:
+2. **Check completion promise (ralph mode):** For each agent, check whether its output contains `<promise>DONE</promise>`. If absent, treat that bead as failed -- the agent either ran out of turns or could not meet its completion criteria.
+3. **Check file ownership violations** -- diff the changed files against each agent's ownership list. If an agent modified files outside its ownership, revert those changes and flag them for the next wave or manual resolution
+4. **Run tests** to verify nothing is broken:
    ```bash
    # Use project's test command from CLAUDE.md or AGENTS.md
    ```
-3. **Run linting** if applicable
-4. **Resolve conflicts** if multiple agents touched the same files
-5. **Handle failed beads (ralph mode):**
+5. **Run linting** if applicable
+6. **Resolve conflicts** if multiple agents touched the same files
+7. **Handle failed beads (ralph mode):**
    - Revert failed beads' file changes using the pre-wave SHA:
      ```bash
      git checkout {PRE_WAVE_SHA} -- {files owned by failed bead}
      ```
    - Leave failed beads as `in_progress`
    - Log: `bd comments add {BEAD_ID} "INVESTIGATION: Agent failed after {N} retries. Reverted changes to pre-wave state."`
-6. **Create an incremental commit** for the wave:
+8. **Create an incremental commit** for the wave:
    ```bash
    git add <changed files>
    git commit -m "feat: resolve wave N beads (BD-XXX, BD-YYY)"
    ```
-7. **Close completed beads:**
+9. **Close completed beads:**
    ```bash
    bd close {BD-XXX} {BD-YYY} {BD-ZZZ}
    ```
