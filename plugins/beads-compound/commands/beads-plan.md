@@ -294,6 +294,20 @@ bd comments add {CHILD_ID} "PATTERN: {recommended patterns for this step}"
 bd comments add {CHILD_ID} "FACT: {constraints or gotchas discovered}"
 ```
 
+**Relate beads that share context:**
+
+For beads that work in the same domain but don't block each other (e.g., "auth login" and "auth logout" touch different files but share auth knowledge), create relate links:
+
+```bash
+bd dep relate {BEAD_A} {BEAD_B}
+```
+
+This creates a bidirectional "see also" link. Related beads will have each other's context injected during `/beads-parallel` execution, improving agent awareness without forcing sequential ordering.
+
+**When to use relate vs dep add:**
+- `bd dep add`: Bead B cannot start until Bead A is done (blocking)
+- `bd dep relate`: Beads share context but can run in parallel (non-blocking)
+
 **AI-Era Considerations:**
 
 - [ ] Account for accelerated development with AI pair programming
@@ -310,6 +324,20 @@ bd comments add {CHILD_ID} "FACT: {constraints or gotchas discovered}"
 - [ ] No two independent child beads modify the same files (add dependency or merge if they do)
 - [ ] Research findings are captured as knowledge comments
 - [ ] Add an ERD mermaid diagram if applicable for new model changes
+
+**Validate the epic structure:**
+
+```bash
+bd swarm validate {EPIC_ID}
+```
+
+This checks for:
+- Dependency cycles (impossible to resolve)
+- Orphaned issues (no dependents, may be missing deps)
+- Disconnected subgraphs
+- Ready fronts (waves of parallel work)
+
+Address any warnings before finalizing the plan.
 
 ## Post-Generation Options
 

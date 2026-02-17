@@ -75,6 +75,14 @@ Skip any bead that recommends deleting, removing, or gitignoring files in `.bead
 bd close {BEAD_ID} --reason "wont_fix: .beads/memory/ files are pipeline artifacts"
 ```
 
+**Register swarm (ralph mode + epic input only):**
+
+When `--ralph` is enabled AND the input was an epic bead ID (not a comma-separated list or empty), register the orchestration:
+```bash
+bd swarm create {EPIC_ID}
+```
+Skip this step for comma-separated bead lists or when beads came from `bd ready`.
+
 ## 4. Branch Check
 
 Check the current branch:
@@ -134,20 +142,31 @@ For each overlap where no dependency exists between the beads:
 
 ## 6. Dependency Analysis & Wave Building
 
-Check all dependencies (both explicit and conflict-forced):
+Resolve dependencies and organize beads into execution waves.
 
+**When input is an epic ID:**
+
+Use swarm validate to get wave assignments, cycle detection, orphan checks, and parallelism estimates:
 ```bash
-# For each bead
-bd show {BEAD_ID} --json | jq '.dependencies'
+bd swarm validate {EPIC_ID} --json
 ```
+This returns ready fronts (waves), cycle detection, orphan checks, max parallelism, and worker-session estimates. Use the ready fronts as wave assignments. If cycles are detected, report them and abort. If orphans are found, assign them to Wave 1.
 
-Build a dependency graph and organize into **execution waves**:
+**When input is a comma-separated list or from `bd ready` (not an epic):**
+
+Fall back to graph-based wave computation:
+```bash
+bd graph --all --json
+```
+Build waves from the graph output: beads with no unresolved dependencies go in Wave 1, beads depending on Wave 1 completions go in Wave 2, and so on.
+
+**For both paths**, organize into execution waves:
 
 - **Wave 1**: Beads with no unresolved dependencies (can all run in parallel)
 - **Wave 2**: Beads that depend on wave 1 completions
 - **Wave N**: And so on
 
-Output a mermaid diagram showing the execution plan. Mark conflict-forced edges distinctly:
+Output a mermaid diagram from the swarm/graph output showing the execution plan. Mark conflict-forced edges distinctly:
 
 ```mermaid
 graph LR
@@ -191,7 +210,13 @@ Include relevant knowledge in each subagent prompt.
 
 ## 9. Execute Waves
 
-**Before each wave (ralph mode):** Verify all blocking beads for this wave's beads are closed. If any blocker is not closed, skip the blocked beads entirely and report them in the wave status.
+**Before each wave (ralph mode, epic input):** Query swarm status to determine the next wave's bead set:
+```bash
+bd swarm status {EPIC_ID} --json
+```
+Use the "ready" list from swarm status as this wave's beads. Beads in the "blocked" list are skipped entirely and reported in the wave status. This replaces manual blocker verification.
+
+**Before each wave (ralph mode, non-epic input):** Verify all blocking beads for this wave's beads are closed. If any blocker is not closed, skip the blocked beads entirely and report them in the wave status.
 
 **Before each wave:** Record the pre-wave git SHA:
 ```bash
