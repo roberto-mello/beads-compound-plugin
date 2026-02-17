@@ -252,7 +252,7 @@ Thorough planning for complex features with research and review.
 
 ### Parallel Work Workflow
 
-Maximum speed by working on multiple beads simultaneously.
+Work on multiple beads simultaneously using subagents -- one per bead, organized into dependency-respecting waves.
 
 ```
 /beads-plan "api refactor"                 # Creates BD-003 with child beads
@@ -263,6 +263,46 @@ Maximum speed by working on multiple beads simultaneously.
 ```
 
 **Use when:** Multiple independent tasks, tight deadlines, clear requirements.
+
+**How it works:**
+1. Analyzes file scopes to prevent agents from overwriting each other
+2. Builds execution waves from the dependency graph (`bd swarm validate`)
+3. Spawns one subagent per bead in each wave, with file ownership boundaries
+4. Verifies results, commits per wave, then proceeds to the next wave
+5. Transfers knowledge between waves so later agents benefit from earlier discoveries
+
+#### `--ralph` mode: Autonomous Iterative Execution
+
+Named after the [ralph-wiggum](https://github.com/anthropics/claude-code/tree/main/plugins/ralph-wiggum) plugin pattern. Regular `/beads-parallel` gives each subagent one shot. `--ralph` mode makes them self-correcting: each agent loops (implement -> verify -> fix -> retry) until its completion criteria are met or retries are exhausted.
+
+```
+/beads-parallel BD-003 --ralph             # Autonomous with defaults
+/beads-parallel BD-003 --ralph --retries 3 # Max 3 retries per bead
+/beads-parallel BD-003 --ralph --yes       # Skip plan approval (NOT pre-push review)
+```
+
+**Key differences from regular mode:**
+
+| | Regular | `--ralph` |
+|---|---|---|
+| Retries | None -- one shot per agent | Self-looping, up to N retries (default 5) |
+| Approval | Per-wave confirmation | Single approval at start, then autonomous |
+| Completion signal | Agent reports results | Agent must output `<promise>DONE</promise>` |
+| Completion criteria | Implicit (implement and report) | Derived from bead's Validation/Testing sections |
+| Failed beads | Reported in summary | Left as `in_progress`, changes reverted, dependents skipped |
+| Summary | Beads closed/failed | Adds retry counts, conflict-forced orderings |
+
+**Completion criteria** are derived per-bead in priority order:
+1. `## Validation` section in the bead description (from `/beads-plan`)
+2. `## Testing` section in the bead description
+3. Project test command (from CLAUDE.md)
+4. Fallback: implementation matches the bead description
+
+**Safety gates:**
+- Test command validated against a known runner allowlist (no shell metacharacters)
+- Pre-push diff review always requires explicit approval (`--yes` does not skip it)
+- Knowledge entries wrapped in data-context blocks to prevent prompt injection
+- Bead IDs validated with strict regex
 
 ### Import & Refine Workflow
 
