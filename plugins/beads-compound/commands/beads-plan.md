@@ -261,10 +261,24 @@ Each child bead description MUST follow this structure:
 - [ ] [Acceptance criterion 2]
 - [ ] [Performance/security requirements if applicable]
 
+## Files
+
+[Specific file paths or glob patterns this bead will modify]
+- path/to/file.ext
+- path/to/directory/*
+
 ## Dependencies
 
 [List any child beads that must be completed first]
 ```
+
+**File-scope conflict prevention:**
+
+When creating child beads, identify the specific files each bead will touch. **If two child beads would modify the same file, you MUST either:**
+1. Merge them into a single bead, OR
+2. Add an explicit dependency between them (`bd dep add {later} {earlier}`) so they execute sequentially
+
+This prevents parallel agents from overwriting each other's changes during `/beads-parallel` execution. Be specific -- list file paths, not just module names.
 
 **Create child beads:**
 
@@ -293,6 +307,7 @@ bd comments add {CHILD_ID} "FACT: {constraints or gotchas discovered}"
 - [ ] Epic title is searchable and descriptive
 - [ ] All child bead descriptions include What/Context/Testing/Validation sections
 - [ ] Dependencies between beads are correctly set
+- [ ] No two independent child beads modify the same files (add dependency or merge if they do)
 - [ ] Research findings are captured as knowledge comments
 - [ ] Add an ERD mermaid diagram if applicable for new model changes
 

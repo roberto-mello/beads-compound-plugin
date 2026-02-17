@@ -65,9 +65,38 @@ git checkout -b bd-parallel/{short-description-from-bead-titles}
 
 **If already on a feature branch**, continue working there.
 
-### 3. Dependency Analysis
+### 3. File-Scope Conflict Detection
 
-Check dependencies between the gathered beads:
+Before building waves, analyze which files each bead will modify to prevent parallel agents from overwriting each other.
+
+For each bead:
+1. Check the bead description for a `## Files` section (added by `/beads-plan`)
+2. If no `## Files` section, scan the description for:
+   - Explicit file paths (e.g., `src/auth/login.ts`)
+   - Directory/module references (e.g., "the auth module")
+   - Use Grep/Glob to resolve module references to concrete file lists
+3. Build a `bead -> [files]` mapping
+
+Check for overlaps between beads that have NO dependency relationship:
+
+```
+BD-001 -> [src/auth/login.ts, src/auth/types.ts]
+BD-002 -> [src/auth/login.ts, src/api/routes.ts]  # OVERLAP on login.ts
+BD-003 -> [src/utils/format.ts]                     # No overlap
+```
+
+For each overlap where no dependency exists between the beads:
+- Force sequential ordering: `bd dep add {LATER_BEAD} {EARLIER_BEAD}`
+- Log: `bd comments add {LATER_BEAD} "DECISION: Forced sequential after {EARLIER_BEAD} due to file scope overlap on {overlapping files}"`
+
+**Ordering heuristic** (which bead goes first):
+1. Already depended-on by other beads (more central)
+2. Fewer files in scope (smaller change = less risk first)
+3. Higher priority (lower priority number)
+
+### 4. Dependency Analysis & Wave Building
+
+Check all dependencies (both explicit and conflict-forced):
 
 ```bash
 # For each bead
@@ -80,23 +109,23 @@ Build a dependency graph and organize into **execution waves**:
 - **Wave 2**: Beads that depend on wave 1 completions
 - **Wave N**: And so on
 
-Output a mermaid diagram showing the execution plan:
+Output a mermaid diagram showing the execution plan. Mark conflict-forced edges distinctly:
 
 ```mermaid
 graph LR
   subgraph Wave 1
     BD-001[BD-001: title]
-    BD-002[BD-002: title]
-  end
-  subgraph Wave 2
     BD-003[BD-003: title]
   end
-  BD-001 --> BD-003
+  subgraph Wave 2
+    BD-002[BD-002: title]
+  end
+  BD-001 -->|file overlap| BD-002
 ```
 
-Present the plan and get user approval before proceeding.
+Present the plan including any conflict-forced orderings and get user approval before proceeding.
 
-### 4. Recall Knowledge
+### 5. Recall Knowledge
 
 Search memory once for all beads to prime context:
 
@@ -107,7 +136,7 @@ Search memory once for all beads to prime context:
 
 Include relevant knowledge in each subagent prompt.
 
-### 5. Execute Waves
+### 6. Execute Waves
 
 For each wave, spawn **general-purpose** agents in parallel -- one per bead.
 
@@ -124,6 +153,14 @@ Work on bead {BEAD_ID}: {title}
 ## Bead Details
 {full bd show output}
 
+## File Ownership
+You own these files for this task. Only modify files in this list:
+{file-scope list from conflict detection phase}
+
+If you need to modify a file NOT in your ownership list, note it in
+your report but do NOT modify it. The orchestrator will handle
+cross-cutting changes after the wave completes.
+
 ## Relevant Knowledge
 {matching knowledge entries}
 
@@ -135,6 +172,7 @@ Work on bead {BEAD_ID}: {title}
 
 3. Implement the changes:
    - Follow existing patterns in the codebase
+   - Only modify files listed in your File Ownership section
    - Write tests for new functionality
    - Run tests after changes
 
@@ -161,12 +199,13 @@ Task(general-purpose, "...prompt for BD-003...")
 
 **Wait for the entire wave to complete before starting the next wave.**
 
-### 6. Verify Wave Results
+### 7. Verify Wave Results
 
 After each wave completes:
 
 1. **Review agent outputs** for any reported issues or conflicts
-2. **Run tests** to verify nothing is broken:
+2. **Check file ownership violations** -- diff the changed files against each agent's ownership list. If an agent modified files outside its ownership, revert those changes and flag them for the next wave or manual resolution
+3. **Run tests** to verify nothing is broken:
    ```bash
    # Use project's test command from CLAUDE.md or AGENTS.md
    ```
@@ -184,7 +223,16 @@ After each wave completes:
 
 Proceed to the next wave only after verification passes.
 
-### 7. Final Steps
+**Before starting the next wave**, recall knowledge captured during this wave to inject into the next wave's agent prompts:
+
+```bash
+# Recall by bead IDs from the completed wave
+.beads/memory/recall.sh "{BD-XXX BD-YYY}"
+```
+
+Include these results in the next wave's agent prompts under the "## Relevant Knowledge" section. This ensures discoveries from Wave N inform Wave N+1 agents.
+
+### 8. Final Steps
 
 After all waves complete:
 
