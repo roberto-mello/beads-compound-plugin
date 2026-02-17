@@ -2,6 +2,19 @@
 
 All notable changes to the beads-compound plugin are documented here.
 
+## [0.6.2] - 2026-02-16
+
+### Added
+- **`/beads-recall` command** - Mid-session knowledge lookup without restarting. Six search modes: keywords, bead ID, `--recent N`, `--stats`, `--topic`, `--type`. Smart argument parsing detects bead IDs and extracts keywords from titles.
+- **Interactive OpenCode model selection** - During OpenCode installation, users can customize which Claude model to use for each performance tier (haiku/sonnet/opus). Standalone script available at `scripts/select-opencode-models.sh`. Configuration persists in `scripts/shared/model-config.json`.
+- **File-scope conflict prevention for parallel work** - `beads-plan` now includes a `## Files` section in child bead templates so each bead declares which files it will touch. `beads-parallel` adds a conflict detection phase that analyzes file scopes, detects overlaps, and forces sequential ordering via `bd dep add`.
+- **File ownership in subagent prompts** - `beads-parallel` now passes file scope to subagents so they know which files they may modify, with post-wave ownership violation checks and inter-wave knowledge recall.
+
+### Changed
+- **DSPy.rb skill updated to v0.34.3 API** - Complete rewrite of SKILL.md and all reference/asset files. New API patterns: `.call()`, `result.field`, `T::Enum`, `Tools::Base`. New references: `toolsets.md` and `observability.md`. Covers 10+ new features: events, lifecycle callbacks, fiber-local LM, GEPA optimization, evaluation framework, BAML/TOON schema formats, storage system, score API, and RubyLLM unified adapter.
+- **OpenCode model mapping updated** - Sonnet tier updated from deprecated `claude-sonnet-4-20250514` to `claude-sonnet-4-5-20250929`.
+- Model tier mapping now reads from `scripts/shared/model-config.json` configuration file instead of hardcoded values, with fallback to defaults.
+
 ## [0.6.1] - 2026-02-15
 
 ### Fixed
@@ -135,6 +148,7 @@ Initial public release. Fork of [compound-engineering-plugin](https://github.com
 - Adapted `code-simplicity-reviewer` to protect `.beads/memory/` files
 - Renamed `compound-docs` skill to `beads-knowledge`
 
+[0.6.2]: https://github.com/roberto-mello/beads-compound-plugin/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/roberto-mello/beads-compound-plugin/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/roberto-mello/beads-compound-plugin/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/roberto-mello/beads-compound-plugin/compare/v0.4.2...v0.5.0
