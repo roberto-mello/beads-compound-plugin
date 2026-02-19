@@ -44,9 +44,22 @@ provision_memory_dir() {
     echo "knowledge.archive.jsonl merge=union" >> "$GITATTR"
   fi
 
-  # Stage specific known files only
+  # Ensure .beads/memory/ is not gitignored
+  # Many projects gitignore .beads/ for the daemon/cache files,
+  # but memory files need to be tracked for cross-machine persistence
   if git -C "$PROJECT_DIR" rev-parse --git-dir &>/dev/null 2>&1; then
-    (cd "$PROJECT_DIR" && git add \
+    local GITIGNORE="$PROJECT_DIR/.gitignore"
+    if [[ -f "$GITIGNORE" ]] && grep -q '\.beads' "$GITIGNORE" 2>/dev/null; then
+      if ! grep -q '!\.beads/memory/' "$GITIGNORE" 2>/dev/null; then
+        printf '\n# beads-compound: persist knowledge across machines\n!.beads/memory/\n!.beads/memory/**\n' >> "$GITIGNORE"
+      fi
+    fi
+  fi
+
+  # Stage specific known files only (use -f to override parent .gitignore
+  # in case negation rules haven't been picked up yet by this git session)
+  if git -C "$PROJECT_DIR" rev-parse --git-dir &>/dev/null 2>&1; then
+    (cd "$PROJECT_DIR" && git add -f \
       .beads/memory/knowledge.jsonl \
       .beads/memory/.gitattributes \
       .beads/memory/recall.sh \
