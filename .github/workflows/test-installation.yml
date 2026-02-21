@@ -81,6 +81,8 @@ jobs:
           path: /tmp/beads-install-test-*/
 
   verify-release:
+    # SYNC: This job must stay in sync with scripts/pre-release-check.sh.
+    # When modifying either file, update the other to match.
     name: Verify Release Readiness
     runs-on: ubuntu-latest
     needs: [test-compatibility, test-installation]

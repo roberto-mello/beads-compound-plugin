@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # Pre-release checks that mirror the CI verify-release job.
 # Run this before tagging a release to catch failures locally.
+#
+# SYNC: This script must stay in sync with the `verify-release` job in
+# .github/workflows/test-installation.yml. When modifying either file,
+# update the other to match.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

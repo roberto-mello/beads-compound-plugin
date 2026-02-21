@@ -55,6 +55,12 @@ gh run list --limit 5
 
 Do NOT delete and recreate the tag. Bump to a patch version, fix, and release that instead.
 
+## Keeping pre-release checks in sync with CI
+
+`scripts/pre-release-check.sh` mirrors the `verify-release` job in `.github/workflows/test-installation.yml`.
+
+**When modifying either file, always update the other.** Both files have a `SYNC:` comment pointing to each other as a reminder. If CI adds a new check, add it to the script. If the script adds a new check, add it to CI.
+
 ## Key facts
 
 - `marketplace.json` uses `"name"` field (not `"id"`) per the Claude Code plugin spec
