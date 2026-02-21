@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# Pre-release checks that mirror the CI verify-release job.
+# Run this before tagging a release to catch failures locally.
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
+
+PASS=0
+FAIL=0
+
+check() {
+  local label="$1"
+  shift
+  if "$@" 2>/dev/null; then
+    echo "  PASS  $label"
+    ((PASS++)) || true
+  else
+    echo "  FAIL  $label"
+    ((FAIL++)) || true
+  fi
+}
+
+fail() {
+  local label="$1"
+  local msg="$2"
+  echo "  FAIL  $label: $msg"
+  ((FAIL++)) || true
+}
+
+echo ""
+echo "=== Version consistency ==="
+
+PLUGIN_VERSION=$(jq -r '.version' plugins/beads-compound/.claude-plugin/plugin.json)
+MARKETPLACE_VERSION=$(jq -r '.plugins[] | select(.name == "beads-compound") | .version' .claude-plugin/marketplace.json)
+
+echo "  plugin.json:      $PLUGIN_VERSION"
+echo "  marketplace.json: $MARKETPLACE_VERSION"
+
+if [[ "$PLUGIN_VERSION" == "$MARKETPLACE_VERSION" ]]; then
+  echo "  PASS  Versions match"
+  ((PASS++)) || true
+else
+  fail "Version mismatch" "plugin.json=$PLUGIN_VERSION marketplace.json=$MARKETPLACE_VERSION"
+fi
+
+echo ""
+echo "=== Conversion outputs ==="
+echo "  Generating OpenCode and Gemini outputs..."
+(cd scripts && bun install --frozen-lockfile --silent && bun run convert-opencode.ts && bun run convert-gemini.ts) || {
+  fail "Conversion scripts" "bun run failed"
+}
+
+echo ""
+echo "=== Component counts ==="
+
+COMMANDS=$(find plugins/beads-compound/commands -name "*.md" | wc -l | tr -d ' ')
+AGENTS=$(find plugins/beads-compound/agents -name "*.md" | wc -l | tr -d ' ')
+SKILLS=$(find plugins/beads-compound/skills -name "SKILL.md" | wc -l | tr -d ' ')
+
+echo "  Commands: $COMMANDS (need 25+)"
+echo "  Agents:   $AGENTS (need 28+)"
+echo "  Skills:   $SKILLS (need 15+)"
+
+[[ "$COMMANDS" -ge 25 ]] && { echo "  PASS  Commands"; ((PASS++)) || true; } || fail "Commands" "$COMMANDS < 25"
+[[ "$AGENTS"   -ge 28 ]] && { echo "  PASS  Agents";   ((PASS++)) || true; } || fail "Agents"   "$AGENTS < 28"
+[[ "$SKILLS"   -ge 15 ]] && { echo "  PASS  Skills";   ((PASS++)) || true; } || fail "Skills"   "$SKILLS < 15"
+
+echo ""
+echo "=== Source files ==="
+
+check "opencode-src/plugin.ts"    test -f plugins/beads-compound/opencode-src/plugin.ts
+check "opencode-src/package.json" test -f plugins/beads-compound/opencode-src/package.json
+check "gemini-src/settings.json"  test -f plugins/beads-compound/gemini-src/settings.json
+
+echo ""
+echo "=== Conversion output files ==="
+
+check "opencode/ directory" test -d plugins/beads-compound/opencode
+check "gemini/ directory"   test -d plugins/beads-compound/gemini
+
+OPENCODE_COMMANDS=$(find plugins/beads-compound/opencode/commands -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+GEMINI_TOML=$(find plugins/beads-compound/gemini/commands -name "*.toml" 2>/dev/null | wc -l | tr -d ' ')
+
+echo "  OpenCode .md commands: $OPENCODE_COMMANDS (need 25+)"
+echo "  Gemini .toml commands: $GEMINI_TOML (need 25+)"
+
+[[ "$OPENCODE_COMMANDS" -ge 25 ]] && { echo "  PASS  OpenCode commands"; ((PASS++)) || true; } || fail "OpenCode commands" "$OPENCODE_COMMANDS < 25"
+[[ "$GEMINI_TOML"       -ge 25 ]] && { echo "  PASS  Gemini commands";   ((PASS++)) || true; } || fail "Gemini commands"   "$GEMINI_TOML < 25"
+
+echo ""
+echo "=== Compatibility tests ==="
+(cd scripts && bun run test-compatibility.ts) && { echo "  PASS  Compatibility tests"; ((PASS++)) || true; } || fail "Compatibility tests" "see output above"
+
+echo ""
+echo "================================"
+echo "  $PASS passed, $FAIL failed"
+echo "================================"
+echo ""
+
+if [[ "$FAIL" -gt 0 ]]; then
+  echo "Fix the failures above before releasing."
+  exit 1
+fi
+
+echo "All checks passed. Safe to release."
