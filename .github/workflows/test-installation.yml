@@ -103,7 +103,7 @@ jobs:
       - name: Verify version consistency
         run: |
           PLUGIN_VERSION=$(jq -r '.version' plugins/beads-compound/.claude-plugin/plugin.json)
-          MARKETPLACE_VERSION=$(jq -r '.plugins[] | select(.id == "beads-compound") | .version' .claude-plugin/marketplace.json)
+          MARKETPLACE_VERSION=$(jq -r '.plugins[] | select(.name == "beads-compound") | .version' .claude-plugin/marketplace.json)
 
           if [[ "$PLUGIN_VERSION" != "$MARKETPLACE_VERSION" ]]; then
             echo "❌ Version mismatch: plugin.json=$PLUGIN_VERSION, marketplace.json=$MARKETPLACE_VERSION"
