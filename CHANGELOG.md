@@ -2,6 +2,24 @@
 
 All notable changes to the beads-compound plugin are documented here.
 
+## [0.6.4] - 2026-02-20
+
+### Added
+- **`--teams` mode for `/beads-parallel`** - Persistent worker teammates that stay active across waves, with swarm registration and idle-check hook. Includes `TeammateIdle` hook that blocks idle when ready beads remain.
+- **`--ralph` mode for `/beads-parallel`** - Autonomous iterative execution with completion promise instead of test-only loop.
+- **Bead context injection** - `relates_to` bead context now injected into subagent and beads-work prompts via `bd swarm/graph` for wave building and relate links.
+- **MIT LICENSE file** for GitHub badge detection.
+- **Modular CLAUDE.md rules** - Split type-specific content into `.claude/rules/` (shell-scripting, hooks-system, plugin-catalog, conversion-scripts) with glob-based activation. CLAUDE.md reduced from 430 to 157 lines.
+
+### Fixed
+- **Knowledge persistence across machines** - `provision-memory.sh` now patches `.gitignore` with negation rules for `.beads/memory/` and uses `git add -f`, fixing silent failure when `.beads/` was gitignored.
+- **Swarm registration for `--teams` mode** - Was only enabled for `--ralph`, now works for both modes.
+- **Duplicate `PRE_BRANCH_SHA`** in section 9T, already recorded in section 4 for all modes.
+
+### Changed
+- README updated with `--teams` mode comparison table, features, and hook documentation.
+- Docs clarified: subagent knowledge enforcement is hook-based, section 8 recall vs SessionStart hook distinction, display mode configuration.
+
 ## [0.6.2] - 2026-02-16
 
 ### Added
