@@ -211,15 +211,14 @@ fi
 echo ""
 
 # Detect if commands/agents/skills are already installed globally
-GLOBALLY_INSTALLED=false
-if [ "$GLOBAL_INSTALL" = false ] && [ -f "$HOME/.config/opencode/commands/lavra-plan.md" ]; then
-  GLOBALLY_INSTALLED=true
-fi
-
-# Version check: if global is current, per-project install is hook-only
 GLOBAL_VERSION="0.0.0"
 if [ -f "$HOME/.config/opencode/hooks/.lavra-version" ]; then
   GLOBAL_VERSION=$(cat "$HOME/.config/opencode/hooks/.lavra-version")
+fi
+
+GLOBALLY_INSTALLED=false
+if [ "$GLOBAL_INSTALL" = false ] && [ "$GLOBAL_VERSION" != "0.0.0" ]; then
+  GLOBALLY_INSTALLED=true
 fi
 
 LIGHTWEIGHT_MODE=false

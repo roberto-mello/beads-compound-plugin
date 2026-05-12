@@ -175,17 +175,15 @@ else
 fi
 
 # Detect if commands/agents/skills are already installed globally
-GLOBALLY_INSTALLED=false
-
-if [ "$GLOBAL_INSTALL" = false ] && [ -f "$HOME/.claude/commands/lavra-plan.md" ]; then
-  GLOBALLY_INSTALLED=true
-fi
-
-# Version check: if global is current, per-project install is hook-only
 INSTALLER_VERSION=$(get_lavra_version "$PLUGIN_DIR")
 GLOBAL_VERSION="0.0.0"
 if [ -f "$HOME/.claude/hooks/.lavra-version" ]; then
   GLOBAL_VERSION=$(cat "$HOME/.claude/hooks/.lavra-version")
+fi
+
+GLOBALLY_INSTALLED=false
+if [ "$GLOBAL_INSTALL" = false ] && [ "$GLOBAL_VERSION" != "0.0.0" ]; then
+  GLOBALLY_INSTALLED=true
 fi
 
 LIGHTWEIGHT_MODE=false
