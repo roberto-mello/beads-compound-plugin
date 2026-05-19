@@ -26,7 +26,7 @@ ls -la .lavra/memory/        # Should see knowledge.jsonl, recall.sh
 ### Workflow config (automatic)
 
 The installer creates `.lavra/config/lavra.json` with default settings. Edit to toggle:
-- `workflow.research` -- skip research phase in `/lavra-design`
+- `workflow.research` -- run research phase in `/lavra-design` (default: `true`; set to `false` to skip)
 - `workflow.plan_review` -- skip plan review phase in `/lavra-design`
 - `workflow.goal_verification` -- skip goal verification in `/lavra-work` and `/lavra-ship`
 - `execution.max_parallel_agents` -- limit parallel subagents (default: 3)
