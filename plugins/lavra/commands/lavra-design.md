@@ -164,19 +164,22 @@ Display the child bead list and ask the user to confirm before investing heavy c
 
 Use the **AskUserQuestion tool**:
 
-**Question:** "Plan structure looks good? Next phases: research with domain-matched agents, then adversarial review with 4 agents."
+**Question:** "Plan structure looks good? Research can be expensive in tokens (domain-matched agents across each child bead). Choose the default token-efficient path unless you need deeper evidence."
 
 **Options:**
-1. **Proceed** -- Continue with research + review
-2. **Adjust plan first** -- Make changes before heavy compute
-3. **Stop here** -- Keep the plan as-is, skip remaining phases
+1. **Skip research (default)** -- Continue to revise/review without Phase 3 research (token-efficient)
+2. **Run research** -- Continue with domain-matched research + review (higher token cost)
+3. **Adjust plan first** -- Make changes before heavy compute
+4. **Stop here** -- Keep the plan as-is, skip remaining phases
 
+If "Skip research (default)": set a run-local flag to skip Phase 3 and continue to Phase 4.
+If "Run research": continue normally to Phase 3.
 If "Adjust plan first": accept changes, re-validate, then ask again.
 If "Stop here": jump to the Output Summary.
 
 ## Phase 3: Research (Auto -- domain-matched evidence gathering)
 
-**Skip condition:** If `lavra.json` config has `workflow.research: false`, skip to Phase 4 with a note: "Research skipped per lavra.json config."
+**Skip condition:** If the run-local skip flag is set from the gate above, or `lavra.json` config has `workflow.research: false`, skip to Phase 4 with a note: "Research skipped (default/user choice or lavra.json config)."
 
 **Read codebase profile (no-op if missing):**
 

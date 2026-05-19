@@ -13,6 +13,10 @@ Used when exactly one bead is being worked on. Full-quality interactive flow wit
 
 **State machine:** IMPLEMENTING -> REVIEWING -> FIXING -> RE_REVIEWING -> LEARNING -> DONE
 
+**Flags:**
+- `--skip-review`: skip the `/lavra-review` subagent call in Phase 3 step 3. Self-review (step 2) still runs. Used by the sequential epic loop, which runs a single review pass after all beads complete.
+- `EPIC_PLAN={...}`: epic locked decisions injected by the sequential loop. Treat identically to a parent epic read in Phase 1 step 1.
+
 ---
 
 <project_root>
@@ -313,7 +317,7 @@ This phase MUST complete before Phase 4 (Learn) or Phase 5 (Ship). Do NOT skip a
 3. **Multi-Agent Review via `/lavra-review`**
 
    <mandatory>
-   `/lavra-review` MUST run. The only question is scope -- not whether.
+   `/lavra-review` MUST run unless `--skip-review` was passed. When `--skip-review` is set, the sequential epic loop handles review after all beads complete — skip this step entirely and proceed to Phase 4.
 
    - `review_scope: "full"` (default): Run `/lavra-review` on all changes. Invoke it now using the Skill tool and wait for it to complete.
    - `review_scope: "targeted"`: Run `/lavra-review` only when this bead meets at least one of:
@@ -353,7 +357,23 @@ This phase MUST complete before Phase 4 (Learn) or Phase 5 (Ship). Do NOT skip a
 
 ### Fix Loop (FIXING -> RE_REVIEWING states)
 
-For each issue found during review:
+Before acting on findings, triage each one:
+
+**Fix inline (no bead needed) when ALL of these are true:**
+- Severity is P3 (nice-to-have) or cosmetic
+- Change is in a single location already in context
+- Fix requires no new file reads
+- You have not yet dispatched 3+ sequential subagent waves this session
+
+**Create a bead (via `lavra-review`) when ANY of these is true:**
+- Severity is P1 or P2
+- Fix spans multiple files or locations
+- Fix requires reading files not already in context
+- Context pressure is high (3+ sequential subagent waves already dispatched)
+
+Apply this triage before step 1. For findings fixed inline, note them in the Phase 3 Review Gate checklist under "Findings" (e.g. "3 fixed / 1 fixed inline / 2 deferred to PR").
+
+For each issue going through the fix loop:
 
 1. **Create fix items** from the review findings
 2. **Implement fixes** -- follow the same conventions as Phase 2
@@ -379,7 +399,8 @@ Copy it, fill it in, and print it to the conversation:
 ## Phase 3 Review Gate
 [ ] lavra-review: Skill(lavra-review) invoked -- first line of output: ___
     (if review_scope: "targeted" and bead does not qualify, write: SKIPPED -- targeted, reason: ___)
-[ ] Findings: {N} issues found / {N} fixed / {N} deferred to PR description
+    (if --skip-review was passed, write: SKIPPED -- sequential mode, review runs after epic completes)
+[ ] Findings: {N} issues found / {N} fixed / {N} fixed inline / {N} deferred to PR description
 [ ] Self-review: clean | {N} issues fixed
 [ ] Goal verification: passed | failed-and-fixed | skipped (no Validation section)
 ```
@@ -387,6 +408,7 @@ Copy it, fill it in, and print it to the conversation:
 **You cannot check the lavra-review box without having invoked the Skill and pasting its output.**
 Summarizing what you think the review would find is not a substitute.
 If any box is unchecked, complete that step now before continuing.
+Exception: `--skip-review` mode — check the box with the SKIPPED note and continue.
 </review-gate>
 
 </phase>

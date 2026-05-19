@@ -9,7 +9,9 @@ metadata:
 
 ## MULTI-BEAD PATH
 
-Multiple beads. Dispatches subagents in parallel with file-scope conflict detection and wave ordering. Each subagent runs implement -> self-review -> learn. Orchestrator runs `/lavra-review` after each wave.
+Multiple beads in parallel. Dispatches subagents with file-scope conflict detection and wave ordering. Each subagent runs implement -> self-review -> learn. Orchestrator runs `/lavra-review` after each wave.
+
+For sequential (token-efficient) execution, the `lavra-work` router handles it — this path always runs parallel subagents.
 
 ---
 
@@ -305,8 +307,6 @@ PRE_WAVE_SHA=$(git rev-parse HEAD)
 ```
 This records the SHA at the start of the current wave only. Prior wave commits will be included in this wave's diff if `PRE_WAVE_SHA` from a prior iteration is reused — defeating the scope boundary.
 
-**Respect `--no-parallel` flag:** If set, override `max_parallel_agents` to 1. Each bead executes alone; pause for user review between beads.
-
 **Respect `max_parallel_agents`:** If wave has more beads than limit (default 3), split into sub-waves.
 
 For each wave, spawn **general-purpose** agents in parallel -- one per bead.
@@ -450,11 +450,26 @@ Apply the threshold:
 - 1 prior = 2nd occurrence → pattern recognition, MUST-CHECK so future agents are warned
 - 2+ prior = 3rd+ occurrence → instance-fix approach has failed; structural intervention required
 
-### Step 4: Implement non-suppressed fixes
+### Step 4: Inline-fix triage, then implement non-suppressed fixes
+
+Before acting on each non-suppressed finding, triage it:
+
+**Fix inline (no bead needed) when ALL of these are true:**
+- Severity is P3 (nice-to-have) or cosmetic
+- Change is in a single location already in context
+- Fix requires no new file reads
+- The current wave is wave 1 (context pressure is low)
+
+**Create a bead (via `lavra-review`) when ANY of these is true:**
+- Severity is P1 or P2
+- Fix spans multiple files or locations
+- Fix requires reading files not already in context
+- This is wave 2 or later (context pressure is high from prior subagent dispatches)
 
 For each finding from `/lavra-review` that was NOT suppressed by Step 3 (i.e., 1st occurrences only):
-1. Implement fix
-2. Log knowledge for non-obvious fixes:
+1. Apply inline-fix triage above
+2. Implement fix (or note "fixed inline" in review gate if triage chose inline)
+3. Log knowledge for non-obvious fixes:
    ```bash
    bd comments add {BEAD_ID} "LEARNED: {what the review caught and why}"
    ```
