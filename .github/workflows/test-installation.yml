@@ -126,10 +126,29 @@ jobs:
       - name: Install beads CLI
         run: brew install beads
 
-      - name: Test non-interactive Claude Code installation
+      - name: Verify installer requires beads initialization
         run: |
           mkdir -p /tmp/test-npx && cd /tmp/test-npx
           git init -q
+          set +e
+          OUTPUT=$(node "$GITHUB_WORKSPACE/bin/install.js" --claude --yes 2>&1)
+          CODE=$?
+          set -e
+          if [[ "$CODE" -eq 0 ]]; then
+            echo "Expected installer to fail before 'bd init', but it succeeded"
+            exit 1
+          fi
+          echo "$OUTPUT" | grep -q "No .beads directory found" || {
+            echo "Installer failed, but missing expected .beads guidance message"
+            echo "$OUTPUT"
+            exit 1
+          }
+          echo "Installer correctly requires 'bd init' before installation"
+
+      - name: Test non-interactive Claude Code installation after bd init
+        run: |
+          cd /tmp/test-npx
+          bd init -q
           node "$GITHUB_WORKSPACE/bin/install.js" --claude --yes
 
       - name: Verify installation produced expected files
