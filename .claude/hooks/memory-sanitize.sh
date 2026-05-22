@@ -97,9 +97,19 @@ build_go_helper() {
     return 1
   fi
 
-  if [[ -x "$BIN_PATH" && ! "$BIN_PATH" -ot "$GO_HELPER_DIR/main.go" && ! "$BIN_PATH" -ot "$GO_HELPER_DIR/go.mod" ]]; then
-    echo "$BIN_PATH"
-    return 0
+  if [[ -x "$BIN_PATH" ]]; then
+    local BIN_TS SRC_TS
+    if stat --version &>/dev/null 2>&1; then
+      BIN_TS=$(stat -c '%Y' "$BIN_PATH" 2>/dev/null || echo 0)
+      SRC_TS=$(stat -c '%Y' "$GO_HELPER_DIR/main.go" 2>/dev/null || echo 1)
+    else
+      BIN_TS=$(stat -f '%m' "$BIN_PATH" 2>/dev/null || echo 0)
+      SRC_TS=$(stat -f '%m' "$GO_HELPER_DIR/main.go" 2>/dev/null || echo 1)
+    fi
+    if [[ "$BIN_TS" -ge "$SRC_TS" ]]; then
+      echo "$BIN_PATH"
+      return 0
+    fi
   fi
 
   local TMP_BIN
