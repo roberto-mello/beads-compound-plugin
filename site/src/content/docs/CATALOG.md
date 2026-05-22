@@ -76,9 +76,9 @@ Domain-specific commands in `commands/optional/`. Not installed by default, copy
 
 `agent-native-reviewer`, `architecture-strategist`, `data-integrity-guardian`, `data-migration-expert`, `julik-frontend-races-reviewer`, `performance-oracle`, `spec-flow-analyzer`
 
-## Skills (22)
+## Skills (23)
 
-### Core (15): Installed by default
+### Core (16): Installed by default
 
 | Skill | Description |
 |-------|-------------|
@@ -95,6 +95,7 @@ Domain-specific commands in `commands/optional/`. Not installed by default, copy
 | `lavra-plan` | Transform feature descriptions into well-structured beads with parallel research — invoked by `/lavra-design` |
 | `lavra-research` | Gather evidence with domain-matched agents — invoked by `/lavra-design` |
 | `lavra-review` | Multi-agent code review — invoked by `/lavra-work` |
+| `lavra-work` | Execute work on one or many beads — auto-routes between single-bead, sequential, and multi-bead parallel paths — invoked by `/lavra-work` |
 | `lavra-work-single` | Single-bead implementation path (Phases 1-5) — invoked by `/lavra-work` router |
 | `lavra-work-multi` | Multi-bead orchestration path (Phases M1-M10) — invoked by `/lavra-work` router |
 

@@ -97,7 +97,7 @@ lavra/                              # Marketplace root
 │       │   ├── workflow/           # 5 workflow agents
 │       │   └── docs/               # 1 docs agent
 │       ├── commands/               # 22 core commands + optional/
-│       ├── skills/                 # 15 skills
+│       ├── skills/                 # 16 skills
 │       ├── hooks/                  # 4 hooks + shared library + hooks.json
 │       ├── scripts/
 │       └── .mcp.json
