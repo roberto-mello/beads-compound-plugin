@@ -201,19 +201,13 @@ fi
 # Verify the wrapper can build and run the Go helper end-to-end
 seed_memory_fixture ".lavra/memory"
 
-_go_runtime_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1) || true
-_go_runtime_rc=$?
+_go_runtime_rc=0
+env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" >/dev/null 2>&1 || _go_runtime_rc=$?
 if [[ "$_go_runtime_rc" -eq 0 ]] && \
    [[ -f ".lavra/memory/knowledge.active.jsonl" ]] && \
    grep -q '"key":"alpha"' ".lavra/memory/knowledge.active.jsonl"; then
   pass "Claude Code Go helper sanitizes knowledge"
 else
-  echo "  [debug] exit=$_go_runtime_rc active=$(ls -la .lavra/memory/knowledge.active.jsonl 2>/dev/null || echo missing)"
-  echo "  [debug] script output: $_go_runtime_out"
-  echo "  [debug] binary: $(ls -la .lavra/memory/.memory-sanitize-go 2>/dev/null || echo missing)"
-  echo "  [debug] source: $(ls -la .lavra/memory/memorysanitize/main.go 2>/dev/null || echo missing)"
-  echo "  [debug] stat bin=$(stat -c '%Y' .lavra/memory/.memory-sanitize-go 2>/dev/null || stat -f '%m' .lavra/memory/.memory-sanitize-go 2>/dev/null || echo N/A)"
-  echo "  [debug] stat src=$(stat -c '%Y' .lavra/memory/memorysanitize/main.go 2>/dev/null || stat -f '%m' .lavra/memory/memorysanitize/main.go 2>/dev/null || echo N/A)"
   fail "Claude Code Go helper runtime" "wrapper did not produce active knowledge"
 fi
 
@@ -291,14 +285,11 @@ else
 fi
 
 seed_memory_fixture ".lavra/memory"
-_oc_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1) || true
-_oc_rc=$?
+_oc_rc=0
+env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" >/dev/null 2>&1 || _oc_rc=$?
 if [[ "$_oc_rc" -eq 0 ]] && [[ -f ".lavra/memory/.memory-sanitize-go" ]]; then
   pass "OpenCode Go helper sanitizes knowledge"
 else
-  echo "  [debug-oc] exit=$_oc_rc bin=$(ls -la .lavra/memory/.memory-sanitize-go 2>/dev/null || echo missing)"
-  echo "  [debug-oc] out: $_oc_out"
-  echo "  [debug-oc] cwd=$(pwd) src=$(ls .lavra/memory/memorysanitize/main.go 2>/dev/null || echo missing)"
   fail "OpenCode Go helper runtime" "wrapper did not use helper in .lavra/memory"
 fi
 
@@ -385,13 +376,11 @@ else
 fi
 
 seed_memory_fixture ".lavra/memory"
-_gem_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1) || true
-_gem_rc=$?
+_gem_rc=0
+env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" >/dev/null 2>&1 || _gem_rc=$?
 if [[ "$_gem_rc" -eq 0 ]] && [[ -f ".lavra/memory/.memory-sanitize-go" ]]; then
   pass "Gemini Go helper sanitizes knowledge"
 else
-  echo "  [debug-gem] exit=$_gem_rc bin=$(ls -la .lavra/memory/.memory-sanitize-go 2>/dev/null || echo missing)"
-  echo "  [debug-gem] out: $_gem_out"
   fail "Gemini Go helper runtime" "wrapper did not use helper in .lavra/memory"
 fi
 
@@ -539,13 +528,11 @@ else
 fi
 
 seed_memory_fixture ".lavra/memory"
-_ctx_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1) || true
-_ctx_rc=$?
+_ctx_rc=0
+env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" >/dev/null 2>&1 || _ctx_rc=$?
 if [[ "$_ctx_rc" -eq 0 ]] && [[ -f ".lavra/memory/.memory-sanitize-go" ]]; then
   pass "Cortex Code Go helper sanitizes knowledge"
 else
-  echo "  [debug-ctx] exit=$_ctx_rc bin=$(ls -la .lavra/memory/.memory-sanitize-go 2>/dev/null || echo missing)"
-  echo "  [debug-ctx] out: $_ctx_out"
   fail "Cortex Code Go helper runtime" "wrapper did not use helper in .lavra/memory"
 fi
 
