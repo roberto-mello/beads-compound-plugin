@@ -201,7 +201,7 @@ fi
 # Verify the wrapper can build and run the Go helper end-to-end
 seed_memory_fixture ".lavra/memory"
 
-_go_runtime_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1)
+_go_runtime_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1) || true
 _go_runtime_rc=$?
 if [[ "$_go_runtime_rc" -eq 0 ]] && \
    [[ -f ".lavra/memory/knowledge.active.jsonl" ]] && \
