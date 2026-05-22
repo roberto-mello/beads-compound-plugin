@@ -201,11 +201,19 @@ fi
 # Verify the wrapper can build and run the Go helper end-to-end
 seed_memory_fixture ".lavra/memory"
 
-if env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" >/dev/null 2>&1 && \
+_go_runtime_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1)
+_go_runtime_rc=$?
+if [[ "$_go_runtime_rc" -eq 0 ]] && \
    [[ -f ".lavra/memory/knowledge.active.jsonl" ]] && \
    grep -q '"key":"alpha"' ".lavra/memory/knowledge.active.jsonl"; then
   pass "Claude Code Go helper sanitizes knowledge"
 else
+  echo "  [debug] exit=$_go_runtime_rc active=$(ls -la .lavra/memory/knowledge.active.jsonl 2>/dev/null || echo missing)"
+  echo "  [debug] script output: $_go_runtime_out"
+  echo "  [debug] binary: $(ls -la .lavra/memory/.memory-sanitize-go 2>/dev/null || echo missing)"
+  echo "  [debug] source: $(ls -la .lavra/memory/memorysanitize/main.go 2>/dev/null || echo missing)"
+  echo "  [debug] stat bin=$(stat -c '%Y' .lavra/memory/.memory-sanitize-go 2>/dev/null || stat -f '%m' .lavra/memory/.memory-sanitize-go 2>/dev/null || echo N/A)"
+  echo "  [debug] stat src=$(stat -c '%Y' .lavra/memory/memorysanitize/main.go 2>/dev/null || stat -f '%m' .lavra/memory/memorysanitize/main.go 2>/dev/null || echo N/A)"
   fail "Claude Code Go helper runtime" "wrapper did not produce active knowledge"
 fi
 
