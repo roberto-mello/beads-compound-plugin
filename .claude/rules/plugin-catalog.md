@@ -72,23 +72,33 @@ Agents are in `plugins/lavra/agents/`:
 
 **Docs (1)**: ankane-readme-writer
 
-## Skills (17: 10 core + 7 optional)
+## Skills (23: 16 core + 7 optional)
 
 Skills are in `plugins/lavra/skills/` (core) and `plugins/lavra/skills/optional/` (optional):
 
-- **git-worktree**: Manage git worktrees for parallel bead work
+**Core (16):**
+- **agent-browser**: Browser automation for testing and screenshots
+- **agent-native-architecture**: Design agent-native system architectures
 - **brainstorming**: Structured brainstorming with bead output
 - **create-agent-skills**: Create new agents and skills
-- **agent-native-architecture**: Design agent-native system architectures
+- **file-todos**: Find and manage TODO comments in code
+- **git-worktree**: Manage git worktrees for parallel bead work
+- **lavra-brainstorm**: Collaborative brainstorming — invoked by `/lavra-design`
+- **lavra-ceo-review**: CEO/founder-mode plan review — invoked by `/lavra-design`
+- **lavra-eng-review**: Engineering review — invoked by `/lavra-design`
 - **lavra-knowledge**: Document solved problems as knowledge entries
-- **agent-browser**: Browser automation for testing and screenshots
+- **lavra-plan**: Transform feature descriptions into beads — invoked by `/lavra-design`
+- **lavra-research**: Gather evidence with domain-matched agents — invoked by `/lavra-design`
+- **lavra-review**: Multi-agent code review — invoked by `/lavra-work`
+- **lavra-work**: Execute work on one or many beads — invoked by `/lavra-work`
 - **lavra-work-single**: Single-bead implementation path — invoked by lavra-work router
 - **lavra-work-multi**: Multi-bead orchestration path — invoked by lavra-work router
+
+**Optional (7):**
 - **andrew-kane-gem-writer**: Write Ruby gems following Andrew Kane's style
 - **dhh-rails-style**: Rails development following DHH's conventions
 - **dspy-ruby**: DSPy integration for Ruby applications
 - **every-style-editor**: Every's house style guide for content editing
-- **file-todos**: Find and manage TODO comments in code
 - **frontend-design**: Frontend design patterns and best practices
 - **gemini-imagegen**: Generate images using Google's Gemini
 - **rclone**: Cloud storage file management with rclone

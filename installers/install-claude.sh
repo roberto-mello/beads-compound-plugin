@@ -136,7 +136,7 @@ else
   if [ -f "$PROVISION_SCRIPT" ]; then
     source "$PROVISION_SCRIPT"
     migrate_beads_to_lavra "$TARGET"
-    provision_memory_dir "$TARGET" "$PLUGIN_DIR/hooks"
+    BEADS_AUTO_YES="$AUTO_YES" BEADS_EAGER_COMPILE_MEMORY_HELPER=true provision_memory_dir "$TARGET" "$PLUGIN_DIR/hooks"
     echo "  - Memory system configured"
   fi
 
@@ -158,11 +158,16 @@ else
   HOOKS_DIR="$TARGET/.claude/hooks"
   create_dir_with_symlink_handling "$HOOKS_DIR"
 
-  for hook in sanitize-content.sh memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh extract-bead-context.sh; do
+  for hook in sanitize-content.sh memory-capture.sh auto-recall.sh subagent-wrapup.sh memory-sanitize.sh knowledge-db.sh provision-memory.sh extract-bead-context.sh; do
     cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/$hook"
     chmod +x "$HOOKS_DIR/$hook"
     echo "  - Installed $hook"
   done
+  if [[ -d "$PLUGIN_DIR/hooks/memorysanitize" ]]; then
+    rm -rf "$HOOKS_DIR/memorysanitize"
+    cp -R "$PLUGIN_DIR/hooks/memorysanitize" "$HOOKS_DIR/memorysanitize"
+    echo "  - Installed memorysanitize/"
+  fi
 
   # Write version marker so check-memory.sh can detect future updates
   INSTALLER_VERSION=$(get_lavra_version "$PLUGIN_DIR")
@@ -170,17 +175,15 @@ else
 fi
 
 # Detect if commands/agents/skills are already installed globally
-GLOBALLY_INSTALLED=false
-
-if [ "$GLOBAL_INSTALL" = false ] && [ -f "$HOME/.claude/commands/lavra-plan.md" ]; then
-  GLOBALLY_INSTALLED=true
-fi
-
-# Version check: if global is current, per-project install is hook-only
 INSTALLER_VERSION=$(get_lavra_version "$PLUGIN_DIR")
 GLOBAL_VERSION="0.0.0"
 if [ -f "$HOME/.claude/hooks/.lavra-version" ]; then
   GLOBAL_VERSION=$(cat "$HOME/.claude/hooks/.lavra-version")
+fi
+
+GLOBALLY_INSTALLED=false
+if [ "$GLOBAL_INSTALL" = false ] && [ "$GLOBAL_VERSION" != "0.0.0" ]; then
+  GLOBALLY_INSTALLED=true
 fi
 
 LIGHTWEIGHT_MODE=false
@@ -381,12 +384,16 @@ if [ "$GLOBAL_INSTALL" = true ]; then
   # Install all hook scripts for auto-installation in beads projects
   mkdir -p "$TARGET/hooks"
 
-  for hook in sanitize-content.sh check-memory.sh auto-recall.sh memory-capture.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh recall.sh extract-bead-context.sh; do
+  for hook in sanitize-content.sh check-memory.sh auto-recall.sh memory-capture.sh subagent-wrapup.sh memory-sanitize.sh knowledge-db.sh provision-memory.sh recall.sh extract-bead-context.sh; do
     if [ -f "$PLUGIN_DIR/hooks/$hook" ]; then
       cp "$PLUGIN_DIR/hooks/$hook" "$TARGET/hooks/$hook"
       chmod +x "$TARGET/hooks/$hook"
     fi
   done
+  if [[ -d "$PLUGIN_DIR/hooks/memorysanitize" ]]; then
+    rm -rf "$TARGET/hooks/memorysanitize"
+    cp -R "$PLUGIN_DIR/hooks/memorysanitize" "$TARGET/hooks/memorysanitize"
+  fi
 
   # Write version marker for hook auto-update
   LAVRA_VERSION=$(get_lavra_version "$PLUGIN_DIR")

@@ -1,8 +1,8 @@
 {
   "opencode": {
-    "haiku": "minimax/MiniMax-M2.7-highspeed",
-    "sonnet": "opencode-go/kimi-k2.6",
-    "opus": "opencode-go/glm-5.1"
+    "haiku": "opencode/big-pickle",
+    "sonnet": "opencode-go/glm-5",
+    "opus": "openai/gpt-5.4"
   },
   "gemini": {
     "haiku": "gemini-2.5-flash",

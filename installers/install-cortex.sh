@@ -202,7 +202,7 @@ else
   if [ -f "$PROVISION_SCRIPT" ]; then
     source "$PROVISION_SCRIPT"
     migrate_beads_to_lavra "$TARGET"
-    provision_memory_dir "$TARGET" "$PLUGIN_DIR/hooks"
+    BEADS_AUTO_YES="$AUTO_YES" BEADS_EAGER_COMPILE_MEMORY_HELPER=true provision_memory_dir "$TARGET" "$PLUGIN_DIR/hooks"
     echo "  - Memory system configured"
   fi
 fi
@@ -213,12 +213,16 @@ if [ "$GLOBAL_INSTALL" = true ]; then
 
   mkdir -p "$TARGET/hooks"
 
-  for hook in sanitize-content.sh check-memory.sh dispatch-hook.sh auto-recall.sh memory-capture.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh recall.sh; do
+  for hook in sanitize-content.sh check-memory.sh dispatch-hook.sh auto-recall.sh memory-capture.sh subagent-wrapup.sh memory-sanitize.sh knowledge-db.sh provision-memory.sh recall.sh; do
     if [ -f "$PLUGIN_DIR/hooks/$hook" ]; then
       cp "$PLUGIN_DIR/hooks/$hook" "$TARGET/hooks/$hook"
       chmod +x "$TARGET/hooks/$hook"
     fi
   done
+  if [[ -d "$PLUGIN_DIR/hooks/memorysanitize" ]]; then
+    rm -rf "$TARGET/hooks/memorysanitize"
+    cp -R "$PLUGIN_DIR/hooks/memorysanitize" "$TARGET/hooks/memorysanitize"
+  fi
 
   # Write version marker for hook auto-update
   LAVRA_VERSION=$(get_lavra_version "$PLUGIN_DIR")
@@ -232,11 +236,16 @@ else
   HOOKS_DIR="$TARGET/$PROJECT_CONFIG_DIR/hooks"
   create_dir_with_symlink_handling "$HOOKS_DIR"
 
-  for hook in sanitize-content.sh memory-capture.sh auto-recall.sh subagent-wrapup.sh knowledge-db.sh provision-memory.sh; do
+  for hook in sanitize-content.sh memory-capture.sh auto-recall.sh subagent-wrapup.sh memory-sanitize.sh knowledge-db.sh provision-memory.sh; do
     cp "$PLUGIN_DIR/hooks/$hook" "$HOOKS_DIR/$hook"
     chmod +x "$HOOKS_DIR/$hook"
     echo "  - Installed $hook"
   done
+  if [[ -d "$PLUGIN_DIR/hooks/memorysanitize" ]]; then
+    rm -rf "$HOOKS_DIR/memorysanitize"
+    cp -R "$PLUGIN_DIR/hooks/memorysanitize" "$HOOKS_DIR/memorysanitize"
+    echo "  - Installed memorysanitize/"
+  fi
 
   # Ensure dispatcher is in global hooks dir (needed even without a global install)
   GLOBAL_HOOKS="$GLOBAL_ROOT/hooks"
