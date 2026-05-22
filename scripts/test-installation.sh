@@ -291,10 +291,14 @@ else
 fi
 
 seed_memory_fixture ".lavra/memory"
-if env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" >/dev/null 2>&1 && \
-   [[ -f ".lavra/memory/.memory-sanitize-go" ]]; then
+_oc_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1) || true
+_oc_rc=$?
+if [[ "$_oc_rc" -eq 0 ]] && [[ -f ".lavra/memory/.memory-sanitize-go" ]]; then
   pass "OpenCode Go helper sanitizes knowledge"
 else
+  echo "  [debug-oc] exit=$_oc_rc bin=$(ls -la .lavra/memory/.memory-sanitize-go 2>/dev/null || echo missing)"
+  echo "  [debug-oc] out: $_oc_out"
+  echo "  [debug-oc] cwd=$(pwd) src=$(ls .lavra/memory/memorysanitize/main.go 2>/dev/null || echo missing)"
   fail "OpenCode Go helper runtime" "wrapper did not use helper in .lavra/memory"
 fi
 
