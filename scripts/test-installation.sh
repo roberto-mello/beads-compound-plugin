@@ -385,10 +385,13 @@ else
 fi
 
 seed_memory_fixture ".lavra/memory"
-if env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" >/dev/null 2>&1 && \
-   [[ -f ".lavra/memory/.memory-sanitize-go" ]]; then
+_gem_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1) || true
+_gem_rc=$?
+if [[ "$_gem_rc" -eq 0 ]] && [[ -f ".lavra/memory/.memory-sanitize-go" ]]; then
   pass "Gemini Go helper sanitizes knowledge"
 else
+  echo "  [debug-gem] exit=$_gem_rc bin=$(ls -la .lavra/memory/.memory-sanitize-go 2>/dev/null || echo missing)"
+  echo "  [debug-gem] out: $_gem_out"
   fail "Gemini Go helper runtime" "wrapper did not use helper in .lavra/memory"
 fi
 
@@ -536,10 +539,13 @@ else
 fi
 
 seed_memory_fixture ".lavra/memory"
-if env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" >/dev/null 2>&1 && \
-   [[ -f ".lavra/memory/.memory-sanitize-go" ]]; then
+_ctx_out=$(env GOCACHE="$TEST_ROOT/go-cache" ".lavra/memory/memory-sanitize.sh" --run ".lavra/memory" 2>&1) || true
+_ctx_rc=$?
+if [[ "$_ctx_rc" -eq 0 ]] && [[ -f ".lavra/memory/.memory-sanitize-go" ]]; then
   pass "Cortex Code Go helper sanitizes knowledge"
 else
+  echo "  [debug-ctx] exit=$_ctx_rc bin=$(ls -la .lavra/memory/.memory-sanitize-go 2>/dev/null || echo missing)"
+  echo "  [debug-ctx] out: $_ctx_out"
   fail "Cortex Code Go helper runtime" "wrapper did not use helper in .lavra/memory"
 fi
 
