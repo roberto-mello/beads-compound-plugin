@@ -9,7 +9,7 @@ argument-hint: "[task description or bead ID]"
 ---
 
 <objective>
-Fast-track small tasks with an abbreviated plan and immediate execution. Skips brainstorm and deepen phases, runs a MINIMAL plan (1-3 child tasks), then transitions directly to `/lavra-work`. Still captures knowledge throughout.
+Fast-track small tasks with an abbreviated plan and immediate execution. Skips brainstorm and deepen phases, runs a MINIMAL plan (1-3 child tasks), then transitions directly to `$lavra-work`. Still captures knowledge throughout.
 </objective>
 
 <project_root>
@@ -59,9 +59,9 @@ Check if the argument matches a bead ID pattern:
 </execution_context>
 
 <context>
-Use `/lavra-quick` for small, well-understood tasks: bug fixes, config changes, small refactors, adding a field, writing a utility function.
+Use `$lavra-quick` for small, well-understood tasks: bug fixes, config changes, small refactors, adding a field, writing a utility function.
 
-If the task turns out larger than expected, the scope escalation check (step 3) will catch it and offer to switch to `/lavra-design`.
+If the task turns out larger than expected, the scope escalation check (step 3) will catch it and offer to switch to `$lavra-design`.
 </context>
 
 <process>
@@ -121,23 +121,23 @@ After creating the abbreviated plan but BEFORE starting implementation, evaluate
 Signals detected:
 - {list each signal that fired with a brief explanation}
 
-Switch to /lavra-design for proper planning? This preserves all work done so far."
+Switch to $lavra-design for proper planning? This preserves all work done so far."
 </scope_escalation>
 
 **If the user accepts escalation:**
 
 1. Save current progress -- update the parent bead description with a note summarizing the abbreviated plan and the escalation signals:
    ```bash
-   bd comments add {BEAD_ID} "DECISION: Escalated from /lavra-quick to /lavra-design. Signals: {signals}. Child tasks preserved as starting point."
+   bd comments add {BEAD_ID} "DECISION: Escalated from $lavra-quick to $lavra-design. Signals: {signals}. Child tasks preserved as starting point."
    ```
-2. Invoke `/lavra-design` with the bead ID so the full planning pipeline picks up where this left off.
+2. Invoke `$lavra-design` with the bead ID so the full planning pipeline picks up where this left off.
 3. Stop the lavra-quick workflow. Do not continue to step 4.
 
 **If the user declines escalation:**
 
 1. Log the decision:
    ```bash
-   bd comments add {BEAD_ID} "DECISION: User chose to proceed with /lavra-quick despite scope signals: {signals}. Rationale: user preference."
+   bd comments add {BEAD_ID} "DECISION: User chose to proceed with $lavra-quick despite scope signals: {signals}. Rationale: user preference."
    ```
 2. Continue to step 4.
 
@@ -156,7 +156,7 @@ bd update {BEAD_ID} --status in_progress
 - Do NOT expand scope beyond the original task description
 - If you encounter something that requires scope expansion, log it and move on
 
-Execute using the `/lavra-work` workflow on the first ready child bead. Follow all `/lavra-work` phases (Quick Start, Execute, Quality Check, Ship It) -- the abbreviated plan does not mean abbreviated execution.
+Execute using the `$lavra-work` workflow on the first ready child bead. Follow all `$lavra-work` phases (Quick Start, Execute, Quality Check, Ship It) -- the abbreviated plan does not mean abbreviated execution.
 
 **Log knowledge as you work** -- at least one LEARNED/DECISION/FACT/PATTERN/DEVIATION comment per task:
 
@@ -193,7 +193,7 @@ After all child tasks are complete:
 <handoff>
 After completion, present options:
 
-1. **Quick-track another task** -- run `/lavra-quick` again
-2. **Review the work** -- run `/lavra-review` for a code review
-3. **Checkpoint** -- run `/lavra-checkpoint` to save progress
+1. **Quick-track another task** -- run `$lavra-quick` again
+2. **Review the work** -- run `$lavra-review` for a code review
+3. **Checkpoint** -- run `$lavra-checkpoint` to save progress
 </handoff>

@@ -304,7 +304,7 @@ What's next?
 
 ## Integration Points
 
-**Invoked by:** manual invocation after solution confirmed, confirmation phrases ("that worked", "it's fixed"), or called from `/lavra-work` and `/lavra-review` workflows.
+**Invoked by:** manual invocation after solution confirmed, confirmation phrases ("that worked", "it's fixed"), or called from `$lavra-work` and `$lavra-review` workflows.
 
 **Works with:**
 - `auto-recall.sh` — reads `knowledge.jsonl` at session start

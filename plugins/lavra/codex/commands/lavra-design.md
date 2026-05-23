@@ -9,7 +9,7 @@ argument-hint: "[brainstorm bead ID or feature description]"
 ---
 
 <objective>
-Orchestrate the full six-phase design pipeline as a single invocation: brainstorm (interactive), plan (auto), research (domain-matched agents), revise (integrate findings), adversarial review (4 agents), and final plan lock. Delegates every phase to existing commands with zero code duplication. The output must be so detailed that `/lavra-work` execution is mechanical -- subagents can implement without asking questions.
+Orchestrate the full six-phase design pipeline as a single invocation: brainstorm (interactive), plan (auto), research (domain-matched agents), revise (integrate findings), adversarial review (4 agents), and final plan lock. Delegates every phase to existing commands with zero code duplication. The output must be so detailed that `$lavra-work` execution is mechanical -- subagents can implement without asking questions.
 </objective>
 
 <project_root>
@@ -63,15 +63,15 @@ The current year is 2026.
 ```bash
 # Check known skill locations across platforms
 # Claude Code: .codex/skills/  OpenCode: .opencode/skills/
-# Gemini CLI: skills/  Cortex project: .codex/skills/  Cortex global: ~/.snowflake/cortex/skills/
-for dir in .claude/skills .opencode/skills .cortex/skills skills "$HOME/.snowflake/cortex/skills"; do
+# Gemini CLI: skills/  Cortex project: .codex/skills/  Cortex global: ~/.codex/skills/
+for dir in .codex/skills .opencode/skills .codex/skills skills "$HOME/.snowflake/cortex/skills"; do
   [ -d "$dir" ] && ls "$dir" 2>/dev/null && break
 done
 ```
 
 Check that these skill directories exist: `lavra-brainstorm`, `lavra-plan`, `lavra-research`, `lavra-ceo-review`, `lavra-eng-review`. If any are missing, report which ones are absent and stop with: "Required skills not found: {missing list}. Run the Lavra installer to set up skills."
 
-**Design principle:** The output of `/lavra-design` must be so good that `/lavra-work` execution is mechanical. The final plan must be detailed enough that subagents can implement without asking questions.
+**Design principle:** The output of `$lavra-design` must be so good that `$lavra-work` execution is mechanical. The final plan must be detailed enough that subagents can implement without asking questions.
 
 **Precedent:** Follows the `/lfg` pattern for compound commands that chain multiple steps.
 </context>
@@ -136,7 +136,7 @@ The skill auto-detects the brainstorm context and skips its own idea refinement 
 Skill("lavra-plan", args="{BRAINSTORM_BEAD_ID}")
 ```
 
-When `/lavra-plan` reaches its detail level selection, select **Comprehensive** (or the user's override if provided). When it reaches its handoff question, do not present it to the user -- continue the pipeline.
+When `$lavra-plan` reaches its detail level selection, select **Comprehensive** (or the user's override if provided). When it reaches its handoff question, do not present it to the user -- continue the pipeline.
 
 After the plan completes, capture the epic bead ID and its child beads:
 
@@ -168,19 +168,22 @@ Display the child bead list and ask the user to confirm before investing heavy c
 
 Use the **direct user prompt**:
 
-**Question:** "Plan structure looks good? Next phases: research with domain-matched agents, then adversarial review with 4 agents."
+**Question:** "Plan structure looks good? Research can be expensive in tokens (domain-matched agents across each child bead). Choose the default token-efficient path unless you need deeper evidence."
 
 **Options:**
-1. **Proceed** -- Continue with research + review
-2. **Adjust plan first** -- Make changes before heavy compute
-3. **Stop here** -- Keep the plan as-is, skip remaining phases
+1. **Skip research (default)** -- Continue to revise/review without Phase 3 research (token-efficient)
+2. **Run research** -- Continue with domain-matched research + review (higher token cost)
+3. **Adjust plan first** -- Make changes before heavy compute
+4. **Stop here** -- Keep the plan as-is, skip remaining phases
 
+If "Skip research (default)": set a run-local flag to skip Phase 3 and continue to Phase 4.
+If "Run research": continue normally to Phase 3.
 If "Adjust plan first": accept changes, re-validate, then ask again.
 If "Stop here": jump to the Output Summary.
 
 ## Phase 3: Research (Auto -- domain-matched evidence gathering)
 
-**Skip condition:** If `lavra.json` config has `workflow.research: false`, skip to Phase 4 with a note: "Research skipped per lavra.json config."
+**Skip condition:** If the run-local skip flag is set from the gate above, or `lavra.json` config has `workflow.research: false`, skip to Phase 4 with a note: "Research skipped (default/user choice or lavra.json config)."
 
 **Read codebase profile (no-op if missing):**
 
@@ -200,9 +203,9 @@ If the file exists, sanitize it before injecting as planning context:
 Skill("lavra-research", args="{EPIC_ID}")
 ```
 
-`/lavra-research` selects agents based on the plan's domain indicators (languages, frameworks, concerns). It gathers evidence -- docs, prior art, best practices, edge cases, knowledge recall -- and logs findings as INVESTIGATION/FACT/PATTERN comments on the relevant child beads. It does NOT modify the plan.
+`$lavra-research` selects agents based on the plan's domain indicators (languages, frameworks, concerns). It gathers evidence -- docs, prior art, best practices, edge cases, knowledge recall -- and logs findings as INVESTIGATION/FACT/PATTERN comments on the relevant child beads. It does NOT modify the plan.
 
-When `/lavra-research` completes, do not present its handoff to the user -- continue the pipeline.
+When `$lavra-research` completes, do not present its handoff to the user -- continue the pipeline.
 
 **Phase gate:** Verify research enriched the child beads. Check that child bead descriptions grew or received new comments:
 
@@ -224,7 +227,7 @@ Phase 3 complete: Research -- {agent_count} agents dispatched
 
 **4.1 Collect research findings:**
 
-Read all comments added by `/lavra-research`:
+Read all comments added by `$lavra-research`:
 
 ```bash
 # Read comments on each child bead
@@ -329,7 +332,7 @@ This dispatches 4 agents in parallel:
 
 **GATE: User reviews findings before final plan.**
 
-After `/lavra-eng-review` completes, present its findings summary and categorize them:
+After `$lavra-eng-review` completes, present its findings summary and categorize them:
 
 **Safe to auto-apply** (do these without asking):
 - Missing test cases -- add to child bead Testing section (only when `testing_scope` is `"full"`; when `"targeted"`, do not auto-add test cases for structural/render code)
@@ -408,7 +411,7 @@ bd create --title="{deferred item}" --description="Deferred from {EPIC_ID}: {rat
 bd dep relate {NEW_BEAD_ID} {EPIC_ID}
 ```
 
-This makes deferred items trackable -- `/lavra-retro` can surface them and `/lavra-triage` can reprioritize.
+This makes deferred items trackable -- `$lavra-retro` can surface them and `$lavra-triage` can reprioritize.
 
 **6.2d Scope budget enforcement:**
 
@@ -424,7 +427,7 @@ Estimate the LOC of changes each child bead will produce. If a child bead would 
 **6.3 Update the epic with the final plan annotation:**
 
 ```bash
-bd comments add {EPIC_ID} "DECISION: Plan reviewed and locked. {N} child beads, {review_finding_count} review findings addressed ({auto_applied} auto-applied, {user_decided} user-decided, {skipped} skipped). Dependency ordering validated. Ready for /lavra-work."
+bd comments add {EPIC_ID} "DECISION: Plan reviewed and locked. {N} child beads, {review_finding_count} review findings addressed ({auto_applied} auto-applied, {user_decided} user-decided, {skipped} skipped). Dependency ordering validated. Ready for $lavra-work."
 ```
 
 **6.4 Add the plan label:**
@@ -454,7 +457,7 @@ cat > "$PROJECT_ROOT/.lavra/memory/session-state.md" << EOF
 ## Just Completed
 - Full design pipeline: brainstorm -> plan -> research -> revise -> review -> lock
 ## Next
-- /lavra-work {EPIC_ID} or /lavra-work {first_ready_child}
+- $lavra-work {EPIC_ID} or $lavra-work {first_ready_child}
 ## Deferred Items
 - {count} deferred items filed as backlog beads
 EOF
@@ -466,7 +469,7 @@ Announce completion:
 ----------------------------------------------------
   All phases complete. Plan locked.
   Epic: {EPIC_ID} -- {epic_title}
-  Ready for /lavra-work
+  Ready for $lavra-work
 ----------------------------------------------------
 ```
 
@@ -515,7 +518,7 @@ After all phases complete (or on abort), display:
   Knowledge entries: {knowledge_count}
   Review findings addressed: {finding_count}
 
-  Next: /lavra-work {first_ready_child} or /lavra-work {EPIC_ID}
+  Next: $lavra-work {first_ready_child} or $lavra-work {EPIC_ID}
 ----------------------------------------------------
 ```
 
@@ -536,7 +539,7 @@ wc -l < "$PROJECT_ROOT/.lavra/memory/knowledge.jsonl"
 </process>
 
 <success_criteria>
-- Running `/lavra-design` produces a fully planned, researched, reviewed, and locked epic
+- Running `$lavra-design` produces a fully planned, researched, reviewed, and locked epic
 - Each phase delegates to its respective skill via Skill() with zero code duplication
 - Phase 1 (brainstorm) output feeds directly into Phase 2 (plan) as locked decisions
 - Phase 3 (research) gathers evidence without modifying the plan
@@ -567,8 +570,8 @@ After displaying the output summary, use the **direct user prompt**:
 **Question:** "Design pipeline complete for `{EPIC_ID}`. Plan is reviewed and locked. What next?"
 
 **Options:**
-1. **`/lavra-work {first_ready_child}`** -- Start implementing the first ready child bead
-2. **`/lavra-work {EPIC_ID}`** -- Work all child beads in parallel with multiple agents
+1. **`$lavra-work {first_ready_child}`** -- Start implementing the first ready child bead
+2. **`$lavra-work {EPIC_ID}`** -- Work all child beads in parallel with multiple agents
 3. **Revise the plan** -- Make adjustments before implementation
 4. **Done for now** -- Come back later
 

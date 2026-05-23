@@ -123,7 +123,7 @@ If yes:
 
 If problems were solved during this session, suggest documenting them:
 
-"You captured knowledge comments this session. Want to run `/lavra-learn` to curate them into structured, well-tagged entries?"
+"You captured knowledge comments this session. Want to run `$lavra-learn` to curate them into structured, well-tagged entries?"
 
 ### Step 9: Report
 
@@ -147,7 +147,7 @@ Knowledge captured:
 Remaining in-progress:
 - BD-124: Add password reset flow (40% complete)
 
-Session continues. Use /lavra-checkpoint again to save more progress.
+Session continues. Use $lavra-checkpoint again to save more progress.
 ```
 
 </process>
@@ -173,8 +173,8 @@ After the checkpoint report, use the **direct user prompt** to present next step
 **Question:** "Checkpoint saved. What would you like to do next?"
 
 **Options:**
-1. **Continue `/lavra-work`** - Resume implementing the current bead
-2. **Run `/lavra-review`** - Multi-agent code review on changes so far
+1. **Continue `$lavra-work`** - Resume implementing the current bead
+2. **Run `$lavra-review`** - Multi-agent code review on changes so far
 3. **Keep working** - Continue the session without a specific command
 </handoff>
 

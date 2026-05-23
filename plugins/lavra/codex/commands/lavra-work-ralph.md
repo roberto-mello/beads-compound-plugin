@@ -82,7 +82,7 @@ Store as `COMPLETION_CRITERIA` per bead for subagent prompt injection.
 
 ## 4. Gather Beads
 
-Follow Phase M1 from `/lavra-work` (MULTI-BEAD PATH): resolve epic/comma-separated/empty input, validate bead IDs, skip `.lavra/` deletion beads, register swarm for epic input.
+Follow Phase M1 from `$lavra-work` (MULTI-BEAD PATH): resolve epic/comma-separated/empty input, validate bead IDs, skip `.lavra/` deletion beads, register swarm for epic input.
 
 ## 5. Branch Check
 
@@ -120,11 +120,11 @@ PRE_BRANCH_SHA=$(git rev-parse HEAD)
 
 ## 6. File-Scope Conflict Detection
 
-Follow Phase M3 from `/lavra-work` (MULTI-BEAD PATH): analyze per-bead file scope, validate paths, detect overlaps, force sequential ordering where needed.
+Follow Phase M3 from `$lavra-work` (MULTI-BEAD PATH): analyze per-bead file scope, validate paths, detect overlaps, force sequential ordering where needed.
 
 ## 7. Dependency Analysis & Wave Building
 
-Follow Phase M4 from `/lavra-work` (MULTI-BEAD PATH): use `bd swarm validate` for epic input or `bd graph` for other input. Organize into waves. Output mermaid diagram.
+Follow Phase M4 from `$lavra-work` (MULTI-BEAD PATH): use `bd swarm validate` for epic input or `bd graph` for other input. Organize into waves. Output mermaid diagram.
 
 ## 8. User Approval
 
@@ -141,7 +141,7 @@ If `--yes` set, skip and proceed automatically.
 
 ## 9. Recall Knowledge & Read Project Config *(required -- do not skip)*
 
-Follow Phase M6 from `/lavra-work` (MULTI-BEAD PATH): run `recall.sh` with combined keywords, read project config, sanitize `reviewer_context_note`, detect installed skills. Output recall results before building agent prompts.
+Follow Phase M6 from `$lavra-work` (MULTI-BEAD PATH): run `recall.sh` with combined keywords, read project config, sanitize `reviewer_context_note`, detect installed skills. Output recall results before building agent prompts.
 
 ## 10. Execute Waves (Autonomous Retry)
 
@@ -188,7 +188,7 @@ Task(general-purpose, mode="bypassPermissions", "...prompt for BD-003...")
 Build agent prompts from template:
 
 ```bash
-AGENT_TEMPLATE=$(cat ".codex/skills/lavra-work-multi/references/subagent-prompt.md")
+AGENT_TEMPLATE=$(cat ".codex/skills$lavra-work-multi/references/subagent-prompt.md")
 ```
 
 Fill all `{PLACEHOLDERS}` in `$AGENT_TEMPLATE`. Fill `{EXTRA_INSTRUCTIONS}` with ralph-specific sections:
@@ -353,9 +353,9 @@ After all waves complete and push approved:
 <handoff>
 All work complete. What next?
 
-1. **Run `/lavra-review`** on all changes
+1. **Run `$lavra-review`** on all changes
 2. **Create PR** with all changes
-3. **Run `/lavra-compound {COMPOUND_CANDIDATES}`** - Document non-obvious findings as reusable knowledge *(only shown if COMPOUND_CANDIDATES non-empty)*
+3. **Run `$lavra-compound {COMPOUND_CANDIDATES}`** - Document non-obvious findings as reusable knowledge *(only shown if COMPOUND_CANDIDATES non-empty)*
 4. **Retry failed beads** - Re-run with only failed bead IDs
 5. **Continue** with remaining open beads
 </handoff>

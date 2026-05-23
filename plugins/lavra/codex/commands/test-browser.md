@@ -298,7 +298,7 @@ Present summary after all tests complete:
 </success_criteria>
 
 <handoff>
-1. **Run `/lavra-review`** - Full code review of the changes
+1. **Run `$lavra-review`** - Full code review of the changes
 2. **Fix failures** - Address test failures now
 3. **Done** - Accept results
 </handoff>

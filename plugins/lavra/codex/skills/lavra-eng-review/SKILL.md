@@ -215,9 +215,9 @@ After presenting the review, use the **direct user prompt** to present these opt
 
 **Options:**
 1. **Apply feedback** - Update child beads with review suggestions
-2. **Run `/lavra-research`** - Gather additional evidence with domain-matched agents
-3. **Start `/lavra-work`** - Begin implementing the first child bead
-4. **Run `/lavra-work {EPIC_ID}`** - Work on multiple child beads in parallel
+2. **Run `$lavra-research`** - Gather additional evidence with domain-matched agents
+3. **Start `$lavra-work`** - Begin implementing the first child bead
+4. **Run `$lavra-work {EPIC_ID}`** - Work on multiple child beads in parallel
 5. **Dismiss** - Acknowledge review without changes
 
 ## Applying Feedback (when option 1 is selected)

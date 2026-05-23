@@ -14,16 +14,18 @@ metadata:
 
 ## MULTI-BEAD PATH
 
-Multiple beads. Dispatches subagents in parallel with file-scope conflict detection and wave ordering. Each subagent runs implement -> self-review -> learn. Orchestrator runs `/lavra-review` after each wave.
+Multiple beads in parallel. Dispatches subagents with file-scope conflict detection and wave ordering. Each subagent runs implement -> self-review -> learn. Orchestrator runs `$lavra-review` after each wave.
+
+For sequential (token-efficient) execution, the `lavra-work` router handles it — this path always runs parallel subagents.
 
 ---
 
 <project_root>
 
-All `.lavra/` paths are relative to the project root. If you `cd` into a subdirectory during work, resolve the project root first:
+All `.lavra/` paths are relative to the project root. `PROJECT_ROOT` may be injected into your context — use it if set. If not, resolve it once and reuse:
 
 ```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
 ```
 
 Then prefix all `.lavra/` paths with `"$PROJECT_ROOT/"` when invoking them via Bash.
@@ -110,7 +112,7 @@ PRE_BRANCH_SHA=$(git rev-parse HEAD)
 Before building waves, analyze which files each bead will modify to prevent parallel agents from overwriting each other.
 
 For each bead:
-1. Check bead description for `## Files` section (added by `/lavra-plan`)
+1. Check bead description for `## Files` section (added by `$lavra-plan`)
 2. If no `## Files` section, scan for explicit file paths or directory/module references. Use Grep/Glob to resolve to concrete file lists.
 3. **Validate all file paths:**
    - Resolve to absolute paths within project root
@@ -189,7 +191,7 @@ Search memory for all beads to prime context. Subagents don't receive session-st
 </mandatory>
 
 ```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
 RAW_RECALL=$("$PROJECT_ROOT/.lavra/memory/recall.sh" "{combined keywords}")
 ```
 
@@ -233,8 +235,8 @@ Store wrapped value as `{RECALL_RESULTS}` for use in agent prompt template.
 
 For each bead in wave, run:
 ```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
-bash "$(find "$PROJECT_ROOT" -type f -path "*/hooks/extract-bead-context.sh" 2>/dev/null | head -1)" {BEAD_ID}
+PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
+bash "$PROJECT_ROOT/.codex/hooks/extract-bead-context.sh" {BEAD_ID}
 ```
 Store output as `{BEAD_CONTEXT}`. If the agent-specific hook path does not exist, fall back to `$PROJECT_ROOT/plugins/lavra/hooks/extract-bead-context.sh`.
 
@@ -270,7 +272,7 @@ Store wrapped value as `{EPIC_PLAN}`. If input was not an epic (comma-separated 
 **Read project config (no-op if missing):**
 
 ```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
 [ -f "$PROJECT_ROOT/.lavra/config/project-setup.md" ] && cat "$PROJECT_ROOT/.lavra/config/project-setup.md"
 [ -f "$PROJECT_ROOT/.lavra/config/codebase-profile.md" ] && cat "$PROJECT_ROOT/.lavra/config/codebase-profile.md"
 [ -f "$PROJECT_ROOT/.lavra/config/lavra.json" ] && cat "$PROJECT_ROOT/.lavra/config/lavra.json"
@@ -310,8 +312,6 @@ PRE_WAVE_SHA=$(git rev-parse HEAD)
 ```
 This records the SHA at the start of the current wave only. Prior wave commits will be included in this wave's diff if `PRE_WAVE_SHA` from a prior iteration is reused — defeating the scope boundary.
 
-**Respect `--no-parallel` flag:** If set, override `max_parallel_agents` to 1. Each bead executes alone; pause for user review between beads.
-
 **Respect `max_parallel_agents`:** If wave has more beads than limit (default 3), split into sub-waves.
 
 For each wave, spawn **general-purpose** agents in parallel -- one per bead.
@@ -337,6 +337,7 @@ ${RELATED_BEADS}
 
 | Placeholder | Source |
 |---|---|
+| `{PROJECT_ROOT}` | From Phase M6 (`$PROJECT_ROOT`) — eliminates `git rev-parse` in subagents |
 | `{BEAD_ID}`, `{TITLE}` | From `bd show` |
 | `{BEAD_CONTEXT}` | From `extract-bead-context.sh` output |
 | `{EPIC_PLAN}` | From Phase M6 epic fetch (empty if no epic) |
@@ -349,7 +350,7 @@ ${RELATED_BEADS}
 
 Read agent prompt template:
 ```bash
-AGENT_TEMPLATE=$(cat "$(find . -type f -path "*/lavra-work-multi/references/subagent-prompt.md" 2>/dev/null | head -1)")
+AGENT_TEMPLATE=$(cat "$(find . -type f -path "*$lavra-work-multi/references/subagent-prompt.md" 2>/dev/null | head -1)")
 ```
 Fill all {PLACEHOLDERS} in `$AGENT_TEMPLATE`, then pass filled string to Task().
 
@@ -378,15 +379,15 @@ After each wave completes:
 4. **Run linting** if applicable
 5. **Resolve conflicts** if multiple agents touched same files
 
-### Step 2: Multi-agent review via `/lavra-review`
+### Step 2: Multi-agent review via `$lavra-review`
 
 <mandatory>
-`/lavra-review` MUST run after every wave. Only question is scope -- not whether.
+`$lavra-review` MUST run after every wave. Only question is scope -- not whether.
 
-- `review_scope: "full"` (default): Run `/lavra-review` on all wave changes. Invoke now using Skill tool and wait for completion.
-- `review_scope: "targeted"`: Run `/lavra-review` only when at least one bead in wave is P0/P1 or contains architecture/security terms (see list in single-bead Phase 3).
+- `review_scope: "full"` (default): Run `$lavra-review` on all wave changes. Invoke now using Skill tool and wait for completion.
+- `review_scope: "targeted"`: Run `$lavra-review` only when at least one bead in wave is P0/P1 or contains architecture/security terms (see list in single-bead Phase 3).
 
-  When no bead meets those conditions, skip `/lavra-review` for this wave -- agent self-reviews in step 6 of agent prompt are the gate.
+  When no bead meets those conditions, skip `$lavra-review` for this wave -- agent self-reviews in step 6 of agent prompt are the gate.
 
 **Pass `PRE_WAVE_SHA` and epic plan context to reviewer.** `PRE_WAVE_SHA` was recorded at the start of Phase M7 — pass it here so `lavra-review` can compute the exact diff introduced by this wave:
 
@@ -403,12 +404,12 @@ Locked Decisions in the epic above are intentional, even if a field or behavior 
 
 If `{EPIC_PLAN}` is empty, include only the `PRE_WORK_SHA` line and omit the epic plan block.
 
-Wait for `/lavra-review` to complete before proceeding to step 3.
+Wait for `$lavra-review` to complete before proceeding to step 3.
 </mandatory>
 
 ### Step 3: Cross-wave deduplication check
 
-Before implementing fixes, classify each finding from `/lavra-review` as new or recurrent. Skip this step if the input is not an epic (comma-separated IDs or `bd ready` path — no epic context).
+Before implementing fixes, classify each finding from `$lavra-review` as new or recurrent. Skip this step if the input is not an epic (comma-separated IDs or `bd ready` path — no epic context).
 
 ```bash
 bd list --parent {EPIC_ID} --status=closed --json | jq -r '.[].title'
@@ -454,11 +455,26 @@ Apply the threshold:
 - 1 prior = 2nd occurrence → pattern recognition, MUST-CHECK so future agents are warned
 - 2+ prior = 3rd+ occurrence → instance-fix approach has failed; structural intervention required
 
-### Step 4: Implement non-suppressed fixes
+### Step 4: Inline-fix triage, then implement non-suppressed fixes
 
-For each finding from `/lavra-review` that was NOT suppressed by Step 3 (i.e., 1st occurrences only):
-1. Implement fix
-2. Log knowledge for non-obvious fixes:
+Before acting on each non-suppressed finding, triage it:
+
+**Fix inline (no bead needed) when ALL of these are true:**
+- Severity is P3 (nice-to-have) or cosmetic
+- Change is in a single location already in context
+- Fix requires no new file reads
+- The current wave is wave 1 (context pressure is low)
+
+**Create a bead (via `lavra-review`) when ANY of these is true:**
+- Severity is P1 or P2
+- Fix spans multiple files or locations
+- Fix requires reading files not already in context
+- This is wave 2 or later (context pressure is high from prior subagent dispatches)
+
+For each finding from `$lavra-review` that was NOT suppressed by Step 3 (i.e., 1st occurrences only):
+1. Apply inline-fix triage above
+2. Implement fix (or note "fixed inline" in review gate if triage chose inline)
+3. Log knowledge for non-obvious fixes:
    ```bash
    bd comments add {BEAD_ID} "LEARNED: {what the review caught and why}"
    ```
@@ -517,7 +533,7 @@ bd close {BD-XXX} {BD-YYY} {BD-ZZZ}
 
 Write session state:
 ```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
 cat > "$PROJECT_ROOT/.lavra/memory/session-state.md" << EOF
 # Session State
 ## Current Position
@@ -555,7 +571,7 @@ Proceed to next wave only after all steps pass.
 **Before starting next wave**, recall knowledge from this wave:
 
 ```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
 "$PROJECT_ROOT/.lavra/memory/recall.sh" "{BD-XXX BD-YYY}"
 ```
 
@@ -634,7 +650,7 @@ Ask user directly in chat (Codex-compatible):
 
 **Options:**
 1. **Create a PR** with all changes
-2. **Run `/lavra-learn {COMPOUND_CANDIDATES}`** -- Curate findings into structured knowledge *(only if COMPOUND_CANDIDATES is non-empty)*
+2. **Run `$lavra-learn {COMPOUND_CANDIDATES}`** -- Curate findings into structured knowledge *(only if COMPOUND_CANDIDATES is non-empty)*
 3. **Continue** with remaining open beads
 
 </phase>

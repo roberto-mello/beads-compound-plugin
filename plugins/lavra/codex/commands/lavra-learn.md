@@ -26,22 +26,24 @@ Then prefix all `.lavra/` paths with `"$PROJECT_ROOT/"` when invoking them via B
 
 <context>
 **When to use:**
-- After `/lavra-work` completes (auto-suggested when LEARNED/INVESTIGATION comments exist)
+- After `$lavra-work` completes (auto-suggested when LEARNED/INVESTIGATION comments exist)
 - After any work session to consolidate what was captured
 - Periodically to clean up and connect knowledge across beads
 
 **Knowledge flow:**
 ```
-Work session -> inline bd comments (raw) -> /lavra-learn (structured) -> auto-recall (future sessions)
+Work session -> inline bd comments (raw) -> $lavra-learn (structured) -> auto-recall (future sessions)
 ```
 
 Raw comments logged during work are often terse, context-dependent, and untagged beyond auto-detection. This command reviews them with full context, produces well-titled entries with accurate tags, deduplicates against existing knowledge, and synthesizes higher-level patterns where entries connect.
 
+This command improves capture quality. It does not perform shared-memory history cleanup or rewrite older entries in `knowledge.jsonl`. Any future shared curation workflow is separate and review-gated.
+
 **Usage:**
 ```bash
-/lavra-learn                       # Process all beads closed today
-/lavra-learn BD-042                # Process specific bead
-/lavra-learn BD-042 BD-043 BD-044  # Process multiple beads
+$lavra-learn                       # Process all beads closed today
+$lavra-learn BD-042                # Process specific bead
+$lavra-learn BD-042 BD-043 BD-044  # Process multiple beads
 ```
 </context>
 
@@ -184,10 +186,10 @@ Tags exist so auto-recall can surface entries when working on related problems. 
 What's next?
 1. View knowledge entries: `.lavra/memory/recall.sh "{keyword}"`
 2. Continue working on another bead
-3. Run `/lavra-checkpoint` to save session progress
+3. Run `$lavra-checkpoint` to save session progress
 
 **Related Commands:**
-- `/lavra-work` - Execute work on a bead (captures raw knowledge inline)
-- `/lavra-checkpoint` - Save progress and sync state
-- `/lavra-recall` - Search knowledge base mid-session
+- `$lavra-work` - Execute work on a bead (captures raw knowledge inline)
+- `$lavra-checkpoint` - Save progress and sync state
+- `$lavra-recall` - Search knowledge base mid-session
 </handoff>

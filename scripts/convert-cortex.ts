@@ -50,6 +50,8 @@ async function convertCommands() {
   const commandsDir = validatePath(SOURCE_DIR, "commands");
   const outputDir = validatePath(OUTPUT_DIR, "commands");
 
+  // Rebuild from scratch so stale generated commands never persist.
+  await rm(outputDir, { recursive: true, force: true });
   await mkdir(outputDir, { recursive: true, mode: 0o755 });
 
   const files = await readdir(commandsDir);
@@ -95,6 +97,10 @@ async function convertAgents() {
 
   const categories = ["review", "research", "design", "workflow", "docs"];
   let totalConverted = 0;
+  const agentsOutputDir = validatePath(OUTPUT_DIR, "agents");
+
+  // Rebuild from scratch so stale generated agents never persist.
+  await rm(agentsOutputDir, { recursive: true, force: true });
 
   // Create all category directories upfront
   await Promise.all(

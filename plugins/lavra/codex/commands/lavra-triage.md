@@ -153,13 +153,13 @@ After all items:
 <guardrails>
 - DO NOT implement fixes or write code during triage
 - Triage is for decisions only
-- Implementation happens in `/lavra-work`
+- Implementation happens in `$lavra-work`
 </guardrails>
 
 <handoff>
 What would you like to do next?
 
-1. Run /lavra-work to resolve the approved beads
-2. Run /lavra-work {BEAD_ID} on a specific bead
+1. Run $lavra-work to resolve the approved beads
+2. Run $lavra-work {BEAD_ID} on a specific bead
 3. Nothing for now
 </handoff>

@@ -148,7 +148,7 @@ bd comments add {BEAD_ID} "FACT: [Constraint or requirement discovered during br
 
 Options for what to do next:
 
-1. **Proceed to planning** -> Run `/lavra-plan`
+1. **Proceed to planning** -> Run `$lavra-plan`
 2. **Refine further** -> Continue exploring the design
 3. **Done for now** -> User will return later
 
@@ -189,4 +189,4 @@ Brainstorming answers **WHAT** to build: requirements, chosen approach, key deci
 
 Planning answers **HOW** to build it: implementation steps, technical details, testing strategy.
 
-When brainstorm output exists (as bead comments), `/lavra-plan` detects it and uses it as input, skipping its own idea refinement phase.
+When brainstorm output exists (as bead comments), `$lavra-plan` detects it and uses it as input, skipping its own idea refinement phase.

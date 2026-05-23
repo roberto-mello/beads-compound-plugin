@@ -109,7 +109,7 @@ From `lavra.json`, parse `model_profile` (default: `"balanced"`) and `testing_sc
 
 All other agents run at their default tier regardless of profile.
 
-> **Note:** `reviewer_context_note` is intentionally **not** injected into review agents. Review agents derive project context from the code itself. Context note injection is only done in `/lavra-work` multi-bead path (pre-work conventions for implementors) where the value is clearer and the injection surface is smaller.
+> **Note:** `reviewer_context_note` is intentionally **not** injected into review agents. Review agents derive project context from the code itself. Context note injection is only done in `$lavra-work` multi-bead path (pre-work conventions for implementors) where the value is clearer and the injection surface is smaller.
 
 **Agent discovery:**
 
@@ -143,7 +143,7 @@ See `references/default-agents.md` for the agents Lavra ships and their purposes
 
 #### 3b. Read Epic Plan (if provided)
 
-If arguments include an `## Epic Plan` block (injected by `/lavra-work`), extract Locked Decisions and store as `{EPIC_LOCKED_DECISIONS}`. Do not pass to review agents (biases toward plan over code). Use only in synthesis step (step 6) as a discard filter: if a flagged item appears in Locked Decisions, discard and note: "Discarded: planned item per epic Locked Decisions."
+If arguments include an `## Epic Plan` block (injected by `$lavra-work`), extract Locked Decisions and store as `{EPIC_LOCKED_DECISIONS}`. Do not pass to review agents (biases toward plan over code). Use only in synthesis step (step 6) as a discard filter: if a flagged item appears in Locked Decisions, discard and note: "Discarded: planned item per epic Locked Decisions."
 
 If no `## Epic Plan` block present, `{EPIC_LOCKED_DECISIONS}` is empty and discard filter is a no-op.
 
@@ -440,7 +440,7 @@ Ensures the original bead cannot close until critical introduced-code issues are
 
 #### Step 5: Mandatory Knowledge Capture *(required gate -- do not skip)*
 
-Every P1/P2 finding **must** have at least one LEARNED, PATTERN, or MUST-CHECK entry before the summary. Captures root cause for future `/lavra-design` and `/lavra-work` auto-recall.
+Every P1/P2 finding **must** have at least one LEARNED, PATTERN, or MUST-CHECK entry before the summary. Captures root cause for future `$lavra-design` and `$lavra-work` auto-recall.
 
 For each P1/P2 finding:
 
@@ -519,10 +519,10 @@ P3 findings may also have knowledge entries but are not required.
 ### Next Steps:
 
 1. **Address P1 Findings in introduced code**: CRITICAL - must be fixed before closing
-   - `/lavra-work {P1_BEAD_ID}` for each critical finding
+   - `$lavra-work {P1_BEAD_ID}` for each critical finding
 2. **Close bead** (if no P1/P2 introduced findings): `bd close {BEAD_ID}`
-3. **Resolve in parallel**: `/lavra-work {BEAD_ID}`
-4. **Triage pre-existing findings**: `/lavra-triage` -- view with `bd list --tags "pre-existing,review-sweep"`
+3. **Resolve in parallel**: `$lavra-work {BEAD_ID}`
+4. **Triage pre-existing findings**: `$lavra-triage` -- view with `bd list --tags "pre-existing,review-sweep"`
 5. **View introduced findings**: `bd list --tags "review,{BEAD_ID}"`
 ```
 
@@ -565,6 +565,6 @@ After the Summary Report, offer testing based on project type:
 - Each reviewer creates beads for issues found (not markdown files or comments)
 - Each bead has a thorough description with severity level, validation criteria, and testing steps
 - Introduced-code findings are tagged with `review,{BEAD_ID}` for easy filtering
-- Use `/lavra-work {ISSUE_BEAD_ID}` to fix issues found
+- Use `$lavra-work {ISSUE_BEAD_ID}` to fix issues found
 - The original bead cannot be closed until all introduced-code blocking dependencies are resolved
 </guardrails>

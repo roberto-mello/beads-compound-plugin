@@ -81,6 +81,7 @@ function usage() {
   console.log("    npx @lavralabs/lavra@latest --codex        Codex (local project)");
   console.log("    npx @lavralabs/lavra@latest --global       Install globally (~/.claude/)");
   console.log("    npx @lavralabs/lavra@latest --uninstall    Uninstall from current project");
+  console.log("    npx @lavralabs/lavra@latest --codex --uninstall --global");
   console.log("    npx @lavralabs/lavra@latest --yes          Skip confirmation prompts");
   console.log("");
   console.log("  Flags can be combined:");
@@ -258,13 +259,35 @@ async function main() {
   ensureBash();
   banner();
 
+  const runtimeFlags = [FLAG.claude, FLAG.opencode, FLAG.gemini, FLAG.cortex, FLAG.codex].filter(Boolean).length;
+  if (runtimeFlags > 1) {
+    die("Specify only one runtime: --claude, --opencode, --gemini, --cortex, or --codex");
+  }
+
+  let runtime;
+  if (FLAG.claude) runtime = "claude";
+  else if (FLAG.opencode) runtime = "opencode";
+  else if (FLAG.gemini) runtime = "gemini";
+  else if (FLAG.cortex) runtime = "cortex";
+  else if (FLAG.codex) runtime = "codex";
+
   // --- Uninstall path ---
   if (FLAG.uninstall) {
     ensureScript(UNINSTALL_SH, "uninstall.sh");
-    const target = TARGET_PATH || process.cwd();
-    console.log(`  Uninstalling lavra from ${target}...\n`);
+    const scriptArgs = [];
+    if (runtime) {
+      scriptArgs.push(`--${runtime}`);
+    }
+    if (FLAG.global) {
+      // No target path needed: platform uninstallers default to global root.
+      console.log(`  Uninstalling lavra ${runtime ? `for ${runtime} ` : ""}globally...\n`);
+    } else {
+      const target = TARGET_PATH || process.cwd();
+      scriptArgs.push(target);
+      console.log(`  Uninstalling lavra from ${target}...\n`);
+    }
     try {
-      await runScript(UNINSTALL_SH, [target]);
+      await runScript(UNINSTALL_SH, scriptArgs);
       console.log("\n  Uninstall complete.\n");
     } catch (err) {
       die(err.message);
@@ -273,19 +296,6 @@ async function main() {
   }
 
   ensureScript(INSTALL_SH, "install.sh");
-
-  // Determine runtime
-  let runtime;
-  const runtimeFlags = [FLAG.claude, FLAG.opencode, FLAG.gemini, FLAG.cortex, FLAG.codex].filter(Boolean).length;
-  if (runtimeFlags > 1) {
-    die("Specify only one runtime: --claude, --opencode, --gemini, --cortex, or --codex");
-  }
-
-  if (FLAG.claude) runtime = "claude";
-  else if (FLAG.opencode) runtime = "opencode";
-  else if (FLAG.gemini) runtime = "gemini";
-  else if (FLAG.cortex) runtime = "cortex";
-  else if (FLAG.codex) runtime = "codex";
 
   // Determine scope
   let scope;

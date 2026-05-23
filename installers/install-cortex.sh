@@ -502,11 +502,13 @@ else
       EXISTING=$(cat "$HOOKS_JSON")
 
       UPDATED=$(echo "$EXISTING" | jq \
+        --arg check_mem "bash $GLOBAL_ROOT/hooks/check-memory.sh $RUNTIME_VARIANT" \
         --arg capture "$DISPATCH memory-capture.sh" \
         --arg wrapup "$DISPATCH subagent-wrapup.sh" '
-        # Add/update SessionStart hook (check-memory only for Claude parity)
+        # Add/update SessionStart hook (check-memory only)
         .hooks.SessionStart = (
-          [(.hooks.SessionStart // [])[] | select((.hooks[]?.command | contains("auto-recall")) | not)]
+          [(.hooks.SessionStart // [])[] | select((.hooks[]?.command | (contains("auto-recall") or contains("check-memory"))) | not)] +
+          [{"hooks":[{"type":"command","command":$check_mem}]}]
         ) |
         # Add/update PostToolUse hook with matcher
         .hooks.PostToolUse = (

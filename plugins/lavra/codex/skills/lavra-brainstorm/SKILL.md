@@ -14,7 +14,7 @@ metadata:
 
 
 <objective>
-Brainstorm a feature or improvement through collaborative dialogue. Brainstorming answers **WHAT** to build, surfaces gray areas that need decisions, and breaks the vision into implementation phases filed as child beads. It precedes `/lavra-design`, which answers **HOW** to build each phase.
+Brainstorm a feature or improvement through collaborative dialogue. Brainstorming answers **WHAT** to build, surfaces gray areas that need decisions, and breaks the vision into implementation phases filed as child beads. It precedes `$lavra-design`, which answers **HOW** to build each phase.
 </objective>
 
 <execution_context>
@@ -89,7 +89,7 @@ Evaluate whether brainstorming is needed based on the feature description.
 - Constrained, well-defined scope
 
 **If requirements are already clear:**
-Ask user directly in chat (Codex-compatible) to suggest: "Your requirements seem detailed enough to proceed directly to planning. Should I run `/lavra-plan` instead, or would you like to explore the idea further?"
+Ask user directly in chat (Codex-compatible) to suggest: "Your requirements seem detailed enough to proceed directly to planning. Should I run `$lavra-plan` instead, or would you like to explore the idea further?"
 
 ### Phase 1: Understand the Idea
 
@@ -381,7 +381,7 @@ Ask user directly in chat (Codex-compatible) to present next steps:
 - Scope was sharpened: expansion/hold/reduction mode chosen, hard questions answered, phases adjusted if needed
 - Scope decisions logged as DECISION comments
 - Additional knowledge logged as INVESTIGATION/FACT/PATTERN comments
-- User was offered clear next steps (with `/lavra-design` as primary option)
+- User was offered clear next steps (with `$lavra-design` as primary option)
 </success_criteria>
 
 <guardrails>
@@ -409,7 +409,7 @@ Locked decisions:
 
 Knowledge captured: {count} entries logged to knowledge.jsonl
 
-Next: Run `/lavra-design {EPIC_BEAD_ID}` to design all phases.
+Next: Run `$lavra-design {EPIC_BEAD_ID}` to design all phases.
 ```
 </handoff>
 

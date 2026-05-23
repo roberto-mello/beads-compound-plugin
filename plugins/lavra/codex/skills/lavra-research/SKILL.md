@@ -14,7 +14,7 @@ metadata:
 
 
 <objective>
-Take an existing plan (from `/lavra-plan` or `/lavra-design`) and GATHER evidence for each section using domain-matched research agents. Each agent is selected because its expertise matches the plan's technologies and concerns. Research GATHERS findings (docs, prior art, best practices, edge cases, knowledge recall) -- it does NOT revise the plan or apply changes. That is `/lavra-design`'s job. The output is organized research findings ready for `/lavra-design` to integrate.
+Take an existing plan (from `$lavra-plan` or `$lavra-design`) and GATHER evidence for each section using domain-matched research agents. Each agent is selected because its expertise matches the plan's technologies and concerns. Research GATHERS findings (docs, prior art, best practices, edge cases, knowledge recall) -- it does NOT revise the plan or apply changes. That is `$lavra-design`'s job. The output is organized research findings ready for `$lavra-design` to integrate.
 </objective>
 
 <execution_context>
@@ -144,7 +144,7 @@ Scan available skills and note which ones are relevant. Don't spawn a sub-agent 
 find . -type f -name SKILL.md 2>/dev/null
 
 # User's global skills
-ls ~/.codex/skills ~/.config/opencode/agent/skills ~/.cortex/skills ~/.snowflake/cortex/skills ~/.agent/skills 2>/dev/null
+ls ~/.codex/skills ~/.config/opencode/agent/skills ~/.codex/skills ~/.codex/skills ~/.agent/skills 2>/dev/null
 ```
 
 For each skill directory found, read its `SKILL.md` and check if it matches the plan's domain. Build a list:
@@ -240,7 +240,7 @@ BEAD {CHILD_ID}: {title}
 ### 7. Log Research Findings as Knowledge Comments
 
 <thinking>
-Capture key findings as knowledge comments on the relevant beads. This is the primary output -- structured evidence for /lavra-design to consume.
+Capture key findings as knowledge comments on the relevant beads. This is the primary output -- structured evidence for $lavra-design to consume.
 </thinking>
 
 **For each child bead with findings:**
@@ -254,7 +254,7 @@ bd comments add {CHILD_ID} "PATTERN: [recommended pattern with rationale]"
 **Add a research summary to the epic:**
 
 ```bash
-bd comments add {EPIC_ID} "INVESTIGATION: Research completed with [count] domain-matched agents ([agent names]). Key findings: [top 3 findings]. Ready for /lavra-design to integrate."
+bd comments add {EPIC_ID} "INVESTIGATION: Research completed with [count] domain-matched agents ([agent names]). Key findings: [top 3 findings]. Ready for $lavra-design to integrate."
 ```
 
 </process>
@@ -269,7 +269,7 @@ bd comments add {EPIC_ID} "INVESTIGATION: Research completed with [count] domain
 </success_criteria>
 
 <guardrails>
-- NEVER modify child bead descriptions. Research GATHERS evidence. `/lavra-design` APPLIES it.
+- NEVER modify child bead descriptions. Research GATHERS evidence. `$lavra-design` APPLIES it.
 - NEVER write code. Just research and report findings.
 - NEVER dispatch agents that have no domain match. Each agent must have a stated reason for inclusion.
 </guardrails>
@@ -280,14 +280,14 @@ After logging all findings, use the **direct user prompt** to present these opti
 **Question:** "Research complete for epic `{EPIC_ID}`. [count] agents gathered findings across [count] child beads. What would you like to do next?"
 
 **Options:**
-1. **Run `/lavra-design`** - Integrate research findings into the plan
-2. **Run `/lavra-eng-review`** - Get feedback from reviewers on the plan
+1. **Run `$lavra-design`** - Integrate research findings into the plan
+2. **Run `$lavra-eng-review`** - Get feedback from reviewers on the plan
 3. **Research deeper** - Run another round on specific sections with additional agents
 4. **View findings** - Show all research findings organized by child bead
 
 Based on selection:
-- **`/lavra-design`** -> invoke Skill("lavra-design") with the epic bead ID
-- **`/lavra-eng-review`** -> invoke Skill("lavra-eng-review") with the epic bead ID
+- **`$lavra-design`** -> invoke Skill("lavra-design") with the epic bead ID
+- **`$lavra-eng-review`** -> invoke Skill("lavra-eng-review") with the epic bead ID
 - **Research deeper** -> Ask which sections need more research, add targeted agents
 - **View findings** -> Show findings grouped by child bead with agent attribution
 </handoff>

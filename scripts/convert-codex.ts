@@ -49,6 +49,42 @@ function rewriteAskUserQuestion(content: string): string {
   return out;
 }
 
+function rewriteCodexConventions(content: string): string {
+  let out = content;
+
+  // Normalize Claude/Cortex local paths to Codex paths.
+  out = out
+    .replace(/\.claude\/skills\//g, ".codex/skills/")
+    .replace(/\.claude\/skills\b/g, ".codex/skills")
+    .replace(/ls \.claude\/skills\//g, "ls .codex/skills/")
+    .replace(/\.claude\/hooks\//g, ".codex/hooks/")
+    .replace(/\.claude\/hooks\b/g, ".codex/hooks")
+    .replace(/\.claude\/agents\//g, ".codex/agents/")
+    .replace(/\.claude\/agents\b/g, ".codex/agents")
+    .replace(/\.claude\/commands\//g, ".codex/commands/")
+    .replace(/\.claude\/commands\b/g, ".codex/commands")
+    .replace(/\.claude\/scripts\//g, ".codex/scripts/")
+    .replace(/\.claude\/scripts\b/g, ".codex/scripts")
+    .replace(/~\/\.claude\//g, "~/.codex/")
+    .replace(/~\/\.claude\b/g, "~/.codex")
+    .replace(/\.cortex\/skills\//g, ".codex/skills/")
+    .replace(/\.cortex\/skills\b/g, ".codex/skills")
+    .replace(/ls \.cortex\/skills\//g, "ls .codex/skills/")
+    .replace(/\.cortex\/hooks\//g, ".codex/hooks/")
+    .replace(/\.cortex\/hooks\b/g, ".codex/hooks")
+    .replace(/\.cortex\/agents\//g, ".codex/agents/")
+    .replace(/\.cortex\/agents\b/g, ".codex/agents")
+    .replace(/\.cortex\/commands\//g, ".codex/commands/")
+    .replace(/\.cortex\/commands\b/g, ".codex/commands")
+    .replace(/~\/\.snowflake\/cortex\//g, "~/.codex/")
+    .replace(/~\/\.snowflake\/cortex\b/g, "~/.codex");
+
+  // Codex direct install currently invokes via skills, not slash commands.
+  out = out.replace(/\/lavra-([a-z0-9-]+)/g, "$lavra-$1");
+
+  return out;
+}
+
 async function walk(dir: string, out: string[] = []): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
@@ -67,10 +103,7 @@ async function transformCodexFiles(): Promise<void> {
   for (const file of files) {
     if (!file.endsWith(".md")) continue;
     const raw = await readFile(file, "utf8");
-    let next = raw
-      .replace(/\.cortex\/skills\//g, ".codex/skills/")
-      .replace(/ls \.cortex\/skills\//g, "ls .codex/skills/")
-      .replace(/\.cortex\/hooks\//g, ".codex/hooks/");
+    let next = rewriteCodexConventions(raw);
     next = rewriteAskUserQuestion(next);
     await writeFile(file, next, "utf8");
   }
@@ -119,4 +152,3 @@ main().catch((err) => {
   console.error("❌ convert-codex failed:", err.message);
   process.exit(1);
 });
-

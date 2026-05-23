@@ -441,7 +441,7 @@ For beads working in the same domain that don't block each other (e.g., "auth lo
 bd dep relate {BEAD_A} {BEAD_B}
 ```
 
-Creates a bidirectional "see also" link. Related beads have each other's context injected during `/lavra-work` multi-bead execution, improving agent awareness without forcing sequential ordering.
+Creates a bidirectional "see also" link. Related beads have each other's context injected during `$lavra-work` multi-bead execution, improving agent awareness without forcing sequential ordering.
 
 **When to use relate vs dep add:**
 - `bd dep add`: Bead B cannot start until Bead A is done (blocking)
@@ -546,7 +546,7 @@ Address warnings before finalizing the plan.
 - Do create thorough beads like "Implement OAuth2 login flow" with specific test scenarios, validation criteria, and constraints from research
 - Log all research findings to the epic bead with appropriate prefixes
 - Knowledge is auto-captured and available in future sessions
-- Child beads can be worked on independently with `/lavra-work`
+- Child beads can be worked on independently with `$lavra-work`
 - Use `bd ready` to see which child beads are ready
 - Each child bead description complete enough that the implementing agent makes zero judgment calls
 - NEVER CODE! Research and write the plan only.
@@ -558,23 +558,23 @@ After creating the epic and child beads, use **direct user prompt**:
 **Question:** "Plan ready as epic `{EPIC_ID}`: {title}. What would you like to do next?"
 
 **Options:**
-1. **Run `/lavra-research`** - Gather evidence for each child bead with domain-matched research agents
-2. **Run `/lavra-eng-review`** - Get feedback from reviewers on the plan
-3. **Start `/lavra-work`** - Begin implementing the first child bead
-4. **Run `/lavra-work {EPIC_ID}`** - Work on multiple child beads in parallel
+1. **Run `$lavra-research`** - Gather evidence for each child bead with domain-matched research agents
+2. **Run `$lavra-eng-review`** - Get feedback from reviewers on the plan
+3. **Start `$lavra-work`** - Begin implementing the first child bead
+4. **Run `$lavra-work {EPIC_ID}`** - Work on multiple child beads in parallel
 5. **Simplify** - Reduce detail level
 
 Based on selection:
-- **`/lavra-research`** -> invoke Skill("lavra-research") with the epic bead ID
-- **`/lavra-eng-review`** -> invoke Skill("lavra-eng-review") with the epic bead ID
-- **`/lavra-work`** -> invoke Skill("lavra-work") with the first ready child bead ID
-- **`/lavra-work {EPIC_ID}`** -> invoke Skill("lavra-work") with the epic bead ID
+- **`$lavra-research`** -> invoke Skill("lavra-research") with the epic bead ID
+- **`$lavra-eng-review`** -> invoke Skill("lavra-eng-review") with the epic bead ID
+- **`$lavra-work`** -> invoke Skill("lavra-work") with the first ready child bead ID
+- **`$lavra-work {EPIC_ID}`** -> invoke Skill("lavra-work") with the epic bead ID
 - **Simplify** -> Ask "What should I simplify?" then regenerate simpler descriptions
 - **Other** (automatically provided) -> Accept free text for rework or specific changes
 
-**Tip:** If this plan originated from `/lavra-brainstorm`, the brainstorm's locked decisions are already embedded in child bead descriptions.
+**Tip:** If this plan originated from `$lavra-brainstorm`, the brainstorm's locked decisions are already embedded in child bead descriptions.
 
-Loop back to options after Simplify or Other changes until user selects `/lavra-work` or `/lavra-eng-review`.
+Loop back to options after Simplify or Other changes until user selects `$lavra-work` or `$lavra-eng-review`.
 </handoff>
 
 

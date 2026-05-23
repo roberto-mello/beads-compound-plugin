@@ -18,14 +18,18 @@ Used when exactly one bead is being worked on. Full-quality interactive flow wit
 
 **State machine:** IMPLEMENTING -> REVIEWING -> FIXING -> RE_REVIEWING -> LEARNING -> DONE
 
+**Flags:**
+- `--skip-review`: skip the `$lavra-review` subagent call in Phase 3 step 3. Self-review (step 2) still runs. Used by the sequential epic loop, which runs a single review pass after all beads complete.
+- `EPIC_PLAN={...}`: epic locked decisions injected by the sequential loop. Treat identically to a parent epic read in Phase 1 step 1.
+
 ---
 
 <project_root>
 
-All `.lavra/` paths are relative to the project root. If you `cd` into a subdirectory during work, resolve the project root first:
+All `.lavra/` paths are relative to the project root. `PROJECT_ROOT` may be injected into your context — use it if set. If not, resolve it once and reuse:
 
 ```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
 ```
 
 Then prefix all `.lavra/` paths with `"$PROJECT_ROOT/"` when invoking them via Bash.
@@ -72,7 +76,7 @@ Then prefix all `.lavra/` paths with `"$PROJECT_ROOT/"` when invoking them via B
 2. **Recall Relevant Knowledge** *(required -- do not skip)*
 
    ```bash
-   PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+   PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
    "$PROJECT_ROOT/.lavra/memory/recall.sh" "{keywords from bead title}"
    "$PROJECT_ROOT/.lavra/memory/recall.sh" "{tech stack keywords}"
    ```
@@ -164,10 +168,20 @@ Then prefix all `.lavra/` paths with `"$PROJECT_ROOT/"` when invoking them via B
 bd comments add {BEAD_ID} "DEVIATION: Unable to fix {issue} after 3 attempts. Documented for manual resolution."
 ```
 
+**DEVIATION escalation (anti-pattern found but out of scope):** When you spot a recurring wrong pattern and defer it because it is out of scope, you MUST do one of the following:
+
+1. **Add a `MUST-CHECK` knowledge entry** so future agents recall it before writing similar code:
+   ```bash
+   bd comments add {BEAD_ID} "MUST-CHECK: Before writing any [X], verify [specific check]. Anti-pattern [Y] was found in [file] — deferred from this bead."
+   ```
+2. **Propose a project-level rule addition** to the user: *"I found anti-pattern X in [file] while working on this bead. It is out of scope to fix now, but it will recur. Should I add a project-level agent rule in the repo's rules directory so all agents pick it up automatically?"*
+
+A DEVIATION comment alone records the missed fix, but it does not create a reusable reminder for future agents. A `MUST-CHECK` entry or a project-level rule addition is the minimum that makes the warning durable.
+
 **Read workflow config (no-op if missing):**
 
 ```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
 [ -f "$PROJECT_ROOT/.lavra/config/lavra.json" ] && cat "$PROJECT_ROOT/.lavra/config/lavra.json"
 ```
 
@@ -242,7 +256,7 @@ For each skill directory found, read the `description:` line from its `SKILL.md`
    Update `.lavra/memory/session-state.md`:
 
    ```bash
-   PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+   PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
    cat > "$PROJECT_ROOT/.lavra/memory/session-state.md" << EOF
    # Session State
    ## Current Position
@@ -305,18 +319,18 @@ This phase MUST complete before Phase 4 (Learn) or Phase 5 (Ship). Do NOT skip a
 
    If issues found, fix them before continuing to step 3.
 
-3. **Multi-Agent Review via `/lavra-review`**
+3. **Multi-Agent Review via `$lavra-review`**
 
    <mandatory>
-   `/lavra-review` MUST run. The only question is scope -- not whether.
+   `$lavra-review` MUST run unless `--skip-review` was passed. When `--skip-review` is set, the sequential epic loop handles review after all beads complete — skip this step entirely and proceed to Phase 4.
 
-   - `review_scope: "full"` (default): Run `/lavra-review` on all changes. Invoke it now using the Skill tool and wait for it to complete.
-   - `review_scope: "targeted"`: Run `/lavra-review` only when this bead meets at least one of:
+   - `review_scope: "full"` (default): Run `$lavra-review` on all changes. Invoke it now using the Skill tool and wait for it to complete.
+   - `review_scope: "targeted"`: Run `$lavra-review` only when this bead meets at least one of:
      - Priority is P0 or P1
      - Title or description contains: "architecture", "schema", "migration", "refactor", "restructure", "redesign"
      - Title or description contains: "auth", "permission", "security", "secret", "token", "encrypt", "password", "access control", "vulnerability"
 
-     When none of these conditions are met under `targeted`, skip `/lavra-review` for this bead only -- self-review (step 2) is the gate.
+     When none of these conditions are met under `targeted`, skip `$lavra-review` for this bead only -- self-review (step 2) is the gate.
 
    **If this bead has a parent epic**, pass the epic's Locked Decisions to the reviewer so it does not flag planned-but-incomplete items as dead code:
 
@@ -329,9 +343,9 @@ This phase MUST complete before Phase 4 (Learn) or Phase 5 (Ship). Do NOT skip a
    Locked Decisions in the epic above are intentional, even if a field or behavior appears unused or partially wired in this bead. Do not create beads recommending removal of items that appear in Locked Decisions.")
    ```
 
-   Where `{PARENT_EPIC_DECISIONS}` is the `## Locked Decisions` section read from the parent epic in Phase 1 step 1. If the bead has no parent epic, invoke `/lavra-review {BEAD_ID}` normally.
+   Where `{PARENT_EPIC_DECISIONS}` is the `## Locked Decisions` section read from the parent epic in Phase 1 step 1. If the bead has no parent epic, invoke `$lavra-review {BEAD_ID}` normally.
 
-   After `/lavra-review` completes, proceed to the Fix Loop for any findings.
+   After `$lavra-review` completes, proceed to the Fix Loop for any findings.
    </mandatory>
 
 4. **Goal Verification** *(skippable via `lavra.json` `workflow.goal_verification: false`)*
@@ -348,7 +362,23 @@ This phase MUST complete before Phase 4 (Learn) or Phase 5 (Ship). Do NOT skip a
 
 ### Fix Loop (FIXING -> RE_REVIEWING states)
 
-For each issue found during review:
+Before acting on findings, triage each one:
+
+**Fix inline (no bead needed) when ALL of these are true:**
+- Severity is P3 (nice-to-have) or cosmetic
+- Change is in a single location already in context
+- Fix requires no new file reads
+- You have not yet dispatched 3+ sequential subagent waves this session
+
+**Create a bead (via `lavra-review`) when ANY of these is true:**
+- Severity is P1 or P2
+- Fix spans multiple files or locations
+- Fix requires reading files not already in context
+- Context pressure is high (3+ sequential subagent waves already dispatched)
+
+Apply this triage before step 1. For findings fixed inline, note them in the Phase 3 Review Gate checklist under "Findings" (e.g. "3 fixed / 1 fixed inline / 2 deferred to PR").
+
+For each issue going through the fix loop:
 
 1. **Create fix items** from the review findings
 2. **Implement fixes** -- follow the same conventions as Phase 2
@@ -374,7 +404,8 @@ Copy it, fill it in, and print it to the conversation:
 ## Phase 3 Review Gate
 [ ] lavra-review: Skill(lavra-review) invoked -- first line of output: ___
     (if review_scope: "targeted" and bead does not qualify, write: SKIPPED -- targeted, reason: ___)
-[ ] Findings: {N} issues found / {N} fixed / {N} deferred to PR description
+    (if --skip-review was passed, write: SKIPPED -- sequential mode, review runs after epic completes)
+[ ] Findings: {N} issues found / {N} fixed / {N} fixed inline / {N} deferred to PR description
 [ ] Self-review: clean | {N} issues fixed
 [ ] Goal verification: passed | failed-and-fixed | skipped (no Validation section)
 ```
@@ -382,6 +413,7 @@ Copy it, fill it in, and print it to the conversation:
 **You cannot check the lavra-review box without having invoked the Skill and pasting its output.**
 Summarizing what you think the review would find is not a substitute.
 If any box is unchecked, complete that step now before continuing.
+Exception: `--skip-review` mode — check the box with the SKIPPED note and continue.
 </review-gate>
 
 </phase>
@@ -406,7 +438,7 @@ After review is clean, extract and structure knowledge from this work session.
 
 2. **Check for duplicates** against existing knowledge:
    ```bash
-   PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")
+   PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo "$PWD")}"
    "$PROJECT_ROOT/.lavra/memory/recall.sh" "{keywords from entries}" --all
    ```
 
@@ -484,12 +516,12 @@ This step should take 1-2 minutes. It is curation of what was already captured, 
 
    **Base options** (always shown):
    1. **Close bead** -- Mark as complete: `bd close {BEAD_ID}`
-   2. **Run `/lavra-checkpoint`** -- Save progress without closing
+   2. **Run `$lavra-checkpoint`** -- Save progress without closing
    3. **Continue working** -- Keep implementing
 
    **Conditional options** (add when applicable):
-   - Add **Run `/lavra-learn`** if `LEARNED:` or `INVESTIGATION:` comments exist (deeper curation than inline pass)
-   - Add **Run `/lavra-review`** as first option if `review_scope: "targeted"` and `/lavra-review` was skipped for this bead
+   - Add **Run `$lavra-learn`** if `LEARNED:` or `INVESTIGATION:` comments exist (deeper curation than inline pass)
+   - Add **Run `$lavra-review`** as first option if `review_scope: "targeted"` and `$lavra-review` was skipped for this bead
 
 </phase>
 

@@ -88,7 +88,7 @@ git rebase "origin/$default_branch"
 ```
 
 If rebase conflicts: HALT. Print conflicting files and instruct:
-- "Rebase conflicts detected. Resolve conflicts, then run `git rebase --continue` and re-run /lavra-ship."
+- "Rebase conflicts detected. Resolve conflicts, then run `git rebase --continue` and re-run $lavra-ship."
 
 No force-push. No skipping rebase.
 
@@ -119,7 +119,7 @@ No runner detected: print "No test runner detected. Skipping local tests." and p
 
 ### Phase 4: Pre-Landing Review Gate
 
-Lightweight review for ship-blockers only. NOT a full /lavra-review.
+Lightweight review for ship-blockers only. NOT a full $lavra-review.
 
 **4a. Goal Verification** *(skippable via `lavra.json` `workflow.goal_verification: false`)*
 
@@ -259,7 +259,7 @@ For each in_progress bead:
    bd show {BEAD_ID} | grep -cE "LEARNED:|INVESTIGATION:"
    ```
 
-   If LEARNED or INVESTIGATION comments exist, note for summary — user may want to run /lavra-compound to extract reusable knowledge.
+   If LEARNED or INVESTIGATION comments exist, note for summary — user may want to run $lavra-compound to extract reusable knowledge.
 
 ### Phase 7: Push Beads Backup
 
@@ -289,7 +289,7 @@ Print concise ship report:
 
 ### Knowledge Captured
 - {count} knowledge entries logged across {count} beads
-(or "No knowledge entries -- consider running /lavra-compound")
+(or "No knowledge entries -- consider running $lavra-compound")
 
 ### Warnings
 - {any WARNING items from Phase 4}
@@ -297,7 +297,7 @@ Print concise ship report:
 
 ### Suggested Follow-ups
 - Review the PR: {PR_URL}
-- Run /lavra-compound to extract reusable knowledge (if LEARNED/INVESTIGATION comments found)
+- Run $lavra-compound to extract reusable knowledge (if LEARNED/INVESTIGATION comments found)
 - Monitor CI results: gh pr checks {PR_NUMBER}
 ```
 
@@ -331,7 +331,7 @@ Tests fail → pipeline halts. No skipping, no ignoring failures. Broken code do
 Secrets, credentials, unresolved merge conflicts are ship-blockers. Pipeline halts until resolved.
 
 ### Do Not Substitute for Full Review
-Phase 4 catches ship-blockers only. For thorough review, use /lavra-review before or after /lavra-ship.
+Phase 4 catches ship-blockers only. For thorough review, use $lavra-review before or after $lavra-ship.
 
 ### Bead Closure is Permanent
 Beads closed with reason linking to PR. If PR later rejected, user must manually reopen beads. This command does not handle PR rejection workflows.

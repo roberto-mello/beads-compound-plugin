@@ -662,11 +662,13 @@ else
   fail "memory .gitignore" ".lavra/.gitignore not found"
 fi
 
-# F1: goal-verifier agent exists
+# F1: goal-verifier agent exists (local install OR global lightweight mode)
 if [[ -f ".claude/agents/review/goal-verifier.md" ]]; then
-  pass "goal-verifier agent installed"
+  pass "goal-verifier agent installed locally"
+elif [[ -f "$HOME/.claude/agents/review/goal-verifier.md" ]]; then
+  pass "goal-verifier agent available globally (lightweight mode)"
 else
-  fail "goal-verifier" "Agent file not installed"
+  fail "goal-verifier" "Agent file not installed locally or globally"
 fi
 
 # F6: lavra.json is valid JSON
