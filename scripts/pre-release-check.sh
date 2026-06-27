@@ -66,9 +66,8 @@ echo "  provision-memory.sh:  $PROVISION_VERSION"
 
 echo ""
 echo "=== Conversion outputs ==="
-echo "  Generating OpenCode, Gemini, Cortex, and Codex outputs..."
-(cd scripts && bun install --frozen-lockfile --silent && bun run convert-opencode.ts && bun run convert-gemini.ts && bun run convert-cortex.ts && bun run convert-codex.ts) || {
-  fail "Conversion scripts" "bun run failed"
+bash scripts/check-generated-outputs.sh || {
+  fail "Conversion scripts" "generated outputs drifted from source"
 }
 
 echo ""
@@ -186,9 +185,20 @@ echo "=== Compatibility tests ==="
 echo ""
 echo "=== Go helper ==="
 check "memory sanitize helper module" test -f plugins/lavra/hooks/memorysanitize/go.mod
+check "memory sanitize helper version file" test -f plugins/lavra/hooks/memorysanitize/VERSION
 (cd plugins/lavra/hooks/memorysanitize && go test -race ./...) && { echo "  PASS  Go helper tests"; ((PASS++)) || true; } || fail "Go helper tests" "go test -race failed"
 (cd plugins/lavra/hooks/memorysanitize && go vet ./...) && { echo "  PASS  Go helper vet"; ((PASS++)) || true; } || fail "Go helper vet" "go vet failed"
 bash scripts/build-memory-sanitize-helper.sh >/dev/null && { echo "  PASS  Go helper release builds"; ((PASS++)) || true; } || fail "Go helper release builds" "cross-platform build failed"
+bash scripts/verify-memory-sanitize-artifacts.sh >/dev/null && { echo "  PASS  Go helper artifact manifest + checksums"; ((PASS++)) || true; } || fail "Go helper artifact verification" "manifest or checksums are out of sync"
+
+SOURCE_TS="$(git log -1 --format=%ct -- plugins/lavra/hooks/memorysanitize/main.go plugins/lavra/hooks/memorysanitize/go.mod 2>/dev/null || echo 0)"
+VERSION_TS="$(git log -1 --format=%ct -- plugins/lavra/hooks/memorysanitize/VERSION 2>/dev/null || echo 0)"
+if [[ "$SOURCE_TS" -gt "$VERSION_TS" ]]; then
+  fail "Go helper version bump" "memorysanitize source changed after VERSION; bump plugins/lavra/hooks/memorysanitize/VERSION"
+else
+  echo "  PASS  Go helper version bump guard"
+  ((PASS++)) || true
+fi
 
 echo ""
 echo "=== Prose style check ==="
